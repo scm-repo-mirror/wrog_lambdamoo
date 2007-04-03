@@ -22,7 +22,33 @@
 
 #include "my-stdio.h"
 
-typedef int32_t Objid;
+
+/***********
+ * Numbers
+ */
+
+/* This will move to options.h */
+#define INT_TYPE_BITSIZE 32
+
+typedef int32_t   Num;
+typedef uint32_t UNum;
+#define PRIdN	PRId32
+#define PRIuN	PRIu32
+#define SCNdN	SCNd32
+#define SCNuN	SCNu32
+#define NUM_MAX	INT32_MAX
+#define NUM_MIN	INT32_MIN
+
+
+/***********
+ * Objects
+ *
+ * Note:  It's a pretty hard assumption in MOO that integers and objects
+ * are the same data type.
+ */
+
+typedef Num     Objid;
+#define OBJ_MAX	NUM_MAX
 
 /*
  * Special Objid's
@@ -31,6 +57,11 @@ typedef int32_t Objid;
 #define NOTHING		-1
 #define AMBIGUOUS	-2
 #define FAILED_MATCH	-3
+
+
+/***********
+ * Errors
+ */
 
 /* Do not reorder or otherwise modify this list, except to add new elements at
  * the end, since the order here defines the numeric equivalents of the error
@@ -64,6 +95,10 @@ enum error {
 };
 #undef ERROR_DO_
 
+
+/****************
+ * General Types
+ */
 
 /* Types which have external data should be marked with the TYPE_COMPLEX_FLAG
  * so that free_var/var_ref/var_dup can recognize them easily.  This flag is
@@ -119,8 +154,8 @@ typedef enum {
  *   pragmas were originally placed immediately surrounding struct
  *   Var, but they also included struct Waif on the waif branch,
  *   presumably deliberately.  To get this out of the way, I have
- *   expanded its range... presumably safe since it should only
- *   affect struct/pointer declarations.
+ *   moved it backwards into its own section... presumably safe
+ *   since it should only affect struct/pointer declarations.
  *        --wrog      )
  *
   ................................
@@ -134,12 +169,16 @@ typedef enum {
 #endif
 
 
+/*********
+ * Vars
+ */
+
 typedef struct Var Var;
 
 struct Var {
     union {
 	const char *str;	/* STR */
-	int32_t num;		/* NUM, CATCH, FINALLY */
+	Num num;		/* NUM, CATCH, FINALLY */
 	Objid obj;		/* OBJ */
 	enum error err;		/* ERR */
 	Var *list;		/* LIST */
