@@ -36,14 +36,14 @@
 
 
 static int
-parse_number(const char *str, int *result, int try_floating_point)
+parse_number(const char *str, Num *result, int try_floating_point)
 {
     char *p;
 
-    *result = strtol(str, &p, 10);
+    *result = (Num) strtoimax(str, &p, 10);
     if (try_floating_point &&
 	(p == str || *p == '.' || *p == 'e' || *p == 'E'))
-	*result = (int) strtod(str, &p);
+	*result = (Num) strtod(str, &p);
     if (p == str)
 	return 0;
     while (*p) {
@@ -57,7 +57,7 @@ parse_number(const char *str, int *result, int try_floating_point)
 static int
 parse_object(const char *str, Objid * result)
 {
-    int number;
+    Num number;
 
     while (*str && *str == ' ')
 	str++;
@@ -96,7 +96,7 @@ parse_float(const char *str, double *result)
 }
 
 enum error
-become_integer(Var in, int *ret, int called_from_tonum)
+become_integer(Var in, Num *ret, int called_from_tonum)
 {
     switch (in.type) {
     case TYPE_INT:
@@ -117,7 +117,7 @@ become_integer(Var in, int *ret, int called_from_tonum)
     case TYPE_FLOAT:
 	if (*in.v.fnum < (double) INT_MIN || *in.v.fnum > (double) INT_MAX)
 	    return E_FLOAT;
-	*ret = (int) *in.v.fnum;
+	*ret = (Num) *in.v.fnum;
 	break;
     case TYPE_LIST:
 	return E_TYPE;
@@ -243,16 +243,16 @@ numeric_lt_or_eq(int not, Var a, Var b)
     else if (a.type == TYPE_FLOAT) {
 	double aceil = ceil(*a.v.fnum);
 	ans.v.num =
-	    (aceil <= (double)INT32_MIN)      /* a <= INT32_MIN  */
-	    || ((aceil < -(double)INT32_MIN)  /* a <= INT32_MAX  */
-		&& (int32_t)aceil <= b.v.num);
+	    (aceil <= (double)NUM_MIN)      /* a <= NUM_MIN  */
+	    || ((aceil < -(double)NUM_MIN)  /* a <= NUM_MAX  */
+		&& (Num)aceil <= b.v.num);
     }
     else { /* b.type == TYPE_FLOAT */
 	double bfloor = floor(*b.v.fnum);
 	ans.v.num =
-	    (-(double)INT32_MIN-1.0 <= bfloor)  /* INT32_MAX <= b */
-	    || ((double)INT32_MIN <= bfloor     /* INT32_MIN <= b */
-		&& a.v.num <= (int32_t)bfloor);
+	    (-(double)NUM_MIN-1.0 <= bfloor)  /* NUM_MAX <= b */
+	    || ((double)NUM_MIN <= bfloor     /* NUM_MIN <= b */
+		&& a.v.num <= (Num)bfloor);
     }
     if (not)
 	ans.v.num = !ans.v.num;
@@ -330,7 +330,7 @@ do_power(Var lhs, Var rhs)
     Var ans;
 
     if (lhs.type == TYPE_INT) {	/* integer exponentiation */
-	int a = lhs.v.num, b, r;
+	Num a = lhs.v.num, b, r;
 
 	if (rhs.type != TYPE_INT)
 	    goto type_error;
