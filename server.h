@@ -53,8 +53,8 @@ typedef struct {		/* Server's handle on a listening point */
 
 extern server_listener null_server_listener;
 
-extern int server_listener_int_option(server_listener l,
-				      const char *name, int defallt);
+extern Num server_listener_int_option(server_listener l,
+				      const char *name, Num defallt);
 				 /* If server option NAME exists for this listener
 				  * and has a numeric value, then return that value.
 				  * Otherwise, return DEFALLT.
