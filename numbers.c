@@ -412,17 +412,14 @@ do_power(Var lhs, Var rhs)
 static package
 bf_toint(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    Var r;
-    enum error e;
-
-    r.type = TYPE_INT;
-    e = become_integer(arglist.v.list[1], &(r.v.num), 1);
+    Num n;
+    enum error e = become_integer(arglist.v.list[1], &n, 1);
 
     free_var(arglist);
     if (e != E_NONE)
 	return make_error_pack(e);
 
-    return make_var_pack(r);
+    return make_int_pack(n);
 }
 
 static package
@@ -506,11 +503,8 @@ bf_abs(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
     Var r = arglist.v.list[1];
     package p;
 
-    if (r.type == TYPE_INT) {
-	if (r.v.num < 0)
-	    r.v.num = -r.v.num;
-	p = make_var_pack(r);
-    }
+    if (r.type == TYPE_INT)
+	p = make_int_pack(r.v.num < 0 ? - r.v.num : r.v.num);
     else
 	p = make_float_pack(FLOAT_FN(fabs)(fl_unbox(r.v.fnum)));
 
@@ -592,11 +586,8 @@ bf_atan(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_
 static package
 bf_time(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    Var r;
-    r.type = TYPE_INT;
-    r.v.num = time(0);
     free_var(arglist);
-    return make_var_pack(r);
+    return make_int_pack(time(0));
 }
 
 static package
