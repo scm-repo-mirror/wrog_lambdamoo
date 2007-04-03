@@ -337,10 +337,10 @@ do_power(Var lhs, Var rhs)
 
 	b = rhs.v.num;
 	ans.type = TYPE_INT;
-	if (b < 0)
+	if (b < 0) {
 	    switch (a) {
 	    case -1:
-		ans.v.num = (b % 2 == 0 ? 1 : -1);
+		ans.v.num = (b & 1) ? 1 : -1;
 		break;
 	    case 0:
 		ans.type = TYPE_ERR;
@@ -351,10 +351,12 @@ do_power(Var lhs, Var rhs)
 		break;
 	    default:
 		ans.v.num = 0;
+		break;
+	    }
 	} else {
 	    r = 1;
 	    while (b != 0) {
-		if (b % 2 != 0)
+		if (b & 1)
 		    r *= a;
 		a *= a;
 		b >>= 1;
