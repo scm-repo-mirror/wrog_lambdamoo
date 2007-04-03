@@ -247,7 +247,7 @@ disassemble(Program * prog, Printer p, void *data)
 	    if (b != OP_EXTENDED)
 		stream_add_string(insn, COUNT_TICK(b) ? " * " : "   ");
 	    if (IS_OPTIM_NUM_OPCODE(b))
-		stream_printf(insn, "NUM %d", OPCODE_TO_OPTIM_NUM(b));
+		stream_printf(insn, "NUM %"PRIdN, OPCODE_TO_OPTIM_NUM(b));
 #ifdef BYTECODE_REDUCE_REF
 	    else if (IS_PUSH_CLEAR_n(b))
 		stream_printf(insn, "PUSH_CLEAR %s", NAMES(PUSH_CLEAR_n_INDEX(b)));
@@ -347,10 +347,10 @@ disassemble(Program * prog, Printer p, void *data)
 			v = literals[ADD_BYTES(bc.numbytes_literal)];
 			switch (v.type) {
 			case TYPE_OBJ:
-			    stream_printf(insn, " #%d", v.v.obj);
+			    stream_printf(insn, " #%"PRIdN, v.v.obj);
 			    break;
 			case TYPE_INT:
-			    stream_printf(insn, " %d", v.v.num);
+			    stream_printf(insn, " %"PRIdN, v.v.num);
 			    break;
 			case TYPE_STR:
 			    stream_add_string(insn, " \"");

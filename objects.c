@@ -169,7 +169,7 @@ bf_move_write(void *vdata)
 {
     struct bf_move_data *data = vdata;
 
-    dbio_printf("bf_move data: what = %d, where = %d\n",
+    dbio_printf("bf_move data: what = %"PRIdN", where = %"PRIdN"\n",
 		data->what, data->where);
 }
 
@@ -178,7 +178,7 @@ bf_move_read(void)
 {
     struct bf_move_data *data = alloc_data(sizeof(*data));
 
-    if (dbio_scanf("bf_move data: what = %d, where = %d\n",
+    if (dbio_scanf("bf_move data: what = %"SCNdN", where = %"SCNdN"\n",
 		   &data->what, &data->where) == 2)
 	return data;
     else
@@ -297,7 +297,7 @@ bf_create(Var arglist, Byte next, void *vdata, Objid progr)
 static void
 bf_create_write(void *vdata)
 {
-    dbio_printf("bf_create data: oid = %d\n", *((Objid *) vdata));
+    dbio_printf("bf_create data: oid = %"PRIdN"\n", *((Objid *) vdata));
 }
 
 static void *
@@ -305,7 +305,7 @@ bf_create_read(void)
 {
     Objid *data = alloc_data(sizeof(Objid));
 
-    if (dbio_scanf("bf_create data: oid = %d\n", data) == 1)
+    if (dbio_scanf("bf_create data: oid = %"SCNdN"\n", data) == 1)
 	return data;
     else
 	return 0;
@@ -503,7 +503,7 @@ bf_recycle_write(void *vdata)
 {
     Objid *data = vdata;
 
-    dbio_printf("bf_recycle data: oid = %d, cont = 0\n", *data);
+    dbio_printf("bf_recycle data: oid = %"PRIdN", cont = 0\n", *data);
 }
 
 static void *
@@ -518,7 +518,7 @@ bf_recycle_read(void)
      * suppressed assignments are not counted in determining the returned value
      * of `scanf'...
      */
-    if (dbio_scanf("bf_recycle data: oid = %d, cont = %d\n",
+    if (dbio_scanf("bf_recycle data: oid = %"SCNdN", cont = %d\n",
 		   data, &dummy) == 2)
 	return data;
     else
