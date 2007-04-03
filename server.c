@@ -979,9 +979,9 @@ server_string_option(const char *name, const char *defallt)
 	return defallt;
 }
 
-int
+Num
 server_listener_int_option(server_listener sl,
-			   const char *name, int defallt)
+			   const char *name, Num defallt)
 {
     slistener *l = sl.ptr;
     Var v;

@@ -51,7 +51,7 @@ static UNum max_stack_size = 0;
 static unsigned top_activ_stack;	/* points to top-of-stack
 					   (last-occupied-slot),
 					   not next-empty-slot */
-static int root_activ_vector;	/* root_activ_vector == MAIN_VECTOR
+static Num root_activ_vector;	/* root_activ_vector == MAIN_VECTOR
 				   iff root activation is main
 				   vector */
 
@@ -101,7 +101,7 @@ static Var *rt_stack_quick;
 #define RT_STACK_QUICKSIZE	15
 
 static void
-alloc_rt_stack(activation * a, int size)
+alloc_rt_stack(activation * a, Num size)
 {
     Var *res;
 
@@ -698,16 +698,16 @@ list_or_string(Var v)
 }
 
 static int
-rangeref_fails(size_t length, int from, int after)
+rangeref_fails(Num length, Num from, Num after)
 {
     return !(from >= after
 	     || (1 <= from && after <= length + 1));
 }
 
 static enum error
-rangeset_error(size_t max, size_t blen, size_t ilen, int from, int after)
+rangeset_error(UNum max, size_t blen, size_t ilen, Num from, Num after)
 {
-    if (!(1 <= after && (from <= 0 || ((size_t)from <= blen + 1))))
+    if (!(1 <= after && (from <= 0 || ((UNum)from <= blen + 1))))
 	return E_RANGE;
     if (max < (((from > 1) ? (size_t)(from - 1) : 0)
 	       + ilen
@@ -1050,7 +1050,7 @@ do {								\
 		else {  /* list.type == TYPE_STR */
 		    if (value.type != TYPE_STR)
 			e = E_TYPE;
-		    else if (index.v.num > (int) memo_strlen(list.v.str))
+		    else if (index.v.num > (Num) memo_strlen(list.v.str))
 			e = E_RANGE;
 		    else if (memo_strlen(value.v.str) != 1)
 			e = E_INVARG;
@@ -1340,8 +1340,7 @@ do {								\
 		    }
 		}
 		else {  /* list.type == TYPE_STR */
-
-		    if (index.v.num > (int) memo_strlen(list.v.str))
+		    if (index.v.num > (Num) memo_strlen(list.v.str))
 			e = E_RANGE;
 		    else {
 			PUSH(strget(list, index));
