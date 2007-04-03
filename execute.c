@@ -138,10 +138,10 @@ print_error_backtrace(const char *msg, void (*output) (const char *))
     str = new_stream(100);
     t = top_activ_stack;
     for (;;) {
-	stream_printf(str, "#%d:%s", activ_stack[t].vloc,
+	stream_printf(str, "#%"PRIdN":%s", activ_stack[t].vloc,
 		      activ_stack[t].verbname);
 	if (activ_stack[t].vloc != activ_stack[t].this)
-	    stream_printf(str, " (this == #%d)", activ_stack[t].this);
+	    stream_printf(str, " (this == #%"PRIdN")", activ_stack[t].this);
 
 	stream_printf(str, ", line %u",
 		      find_line_number(activ_stack[t].prog,
@@ -1547,7 +1547,7 @@ do {								\
 				 */
 				/* First make sure traceback will be accurate. */
 				STORE_STATE_VARIABLES();
-				oklog("%sWIZARDED: #%d by programmer #%d\n",
+				oklog("%sWIZARDED: #%"PRIdN" by programmer #%"PRIdN"\n",
 				      is_wizard(obj.v.obj) ? "DE" : "",
 				      obj.v.obj, progr);
 				print_error_backtrace(is_wizard(obj.v.obj)
@@ -2731,8 +2731,8 @@ write_activ_as_pi(activation a)
     dummy.v.num = -111;
     dbio_write_var(dummy);
 
-    dbio_printf("%d %d %d %d %d %d %d %d %d\n",
-	    a.this, -7, -8, a.player, -9, a.progr, a.vloc, -10, a.debug);
+    dbio_printf("%"PRIdN" -7 -8 %"PRIdN" -9 %"PRIdN" %"PRIdN" -10 %d\n",
+		a.this, a.player, a.progr, a.vloc, a.debug);
     dbio_write_string("No");
     dbio_write_string("More");
     dbio_write_string("Parse");
@@ -2755,7 +2755,7 @@ read_activ_as_pi(activation * a)
      * suppressed assignments are not counted in determining the returned value
      * of `scanf'...
      */
-    if (dbio_scanf("%d %d %d %d %d %d %d %d %d%c",
+    if (dbio_scanf("%"SCNdN" %"SCNdN" %"SCNdN" %"SCNdN" %"SCNdN" %"SCNdN" %"SCNdN" %"SCNdN" %d%c",
 		 &a->this, &dummy, &dummy, &a->player, &dummy, &a->progr,
 		   &a->vloc, &dummy, &a->debug, &c) != 10
 	|| c != '\n') {
