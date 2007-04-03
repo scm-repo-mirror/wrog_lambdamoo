@@ -361,6 +361,18 @@ no_var_pack(void)
 }
 
 package
+make_int_pack(Num v)
+{
+    package p;
+
+    p.kind = BI_RETURN;
+    p.u.ret.type = TYPE_INT;
+    p.u.ret.v.num = v;
+
+    return p;
+}
+
+package
 make_float_pack(FlNum v)
 {
     package p;
