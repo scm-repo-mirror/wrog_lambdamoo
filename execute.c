@@ -2744,7 +2744,7 @@ write_activ_as_pi(activation a)
 int
 read_activ_as_pi(activation * a)
 {
-    int dummy;
+    Objid dummy;
     char c;
 
     free_var(dbio_read_var());
@@ -2883,6 +2883,7 @@ int
 read_activ(activation * a, int which_vector)
 {
     DB_Version version;
+    unsigned int v;
     Var *old_rt_env;
     const char **old_names;
     unsigned old_size, stack_in_use;
@@ -2893,10 +2894,10 @@ read_activ(activation * a, int which_vector)
 
     if (dbio_input_version < DBV_Float)
 	version = dbio_input_version;
-    else if (dbio_scanf("language version %u\n", &version) != 1) {
+    else if (dbio_scanf("language version %u\n", &v) != 1) {
 	errlog("READ_ACTIV: Malformed language version\n");
 	return 0;
-    } else if (!check_db_version(version)) {
+    } else if (version = v, !check_db_version(version)) {
 	errlog("READ_ACTIV: Unrecognized language version: %d\n",
 	       version);
 	return 0;
