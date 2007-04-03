@@ -42,6 +42,7 @@
 #include "sym_table.h"
 #include "tasks.h"
 #include "timers.h"
+#include "utf.h"
 #include "utils.h"
 #include "version.h"
 
@@ -1048,23 +1049,18 @@ do {								\
 		    }
 		}
 		else {  /* list.type == TYPE_STR */
+		    Num bfromafter[] = { index.v.num, index.v.num + 1 };
+		    utf_byte_range(list.v.str, bfromafter);
 		    if (value.type != TYPE_STR)
 			e = E_TYPE;
-		    else if (index.v.num > (Num) memo_strlen(list.v.str))
+		    else if ((UNum)bfromafter[0] > memo_strlen(list.v.str))
 			e = E_RANGE;
-		    else if (memo_strlen(value.v.str) != 1)
-			e = E_INVARG;
-		    else {
-			char *tmp_str = str_dup(list.v.str);
-			free_str(list.v.str);
-			tmp_str[index.v.num - 1] = value.v.str[0];
-			list.v.str = tmp_str;
-			free_var(value);
-			PUSH(list);
-		    }
+		    else if (memo_strlen(value.v.str) != clearance_utf(value.v.str[0]))
+			e = E_INVARG;  /* not a single character */
+		    else
+			PUSH(strrangeset(list, bfromafter[0], bfromafter[1], value));
 		}
-		/* listset() uses both list and value;
-		   STR case has already freed both */
+		/* listset() uses both list and value; strrangeset frees both */
 		free_var(index);
 		if (e != E_NONE) {
 		    free_var(value);
@@ -1341,12 +1337,14 @@ do {								\
 		    }
 		}
 		else {  /* list.type == TYPE_STR */
-		    if (index.v.num > (Num) memo_strlen(list.v.str))
+		    Num bindex = utf_byte_index(list.v.str, index.v.num);
+		    if ((UNum)bindex > memo_strlen(list.v.str))
 			e = E_RANGE;
-		    else {
-			PUSH(strget(list, index));
-			free_var(list);
-		    }
+		    else
+			/* substr frees list */
+			PUSH(substr(list, bindex,
+				    bindex +
+				      clearance_utf(list.v.str[bindex - 1])));
 		}
 		free_var(index);
 		if (e != E_NONE) {
@@ -1392,11 +1390,13 @@ do {								\
 			PUSH(sublist(base, from.v.num, to.v.num + 1));
 		}
 		else {  /* base.type == TYPE_STR */
+		    Num bfromafter[] = { from.v.num, to.v.num + 1 };
+		    utf_byte_range(base.v.str, bfromafter);
 		    if (rangeref_fails(memo_strlen(base.v.str),
-				       from.v.num, to.v.num + 1))
+				       bfromafter[0], bfromafter[1]))
 			e = E_RANGE;
 		    else
-			PUSH(substr(base, from.v.num, to.v.num + 1));
+			PUSH(substr(base, bfromafter[0], bfromafter[1]));
 		}
 		free_var(to);
 		free_var(from);
@@ -1759,13 +1759,15 @@ do {								\
 						  to.v.num + 1, value));
 			}
 			else {  /* base.type == TYPE_STR */
+			    Num bfromafter[] = { from.v.num, to.v.num + 1 };
+			    utf_byte_range(base.v.str, bfromafter);
 			    e = rangeset_error(server_int_option_cached(SVO_MAX_STRING_CONCAT),
 					       memo_strlen(base.v.str),
 					       memo_strlen(value.v.str),
-					       from.v.num, to.v.num + 1);
+					       bfromafter[0], bfromafter[1]);
 			    if (e == E_NONE)
-				PUSH(strrangeset(base, from.v.num,
-						 to.v.num + 1, value));
+				PUSH(strrangeset(base, bfromafter[0],
+						 bfromafter[1], value));
 			}
 			/* listrangeset/strrangeset free base and value */
 			free_var(to);
@@ -1786,7 +1788,7 @@ do {								\
 			v.type = TYPE_INT;
 			item = RUN_ACTIV.base_rt_stack[i];
 			if (item.type == TYPE_STR) {
-			    v.v.num = memo_strlen(item.v.str);
+			    v.v.num = memo_strlen_utf(item.v.str);
 			    PUSH(v);
 			} else if (item.type == TYPE_LIST) {
 			    v.v.num = item.v.list[0].v.num;
