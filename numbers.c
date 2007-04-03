@@ -665,8 +665,8 @@ bf_floatstr(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNU
     Var r;
 
     free_var(arglist);
-    if (prec > DBL_DIG + 4)
-	prec = DBL_DIG + 4;
+    if (prec > DECIMAL_DIG)
+	prec = DECIMAL_DIG;
     else if (prec < 0)
 	return make_error_pack(E_INVARG);
     sprintf(fmt, "%%.%d%c", prec, use_sci ? 'e' : 'f');
