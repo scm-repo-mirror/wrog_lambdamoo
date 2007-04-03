@@ -238,10 +238,10 @@ stream_add_tostr(Stream * s, Var v)
 {
     switch (v.type) {
     case TYPE_INT:
-	stream_printf(s, "%d", v.v.num);
+	stream_printf(s, "%"PRIdN, v.v.num);
 	break;
     case TYPE_OBJ:
-	stream_printf(s, "#%d", v.v.obj);
+	stream_printf(s, "#%"PRIdN, v.v.obj);
 	break;
     case TYPE_STR:
 	stream_add_string(s, v.v.str);
@@ -277,10 +277,10 @@ unparse_value(Stream * s, Var v)
 {
     switch (v.type) {
     case TYPE_INT:
-	stream_printf(s, "%d", v.v.num);
+	stream_printf(s, "%"PRIdN, v.v.num);
 	break;
     case TYPE_OBJ:
-	stream_printf(s, "#%d", v.v.obj);
+	stream_printf(s, "#%"PRIdN, v.v.obj);
 	break;
     case TYPE_ERR:
 	stream_add_string(s, error_name(v.v.err));
