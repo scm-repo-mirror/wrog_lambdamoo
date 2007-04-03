@@ -35,6 +35,8 @@
 #include "storage.h"
 #include "structures.h"
 #include "streams.h"
+#include "utf.h"
+#include "utf-ctype.h"
 #include "utils.h"
 
 
@@ -88,13 +90,13 @@ parse_number(unsigned flags, int32_t c_first,
 	} while (0)				\
 
     if (flags & PN_LDSPACE)
-	while (isspace(c))
+	while (my_isspace(c))
 	    NEXTC(goto donechars);
 
     if ((flags & PN_OCTOTHORPE) && (c == '#')) {
 	NEXTC(goto donechars);
 	if (flags & PN_OCTOSPACE)
-	    while (isspace(c))
+	    while (my_isspace(c))
 		NEXTC(goto donechars);
     }
 
@@ -137,7 +139,7 @@ parse_number(unsigned flags, int32_t c_first,
 	    break;
 	default:
 	    if (flags & PN_TRSPACE) {
-		while (isspace(c))
+		while (my_isspace(c))
 		    NEXTC(goto donechars);
 	    }
 	    goto badchar;
@@ -295,7 +297,7 @@ snp_getch(void)
 {
     if (snp_string >= snp_end)
 	return EOF;
-    return *snp_string++;
+    return get_utf(&snp_string);
 }
 
 static Var
