@@ -818,12 +818,18 @@ bf_time(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_
 static package
 bf_ctime(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    time_t c;
+    int has_time     = (arglist.v.list[0].v.num >= 1);
+    int has_timezone = (arglist.v.list[0].v.num >= 2);
 
-    if (arglist.v.list[0].v.num == 1) {
-	c = arglist.v.list[1].v.num;
-    } else {
-	c = time(0);
+    time_t c = has_time ? (time_t)arglist.v.list[1].v.num : time(0);
+
+    const char *current_timezone = NULL;
+    if (has_timezone) {
+	current_timezone = getenv("TZ");
+	if (current_timezone)
+	    current_timezone = str_dup(current_timezone);
+	setenv("TZ", arglist.v.list[2].v.str, 1);
+	tzset();
     }
     free_var(arglist);
 
@@ -860,6 +866,16 @@ bf_ctime(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED
 	       stream_contents(s)[8] = ' ';
 	}
 #endif
+    }
+
+    if (has_timezone) {
+	if (!current_timezone)
+	    unsetenv("TZ");
+	else {
+	    setenv("TZ", current_timezone, 1);
+	    free_str(current_timezone);
+	}
+	tzset();
     }
 
     if (!stream_length(s)) {
@@ -1105,7 +1121,7 @@ register_numbers(void)
     register_function("abs", 1, 1, bf_abs, TYPE_NUMERIC);
     register_function("random", 0, 1, bf_random, TYPE_INT);
     register_function("time", 0, 0, bf_time);
-    register_function("ctime", 0, 1, bf_ctime, TYPE_INT);
+    register_function("ctime", 0, 2, bf_ctime, TYPE_INT, TYPE_STR);
     register_function("floatstr", 2, 3, bf_floatstr,
 		      TYPE_FLOAT, TYPE_INT, TYPE_ANY);
 
