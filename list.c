@@ -503,23 +503,17 @@ bf_listset(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUS
 static package
 bf_equal(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    Var r;
-
-    r.type = TYPE_INT;
-    r.v.num = equality(arglist.v.list[1], arglist.v.list[2], 1);
+    Num r = equality(arglist.v.list[1], arglist.v.list[2], 1);
     free_var(arglist);
-    return make_var_pack(r);
+    return make_int_pack(r);
 }
 
 static package
 bf_is_member(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    Var r;
-
-    r.type = TYPE_INT;
-    r.v.num = ismember(arglist.v.list[1], arglist.v.list[2], 1);
+    Num r = ismember(arglist.v.list[1], arglist.v.list[2], 1);
     free_var(arglist);
-    return make_var_pack(r);
+    return make_int_pack(r);
 }
 
 static package
