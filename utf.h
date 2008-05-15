@@ -47,8 +47,6 @@ put_utf(char **ppc, uint32_t c)
 	return -1;
 }
 
-#endif /* !UNICODE_STRINGS */
-
 /* Given a string s and a (1-based) character index ci,
  * Return the (1-based) byte index corresponding to
  * where that character starts.
@@ -127,7 +125,7 @@ char_size(const uint32_t c UNUSED_) {
     return 1;
 }
 
-#if  UNICODE_STRINGS
+#else  /* UNICODE_STRINGS */
 
 /* Unicode World:
  * Use the real versions of these functions.
@@ -140,6 +138,17 @@ inline int is_utf8_cont_byte(uint8_t c)
 
 extern uint32_t get_utf(const char **);
 extern int put_utf(char **, uint32_t);      /* -> true if failed */
+extern Num  utf_byte_index(const char *, Num);
+extern void utf_byte_range(const char *, Num [2]);
+extern Num  utf_char_index(const char *, Num);
+
+extern size_t memo_strlen_utf(const char *);
+extern size_t clearance_utf(const uint8_t);
+
+inline size_t
+char_size(const uint32_t c) {
+    return 1 + (c > 0x7f) + (c > 0x77f) + (c > 0xffff);
+}
 
 /* Use
  *    get_byte, state1
