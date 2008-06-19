@@ -848,43 +848,56 @@ bf_time(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_
 static package
 bf_ctime(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    Var r;
     time_t c;
-    char buffer[50];
 
     if (arglist.v.list[0].v.num == 1) {
 	c = arglist.v.list[1].v.num;
     } else {
 	c = time(0);
     }
+    free_var(arglist);
 
-    {				/* Format the time, including a timezone name */
+    Stream *s = new_stream(0);
+    struct tm *t = localtime(&c);
+    if (t) {
+	/* Format the time, including a timezone name */
 #if HAVE_STRFTIME
-	strftime(buffer, 50, "%a %b %d %H:%M:%S %Y %Z", localtime(&c));
+	char *buffer;
+	size_t buflen = 28;
+	size_t tlen;
+	do
+	    stream_beginfill(s, buflen+1, &buffer, &buflen);
+	while
+	    (!(tlen=strftime(buffer, buflen+1, "%a %b %e %H:%M:%S %Y %Z", t))
+	     && (buflen < 100));
+	stream_endfill(s, buflen - tlen);
 #else
 #  if HAVE_TM_ZONE
-	struct tm *t = localtime(&c);
-	char *tzname = t->tm_zone;
+	const char *tzname = t->tm_zone;
 #  else
 #    if !HAVE_TZNAME
 	const char *tzname = "XXX";
 #    endif
 #  endif
-
-	strcpy(buffer, ctime(&c));
-	buffer[24] = ' ';
-	strncpy(buffer + 25, tzname, 3);
-	buffer[28] = '\0';
+	const char *cts = asctime(t);
+	if (cts) {
+	    stream_add_string(s, cts);
+	    if (stream_last_byte(s) == '\n')
+		stream_delete_char(s);
+	    stream_add_char(s, ' ');
+	    stream_add_string(s, tzname);
+	    if (stream_contents(s)[8] == '0')
+	       stream_contents(s)[8] = ' ';
+	}
 #endif
     }
 
-    if (buffer[8] == '0')
-	buffer[8] = ' ';
-    r.type = TYPE_STR;
-    r.v.str = str_dup(buffer);
+    if (!stream_length(s)) {
+	free_stream(s);
+	return make_error_pack(E_INVARG);
+    }
 
-    free_var(arglist);
-    return make_var_pack(r);
+    return make_string_pack(str_dup_then_free_stream(s));
 }
 
 
