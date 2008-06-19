@@ -1206,6 +1206,204 @@ bf_ord(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
     return make_int_pack(ucs);
 }
 
+static inline int
+stream_add_utf32(Stream *s, uint32_t ch)
+{
+    if ((ch > 0x10ffff) ||
+	(ch - 0xd800) <= (0xdfff-0xd800))
+	return -1;
+    stream_add_bytes(s, (const char *)&ch, 4);
+    return 0;
+}
+static inline int
+stream_add_char_for_ec(Stream *s, uint32_t ch)
+{ return stream_add_utf32(s, ch); }
+
+static void
+stream_add_string_for_ec(Stream *s, const char *str)
+{
+    const unsigned char *c = (void *)str;
+    for( ; *c; ++c)
+	/* cannot fail since 0 <= *c <= 255 */
+	(void)stream_add_utf32(s, *c);
+}
+
+#ifdef WORDS_BIGENDIAN
+#  define BF_ENCODE_ENCODING "UTF-32BE"
+#else
+#  define BF_ENCODE_ENCODING "UTF-32LE"
+#endif
+
+static int
+encode_chars(Stream *s, Var v)
+{
+    int i;
+
+    switch (v.type) {
+    case TYPE_INT:
+	if (stream_add_char_for_ec(s, v.v.num) == -1)
+	    return 0;
+	break;
+
+    case TYPE_STR:
+	stream_add_string_for_ec(s, v.v.str);
+	break;
+
+    case TYPE_LIST:
+	for (i = 1; i <= v.v.list[0].v.num; ++i) {
+	    if (!encode_chars(s, v.v.list[i]))
+		return 0;
+	}
+	break;
+
+    default:
+	return 0;
+    }
+
+    return 1;
+}
+
+static package
+bf_encode_chars(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
+{
+    package p;
+    size_t length;
+    Stream *s = new_stream(100);
+    Stream *s2 = new_stream(100);
+
+    TRY_STREAM {
+	if (!(encode_chars(s, arglist.v.list[1]) &&
+	      (length = stream_length(s),
+	       stream_add_recoded_chars(s2, reset_stream(s), length,
+					BF_ENCODE_ENCODING,
+					arglist.v.list[2].v.str))))
+	    p = make_error_pack(E_INVARG);
+	else {
+	    stream_add_moobinary_from_raw_bytes(
+		s, stream_contents(s2), stream_length(s2));
+	    p = make_string_pack(str_dup(reset_stream(s)));
+	}
+    }
+    EXCEPT (stream_too_big) {
+	p = make_space_pack();
+    }
+    ENDTRY_STREAM;
+
+    free_stream(s);
+    free_stream(s2);
+    free_var(arglist);
+    return p;
+}
+
+static package
+bf_decode_chars(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
+{
+    int nargs = arglist.v.list[0].v.num;
+    int fully = (nargs >= 3 && is_true(arglist.v.list[3]));
+    package p;
+    Stream *s32 = new_stream(100);
+    {
+	size_t eblength = 0;
+	const char *ebytes = moobinary_to_raw_bytes(arglist.v.list[1].v.str,
+						    &eblength);
+	const char *encoding = arglist.v.list[2].v.str;
+
+	if (!(ebytes &&
+	      stream_add_recoded_chars(s32, ebytes, eblength, encoding,
+#ifdef WORDS_BIGENDIAN
+ "UTF-32BE"
+#else
+ "UTF-32LE"
+#endif
+				       ))) {
+	    p = make_error_pack(E_INVARG);
+	    goto oops;
+	}
+    }
+    size_t dlength = stream_length(s32) / sizeof(uint32_t);
+    uint32_t *dchars = (uint32_t *) reset_stream(s32);
+
+    /* UTF-32(BE|LE) are not supposed to produce BOMs, but
+     * I'm not certain, and this is harmless, so...  --wrog
+     */
+    if (dlength && *dchars == 0xFEFF /* BOM */)
+	++dchars, --dlength;
+
+    Var r;
+    if (fully) {
+	size_t i;
+
+	if (dlength > (size_t)server_int_option_cached(SVO_MAX_LIST_CONCAT)) {
+	    p = make_space_pack();
+	    goto oops;
+	}
+
+	r = new_list(dlength);
+
+	for (i = 1; i <= dlength; ++i) {
+	    r.v.list[i].type = TYPE_INT;
+	    r.v.list[i].v.num = *dchars++;
+	}
+    }
+    else {
+	size_t smax = 0, llen = 0;
+	{
+	    size_t scount = 0, i = 0;
+	    for (;; ++i) {
+		int done = (i >= dlength);
+		if (!done && my_is_printable(dchars[i])) {
+		    if (!scount)
+			++llen;
+		    scount += char_size(dchars[i]);
+		    continue;
+		}
+		if (scount > smax)
+		    smax = scount;
+		if (done)
+		    break;
+		scount = 0;
+		++llen;
+	    }
+	}
+	if (   llen > (size_t)server_int_option_cached(SVO_MAX_LIST_CONCAT)
+	    || smax > (size_t)server_int_option_cached(SVO_MAX_STRING_CONCAT)) {
+	    p = make_space_pack();
+	    goto oops;
+	}
+
+	Stream *s = new_stream(smax + 1);
+	size_t llast = 0;
+
+	r = new_list(llen);
+	for (;;) {
+	    int done;
+	    uint32_t c;
+
+	    if (!(done = !dlength--) && my_is_printable(c = *dchars++)) {
+		stream_add_utf(s, c);
+		continue;
+	    }
+	    if (stream_length(s)) {
+		r.v.list[++llast].type = TYPE_STR;
+		r.v.list[llast].v.str = str_dup(reset_stream(s));
+	    }
+	    if (done)
+		break;
+	    r.v.list[++llast].type = TYPE_INT;
+	    r.v.list[llast].v.num = c;
+	}
+	if (llast != llen)
+	    panic("bf_decode_chars: list element miscount");
+
+	free_stream(s);
+    }
+    p = make_var_pack(r);
+ oops:
+    free_stream(s32);
+    free_var(arglist);
+    return p;
+}
+
 void
 register_list(void)
 {
@@ -1246,6 +1444,10 @@ register_list(void)
     register_function("tochar", 1, 1, bf_tochar, TYPE_ANY);
     register_function("charname", 1, 1, bf_charname, TYPE_STR);
     register_function("ord", 1, 1, bf_ord, TYPE_STR);
+    register_function("encode_chars", 2, 2, bf_encode_chars,
+		      TYPE_ANY, TYPE_STR);
+    register_function("decode_chars", 2, 3, bf_decode_chars,
+		      TYPE_STR, TYPE_STR, TYPE_ANY);
 }
 
 
