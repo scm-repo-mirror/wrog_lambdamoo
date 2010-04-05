@@ -379,7 +379,10 @@ extern Var zero;		/* useful constant */
  * Hard limits on string and list sizes are imposed mainly to keep
  * malloc calculations from rolling over, and thus preventing the
  * ensuing buffer overruns.  Sizes allow space for reference counts
- * and cached length values.
+ * and cached length values.  Actual limits imposed on
+ * user-constructed lists and strings should generally be smaller
+ * (see DEFAULT_MAX_LIST_CONCAT and DEFAULT_MAX_STRING_CONCAT
+ *  in options.h)
  */
 #if NUM_MAX > INT16_MAX
 #  define MAX_LIST   (INT32_MAX/(Num)sizeof(Var) - 2)
