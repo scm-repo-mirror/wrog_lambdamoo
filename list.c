@@ -859,13 +859,13 @@ check_subs_list(Var subs)
 }
 
 static package
-bf_substitute(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
+bf_substitute(volatile Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     int template_length;
     const char *template, *subject;
     Var subs;
     package p;
-    Stream *s;
+    Stream *volatile s;
     char c = '\0';
 
     template = arglist.v.list[1].v.str;
@@ -880,30 +880,36 @@ bf_substitute(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr U
     (void) memo_strlen(subject);
 
     s = new_stream(template_length);
-    while ((c = *(template++)) != '\0') {
-	if (c != '%')
-	    stream_add_char(s, c);
-	else if ((c = *(template++)) == '%')
-	    stream_add_char(s, '%');
-	else {
-	    int start = 0, end = 0;
-	    if (c >= '1' && c <= '9') {
-		Var pair = subs.v.list[3].v.list[c - '0'];
-		start = pair.v.list[1].v.num - 1;
-		end = pair.v.list[2].v.num - 1;
-	    } else if (c == '0') {
-		start = subs.v.list[1].v.num - 1;
-		end = subs.v.list[2].v.num - 1;
-	    } else {
-		p = make_error_pack(E_INVARG);
-		goto oops;
+    TRY_STREAM {
+	while ((c = *(template++)) != '\0') {
+	    if (c != '%')
+		stream_add_char(s, c);
+	    else if ((c = *(template++)) == '%')
+		stream_add_char(s, '%');
+	    else {
+		int start = 0, end = 0;
+		if (c >= '1' && c <= '9') {
+		    Var pair = subs.v.list[3].v.list[c - '0'];
+		    start = pair.v.list[1].v.num - 1;
+		    end = pair.v.list[2].v.num - 1;
+		} else if (c == '0') {
+		    start = subs.v.list[1].v.num - 1;
+		    end = subs.v.list[2].v.num - 1;
+		} else {
+		    p = make_error_pack(E_INVARG);
+		    goto oops;
+		}
+		while (start <= end)
+		    stream_add_char(s, subject[start++]);
 	    }
-	    while (start <= end)
-		stream_add_char(s, subject[start++]);
 	}
+	p = make_string_pack(str_dup(stream_contents(s)));
+      oops: ;
     }
-    p = make_string_pack(str_dup(stream_contents(s)));
-  oops: ;
+    EXCEPT (stream_too_big) {
+	p = make_space_pack();
+    }
+    ENDTRY_STREAM;
     free_var(arglist);
     free_stream(s);
     return p;
