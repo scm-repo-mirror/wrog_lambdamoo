@@ -277,14 +277,10 @@ equality(Var lhs, Var rhs, int case_matters)
     return 0;
 }
 
-char *
-strsub(const char *source, const char *what, const char *with, int case_counts)
+void
+stream_add_strsub(Stream *str, const char *source, const char *what, const char *with, int case_counts)
 {
-    static Stream *str = 0;
     int lwhat = strlen(what);
-
-    if (str == 0)
-	str = new_stream(100);
 
     while (*source) {
 	if (!(case_counts ? strncmp(source, what, lwhat)
@@ -294,8 +290,6 @@ strsub(const char *source, const char *what, const char *with, int case_counts)
 	} else
 	    stream_add_char(str, *source++);
     }
-
-    return reset_stream(str);
 }
 
 int
@@ -386,14 +380,11 @@ value_bytes(Var v)
     return size;
 }
 
-const char *
-raw_bytes_to_moobinary(const char *buffer, size_t buflen)
+void
+stream_add_moobinary_from_raw_bytes(Stream *s,
+				    const char *buffer, size_t buflen)
 {
-    static Stream *s = 0;
     size_t i;
-
-    if (!s)
-	s = new_stream(100);
 
     for (i = 0; i < buflen; i++) {
 	unsigned char c = buffer[i];
@@ -403,8 +394,6 @@ raw_bytes_to_moobinary(const char *buffer, size_t buflen)
 	else
 	    stream_printf(s, "~%02x", (int) c);
     }
-
-    return reset_stream(s);
 }
 
 const char *
