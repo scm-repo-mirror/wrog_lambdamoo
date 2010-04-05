@@ -620,16 +620,23 @@ bf_rindex(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSE
 }
 
 static package
-bf_tostr(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
+bf_tostr(volatile Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     package p;
-    Stream *s = new_stream(100);
-    int i;
+    Stream *volatile s = new_stream(100);
 
-    for (i = 1; i <= arglist.v.list[0].v.num; i++) {
-	stream_add_tostr(s, arglist.v.list[i]);
+    TRY_STREAM {
+	int i;
+
+	for (i = 1; i <= arglist.v.list[0].v.num; i++) {
+	    stream_add_tostr(s, arglist.v.list[i]);
+	}
+	p = make_string_pack(str_dup(stream_contents(s)));
     }
-    p = make_string_pack(str_dup(stream_contents(s)));
+    EXCEPT (stream_too_big) {
+	p = make_space_pack();
+    }
+    ENDTRY_STREAM;
     free_stream(s);
     free_var(arglist);
     return p;
