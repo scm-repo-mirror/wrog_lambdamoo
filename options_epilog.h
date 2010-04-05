@@ -163,6 +163,13 @@
 #  error INT_TYPE_BITSIZE can only be 64, 32, or 16.
 #endif
 
+#if DEFAULT_MAX_LIST_CONCAT < MIN_LIST_CONCAT_LIMIT
+#error DEFAULT_MAX_LIST_CONCAT < MIN_LIST_CONCAT_LIMIT ??
+#endif
+#if DEFAULT_MAX_STRING_CONCAT < MIN_STRING_CONCAT_LIMIT
+#error DEFAULT_MAX_STRING_CONCAT < MIN_STRING_CONCAT_LIMIT ??
+#endif
+
 #if NUM_MAX < INTMAX_MAX
 /* Options that are modifiable in-db must fit in a Num so we need an
  * additional upper bound if Num is not the widest possible integer
@@ -177,6 +184,14 @@
  * which we might normally be concerned about but in
  * these cases, no.
  */
+#  if DEFAULT_MAX_LIST_CONCAT   >= NUM_MAX
+#    undef  DEFAULT_MAX_LIST_CONCAT
+#    define DEFAULT_MAX_LIST_CONCAT	(NUM_MAX - 1)
+#  endif
+#  if DEFAULT_MAX_STRING_CONCAT >= NUM_MAX
+#    undef  DEFAULT_MAX_STRING_CONCAT
+#    define DEFAULT_MAX_STRING_CONCAT	(NUM_MAX - 1)
+#  endif
 #  if MAX_QUEUED_OUTPUT >= NUM_MAX
 #    undef  MAX_QUEUED_OUTPUT
 #    define MAX_QUEUED_OUTPUT	(NUM_MAX - 1)
