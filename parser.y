@@ -107,10 +107,14 @@ static void	check_loop_name(const char *, enum loop_exit_kind);
 %nonassoc '?' '|'
 %left	tOR tAND
 %left	tEQ tNE '<' tLE '>' tGE tIN
+%left	tBITOR
+%left	tBITXOR
+%left	tBITAND
+%left	tSHL tSHR tLSHR
 %left	'+' '-'
 %left	'*' '/' '%'
 %right	'^'
-%left	'!' tUNARYMINUS
+%left	'!' '~' tUNARYMINUS
 %nonassoc '.' ':' '[' '$'
 
 %%
@@ -513,6 +517,18 @@ expr:
 		{
 		    $$ = alloc_binary(EXPR_OR, $1, $3);
 		}
+	| expr tBITOR expr
+		{
+		    $$ = alloc_binary(EXPR_BITOR, $1, $3);
+		}
+	| expr tBITXOR expr
+		{
+		    $$ = alloc_binary(EXPR_BITXOR, $1, $3);
+		}
+	| expr tBITAND expr
+		{
+		    $$ = alloc_binary(EXPR_BITAND, $1, $3);
+		}
 	| expr tEQ expr
 		{
 		    $$ = alloc_binary(EXPR_EQ, $1, $3);
@@ -541,6 +557,18 @@ expr:
 		{
 		    $$ = alloc_binary(EXPR_IN, $1, $3);
 		}
+	| expr tSHL expr
+		{
+		    $$ = alloc_binary(EXPR_SHL, $1, $3);
+		}
+	| expr tSHR expr
+		{
+		    $$ = alloc_binary(EXPR_SHR, $1, $3);
+		}
+	| expr tLSHR expr
+		{
+		    $$ = alloc_binary(EXPR_LSHR, $1, $3);
+		}
 	| '-' expr  %prec tUNARYMINUS
 		{
 		    if ($2->kind == EXPR_VAR
@@ -561,6 +589,11 @@ expr:
 			$$ = alloc_expr(EXPR_NEGATE);
 			$$->e.expr = $2;
 		    }
+		}
+	| '~' expr
+		{
+		    $$ = alloc_expr(EXPR_COMPLEMENT);
+		    $$->e.expr = $2;
 		}
 	| '!' expr
 		{
@@ -777,6 +810,51 @@ follow(int32_t expect, int32_t ifyes, int32_t ifno)     /* look ahead for >=, et
     return ifno;
 }
 
+/* look ahead for bit-wise operators */
+static int
+checkbitwise(void)
+{
+    int c1 = lex_getc();
+    int c2 = lex_getc();
+
+    if (c2 != '.') {
+	lex_ungetc(c2);
+	lex_ungetc(c1);
+	return 0;
+    }
+
+    if (c1 == '&')
+	return tBITAND;
+
+    if (c1 == '|')
+	return tBITOR;
+
+    if (c1 == '^')
+	return tBITXOR;
+
+    lex_ungetc(c2);
+    lex_ungetc(c1);
+    return 0;
+}
+
+static int
+checkrightshift(int iftwo, int ifone, int ifnone)
+{
+    int c1 = lex_getc();
+
+    if (c1 == '>') {
+	int c2 = lex_getc();
+	if (c2 == '>')
+	    return iftwo;
+
+	lex_ungetc(c2);
+	return ifone;
+    }
+
+    lex_ungetc(c1);
+    return ifnone;
+}
+
 static Stream  *token_stream = 0;
 
 static int32_t
@@ -912,9 +990,13 @@ start_over:
 
     switch(c) {
     case '>':
-	return follow('=', tGE, '>');
+	return ((c = follow('=', tGE, 0))
+		? c
+		: checkrightshift(tLSHR, tSHR, '>'));
     case '<':
-	return follow('=', tLE, '<');
+	return ((c = follow('=', tLE, 0))
+		? c
+		: follow('<', tSHL, '<'));
     case '=':
 	return ((c = follow('=', tEQ, 0))
 		? c
@@ -927,7 +1009,9 @@ start_over:
 	return follow('&', tAND, '&');
     normal_dot:
     case '.':
-	return follow('.', tTO, '.');
+	return ((c = checkbitwise())
+		? c
+		: follow('.', tTO, '.'));
     default:
 	if (c < 127) {
 	    return c;

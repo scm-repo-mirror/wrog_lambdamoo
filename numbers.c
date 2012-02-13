@@ -124,12 +124,53 @@ parse_number(unsigned flags, int32_t c_first,
 		/* we can do lookahead to decide whether this
 		 * '.' is a decimal point or it starts a new token
 		 */
-		int32_t cc = getch();
-		ungetch(cc);
-		if (cc == '.') {
-		    /* treat '..' as if it were some other character */
+		int32_t cc[3] = {getch()};
+		int i = 1;
+#define  GET()        (cc[i++] = getch())
+#define  UNGET_ALL()  do ungetch(cc[--i]); while (i > 0)
+
+		switch (cc[0]) {
+		default:
+		    /* we have a decimal point */
+		    break;
+
+		    /* This enacts the behavior of the original
+		     * implementation of this extension.
+		     */
+
+		case '.':		/* .. */
+		case '|': case '&': 	/* .|  or .& */
+		    /* the maximally "greedy" case */
+		    goto dot_starts_new_token;
+
+		case -2:		/* nothing yet */
+		    /* the intermediately "greedy" case */
+		    GET();
+		    if (cc[1] == '.')
+			goto dot_starts_new_token;
+		    break;
+
+		case '^':		/* .^ */
+		    /* the minimally "greedy" case.
+		     * For ^, this allows 9.^.5 to be
+		     * interpreted as sqrt(9) so as to get 3.0
+		     * rather than 12 (9 XOR 5)
+		     */
+		    GET();
+		    if (cc[1] == '.') {
+			GET();
+			if (!my_isdigit(cc[2]))
+			    goto dot_starts_new_token;
+		    }
+		    break;
+
+		dot_starts_new_token:
+		    UNGET_ALL();
 		    goto badchar;
 		}
+		UNGET_ALL();
+#undef  GET
+#undef  UNGET_ALL
 	    }
 	    ret.type = TYPE_FLOAT;
 	    state |= F_DOT|F_XSIGN;

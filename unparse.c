@@ -87,6 +87,18 @@ static enum Expr_Kind prec_groups[] =
     EXPR_EQ, EXPR_NE, EXPR_LT, EXPR_LE, EXPR_GT, EXPR_GE, EXPR_IN,
 
     expr__NEXT_GROUP,
+    EXPR_BITOR,
+
+    expr__NEXT_GROUP,
+    EXPR_BITXOR,
+
+    expr__NEXT_GROUP,
+    EXPR_BITAND,
+
+    expr__NEXT_GROUP,
+    EXPR_SHL, EXPR_SHR, EXPR_LSHR,
+
+    expr__NEXT_GROUP,
     EXPR_PLUS, EXPR_MINUS,
 
     expr__NEXT_GROUP,
@@ -97,6 +109,7 @@ static enum Expr_Kind prec_groups[] =
 
     expr__NEXT_GROUP,
     EXPR_NEGATE, EXPR_NOT,
+    EXPR_COMPLEMENT,
 
     expr__NEXT_GROUP,
     EXPR_PROP, EXPR_VERB, EXPR_INDEX, EXPR_RANGE,
@@ -129,6 +142,12 @@ static struct binop binop_table[] =
     {EXPR_DIVIDE, " / "},
     {EXPR_MOD, " % "},
     {EXPR_EXP, " ^ "},
+    {EXPR_BITOR, " .|. "},
+    {EXPR_BITXOR, " .^. "},
+    {EXPR_BITAND, " .&. "},
+    {EXPR_SHL, " << "},
+    {EXPR_SHR, " >> "},
+    {EXPR_LSHR, " >>> "},
 };
 
 static const char *binop_string[SizeOf_Expr_Kind];
@@ -517,6 +536,12 @@ unparse_expr(Stream * str, Expr * expr)
     case EXPR_LE:
     case EXPR_GE:
     case EXPR_IN:
+    case EXPR_BITOR:
+    case EXPR_BITXOR:
+    case EXPR_BITAND:
+    case EXPR_SHL:
+    case EXPR_SHR:
+    case EXPR_LSHR:
 	bracket_lt(str, expr->kind, expr->e.bin.lhs);
 	stream_add_string(str, binop_string[expr->kind]);
 	bracket_le(str, expr->kind, expr->e.bin.rhs);
@@ -540,6 +565,11 @@ unparse_expr(Stream * str, Expr * expr)
     case EXPR_NEGATE:
 	stream_add_char(str, '-');
 	bracket_lt(str, EXPR_NEGATE, expr->e.expr);
+	break;
+
+    case EXPR_COMPLEMENT:
+	stream_add_char(str, '~');
+	bracket_lt(str, EXPR_COMPLEMENT, expr->e.expr);
 	break;
 
     case EXPR_NOT:
