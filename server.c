@@ -262,7 +262,7 @@ panic_signal(int sig)
 }
 
 static void
-shutdown_signal(int sig)
+shutdown_signal(int sig UNUSED_)
 {
     shutdown_message = "shutdown signal received";
 }
@@ -335,7 +335,7 @@ setup_signals(void)
 }
 
 static void
-checkpoint_timer(Timer_ID id, Timer_Data data)
+checkpoint_timer(Timer_ID id UNUSED_, Timer_Data data UNUSED_)
 {
     checkpoint_requested = CHKPT_TIMER;
 }
@@ -1291,7 +1291,7 @@ main(int argc, char **argv)
 /**** built in functions ****/
 
 static package
-bf_server_version(Var arglist, Byte next, void *vdata, Objid progr)
+bf_server_version(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
     if (arglist.v.list[0].v.num > 0) {
@@ -1309,7 +1309,7 @@ bf_server_version(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_renumber(Var arglist, Byte next, void *vdata, Objid progr)
+bf_renumber(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {
     Var r;
     Objid o = arglist.v.list[1].v.obj;
@@ -1326,7 +1326,7 @@ bf_renumber(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_reset_max_object(Var arglist, Byte next, void *vdata, Objid progr)
+bf_reset_max_object(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {
     free_var(arglist);
 
@@ -1338,7 +1338,7 @@ bf_reset_max_object(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_memory_usage(Var arglist, Byte next, void *vdata, Objid progr)
+bf_memory_usage(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
     r = memory_usage();
@@ -1347,7 +1347,7 @@ bf_memory_usage(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_shutdown(Var arglist, Byte next, void *vdata, Objid progr)
+bf_shutdown(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {
     /*
      * The stream 's' and its contents will leak, but we're shutting down,
@@ -1373,7 +1373,7 @@ bf_shutdown(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_dump_database(Var arglist, Byte next, void *vdata, Objid progr)
+bf_dump_database(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {
     free_var(arglist);
     if (!is_wizard(progr))
@@ -1384,7 +1384,7 @@ bf_dump_database(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_db_disk_size(Var arglist, Byte next, void *vdata, Objid progr)
+bf_db_disk_size(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var v;
 
@@ -1411,7 +1411,12 @@ find_slistener_by_oid(Objid obj)
 #endif /* OUTBOUND_NETWORK */
 
 static package
-bf_open_network_connection(Var arglist, Byte next, void *vdata, Objid progr)
+bf_open_network_connection(
+    Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr
+#ifndef OUTBOUND_NETWORK
+    UNUSED_
+#endif
+)
 {
 #ifdef OUTBOUND_NETWORK
 
@@ -1477,7 +1482,7 @@ bf_open_network_connection(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_connected_players(Var arglist, Byte next, void *vdata, Objid progr)
+bf_connected_players(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     shandle *h;
     int nargs = arglist.v.list[0].v.num;
@@ -1505,7 +1510,7 @@ bf_connected_players(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_connected_seconds(Var arglist, Byte next, void *vdata, Objid progr)
+bf_connected_seconds(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {				/* (player) */
     Var r;
     shandle *h = find_shandle(arglist.v.list[1].v.obj);
@@ -1523,7 +1528,7 @@ bf_connected_seconds(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_idle_seconds(Var arglist, Byte next, void *vdata, Objid progr)
+bf_idle_seconds(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {				/* (player) */
     Var r;
     shandle *h = find_shandle(arglist.v.list[1].v.obj);
@@ -1541,7 +1546,7 @@ bf_idle_seconds(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_connection_name(Var arglist, Byte next, void *vdata, Objid progr)
+bf_connection_name(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (player) */
     Objid who = arglist.v.list[1].v.obj;
     shandle *h = find_shandle(who);
@@ -1566,7 +1571,7 @@ bf_connection_name(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_notify(Var arglist, Byte next, void *vdata, Objid progr)
+bf_notify(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (player, string [, no_flush]) */
     Objid conn = arglist.v.list[1].v.obj;
     const char *line = arglist.v.list[2].v.str;
@@ -1603,7 +1608,7 @@ bf_notify(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_boot_player(Var arglist, Byte next, void *vdata, Objid progr)
+bf_boot_player(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (object) */
     Objid oid = arglist.v.list[1].v.obj;
 
@@ -1617,7 +1622,7 @@ bf_boot_player(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_set_connection_option(Var arglist, Byte next, void *vdata, Objid progr)
+bf_set_connection_option(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (conn, option, value) */
     Objid oid = arglist.v.list[1].v.obj;
     const char *option = arglist.v.list[2].v.str;
@@ -1641,7 +1646,7 @@ bf_set_connection_option(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_connection_options(Var arglist, Byte next, void *vdata, Objid progr)
+bf_connection_options(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (conn [, opt-name]) */
     Objid oid = arglist.v.list[1].v.obj;
     int nargs = arglist.v.list[0].v.num;
@@ -1687,7 +1692,7 @@ find_slistener(Var desc)
 }
 
 static package
-bf_listen(Var arglist, Byte next, void *vdata, Objid progr)
+bf_listen(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (oid, desc) */
     Objid oid = arglist.v.list[1].v.obj;
     Var desc = arglist.v.list[2];
@@ -1712,7 +1717,7 @@ bf_listen(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_unlisten(Var arglist, Byte next, void *vdata, Objid progr)
+bf_unlisten(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (desc) */
     Var desc = arglist.v.list[1];
     enum error e = E_NONE;
@@ -1732,7 +1737,7 @@ bf_unlisten(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_listeners(Var arglist, Byte next, void *vdata, Objid progr)
+bf_listeners(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {				/* () */
     int i, count = 0;
     Var list, entry;
@@ -1755,7 +1760,7 @@ bf_listeners(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_buffered_output_length(Var arglist, Byte next, void *vdata, Objid progr)
+bf_buffered_output_length(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* ([connection]) */
     int nargs = arglist.v.list[0].v.num;
     Objid conn = nargs >= 1 ? arglist.v.list[1].v.obj : 0;
