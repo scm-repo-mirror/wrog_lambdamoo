@@ -442,7 +442,7 @@ strget(Var str, Var i)
 /**** built in functions ****/
 
 static package
-bf_length(Var arglist, Byte next, void *vdata, Objid progr)
+bf_length(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
     switch (arglist.v.list[1].type) {
@@ -465,7 +465,7 @@ bf_length(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_setadd(Var arglist, Byte next, void *vdata, Objid progr)
+bf_setadd(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
 
@@ -476,7 +476,7 @@ bf_setadd(Var arglist, Byte next, void *vdata, Objid progr)
 
 
 static package
-bf_setremove(Var arglist, Byte next, void *vdata, Objid progr)
+bf_setremove(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
 
@@ -487,7 +487,7 @@ bf_setremove(Var arglist, Byte next, void *vdata, Objid progr)
 
 
 static package
-bf_listappend(Var arglist, Byte next, void *vdata, Objid progr)
+bf_listappend(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
     if (arglist.v.list[0].v.num == 2)
@@ -501,7 +501,7 @@ bf_listappend(Var arglist, Byte next, void *vdata, Objid progr)
 
 
 static package
-bf_listinsert(Var arglist, Byte next, void *vdata, Objid progr)
+bf_listinsert(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
     if (arglist.v.list[0].v.num == 2)
@@ -514,7 +514,7 @@ bf_listinsert(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_listdelete(Var arglist, Byte next, void *vdata, Objid progr)
+bf_listdelete(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
     if (arglist.v.list[2].v.num <= 0
@@ -530,7 +530,7 @@ bf_listdelete(Var arglist, Byte next, void *vdata, Objid progr)
 
 
 static package
-bf_listset(Var arglist, Byte next, void *vdata, Objid progr)
+bf_listset(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
     if (arglist.v.list[3].v.num <= 0
@@ -546,7 +546,7 @@ bf_listset(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_equal(Var arglist, Byte next, void *vdata, Objid progr)
+bf_equal(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
 
@@ -557,7 +557,7 @@ bf_equal(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_is_member(Var arglist, Byte next, void *vdata, Objid progr)
+bf_is_member(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
 
@@ -568,7 +568,7 @@ bf_is_member(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_strsub(Var arglist, Byte next, void *vdata, Objid progr)
+bf_strsub(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {				/* (source, what, with [, case-matters]) */
     Var r;
     int case_matters = 0;
@@ -594,7 +594,7 @@ extern const char *crypt(const char *, const char *);
 #endif
 
 static package
-bf_crypt(Var arglist, Byte next, void *vdata, Objid progr)
+bf_crypt(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {				/* (string, [salt]) */
     Var r;
 
@@ -633,7 +633,7 @@ signum(int x)
 }
 
 static package
-bf_strcmp(Var arglist, Byte next, void *vdata, Objid progr)
+bf_strcmp(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {				/* (string1, string2) */
     Var r;
 
@@ -644,7 +644,7 @@ bf_strcmp(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_index(Var arglist, Byte next, void *vdata, Objid progr)
+bf_index(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {				/* (source, what [, case-matters]) */
     Var r;
     int case_matters = 0;
@@ -660,7 +660,7 @@ bf_index(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_rindex(Var arglist, Byte next, void *vdata, Objid progr)
+bf_rindex(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {				/* (source, what [, case-matters]) */
     Var r;
 
@@ -677,7 +677,7 @@ bf_rindex(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_tostr(Var arglist, Byte next, void *vdata, Objid progr)
+bf_tostr(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
     r.type = TYPE_STR;
@@ -687,7 +687,7 @@ bf_tostr(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_toliteral(Var arglist, Byte next, void *vdata, Objid progr)
+bf_toliteral(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
 
@@ -819,7 +819,7 @@ do_match(Var arglist, int reverse)
 }
 
 static package
-bf_match(Var arglist, Byte next, void *vdata, Objid progr)
+bf_match(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var ans;
 
@@ -832,7 +832,7 @@ bf_match(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_rmatch(Var arglist, Byte next, void *vdata, Objid progr)
+bf_rmatch(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var ans;
 
@@ -888,9 +888,9 @@ check_subs_list(Var subs)
 }
 
 static package
-bf_substitute(Var arglist, Byte next, void *vdata, Objid progr)
+bf_substitute(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    int template_length, subject_length;
+    int template_length;
     const char *template, *subject;
     Var subs, ans;
     int invarg = 0;
@@ -906,7 +906,7 @@ bf_substitute(Var arglist, Byte next, void *vdata, Objid progr)
 	return make_error_pack(E_INVARG);
     }
     subject = subs.v.list[4].v.str;
-    subject_length = memo_strlen(subject);
+    (void) memo_strlen(subject);
 
     s = new_stream(template_length);
     ans.type = TYPE_STR;
@@ -957,7 +957,7 @@ bf_substitute(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_value_bytes(Var arglist, Byte next, void *vdata, Objid progr)
+bf_value_bytes(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
 
@@ -988,7 +988,7 @@ hash_bytes(const char *input, int length)
 }
 
 static package
-bf_binary_hash(Var arglist, Byte next, void *vdata, Objid progr)
+bf_binary_hash(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
     int length;
@@ -1003,7 +1003,7 @@ bf_binary_hash(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_string_hash(Var arglist, Byte next, void *vdata, Objid progr)
+bf_string_hash(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
     const char *str = arglist.v.list[1].v.str;
@@ -1015,7 +1015,7 @@ bf_string_hash(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_value_hash(Var arglist, Byte next, void *vdata, Objid progr)
+bf_value_hash(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r;
     const char *lit = value_to_literal(arglist.v.list[1]);
@@ -1027,7 +1027,7 @@ bf_value_hash(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_decode_binary(Var arglist, Byte next, void *vdata, Objid progr)
+bf_decode_binary(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     int length;
     const char *bytes = binary_to_raw_bytes(arglist.v.list[1].v.str, &length);
@@ -1122,7 +1122,7 @@ encode_binary(Stream * s, Var v)
 }
 
 static package
-bf_encode_binary(Var arglist, Byte next, void *vdata, Objid progr)
+bf_encode_binary(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     static Stream *s = 0;
     int ok, length;
@@ -1145,13 +1145,12 @@ bf_encode_binary(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_tochar(Var arglist, Byte next, void *vdata, Objid progr)
+bf_tochar(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     static Stream *s = 0;
     int ucs = 0;
     Var ans;
     Var v = arglist.v.list[1];
-    const char *bytes;
     const struct unicode_character_data *ucd = 0;
 
     if (!s)
@@ -1187,7 +1186,7 @@ bf_tochar(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_charname(Var arglist, Byte next, void *vdata, Objid progr)
+bf_charname(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r = arglist.v.list[1];
     const struct unicode_character_data *ucd = 0;
@@ -1210,7 +1209,7 @@ bf_charname(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_ord(Var arglist, Byte next, void *vdata, Objid progr)
+bf_ord(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     Var r = arglist.v.list[1];
     const char *s = r.v.str;
@@ -1257,7 +1256,7 @@ encode_chars(Stream *s, Var v)
 }
 
 static package
-bf_encode_chars(Var arglist, Byte next, void *vdata, Objid progr)
+bf_encode_chars(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     static Stream *s = 0;
     int ok, length;
@@ -1290,7 +1289,7 @@ bf_encode_chars(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_decode_chars(Var arglist, Byte next, void *vdata, Objid progr)
+bf_decode_chars(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     const char *binary = arglist.v.list[1].v.str;
     int nargs = arglist.v.list[0].v.num;
