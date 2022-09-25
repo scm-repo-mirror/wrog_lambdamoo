@@ -17,13 +17,16 @@
 
 #include <limits.h>
 #include <errno.h>
-#include <float.h>
 #include "my-math.h"
 #include "my-stdlib.h"
 #include "my-string.h"
 #include "my-time.h"
 
 #include "config.h"
+
+#include "numbers.h"
+#include "bf_register.h"
+
 #include "functions.h"
 #include "log.h"
 #include "random.h"

@@ -38,8 +38,8 @@ extern int stream_length(Stream *);
 
 #include "exceptions.h"
 
-extern void enable_stream_exceptions();
-extern void disable_stream_exceptions();
+extern void enable_stream_exceptions(void);
+extern void disable_stream_exceptions(void);
 extern size_t stream_alloc_maximum;
 extern Exception stream_too_big;
 /*

@@ -58,7 +58,7 @@ typedef struct {
     } u;
 } package;
 
-void register_bi_functions();
+void register_bi_functions(void);
 
 package make_abort_pack(enum abort_reason reason);
 package make_error_pack(enum error err);
