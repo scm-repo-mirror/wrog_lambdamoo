@@ -15,6 +15,8 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "bf_register.h"
+
 #include "db.h"
 #include "functions.h"
 #include "list.h"

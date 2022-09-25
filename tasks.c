@@ -18,6 +18,7 @@
 #include "my-string.h"
 #include "my-time.h"
 
+#include "bf_register.h"
 #include "config.h"
 #include "db.h"
 #include "db_io.h"
@@ -307,7 +308,7 @@ ensure_usage(tqueue * tq)
     }
 }
 
-char *
+static char *
 default_flush_command(void)
 {
     const char *str = server_string_option("default_flush_command", ".flush");

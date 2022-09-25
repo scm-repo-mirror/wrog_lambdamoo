@@ -26,6 +26,8 @@
 
 #include "config.h"
 
+#include "my-inet.h"
+
 extern int initialize_name_lookup(void);
 				/* Initialize the module, returning true iff
 				 * this succeeds.
