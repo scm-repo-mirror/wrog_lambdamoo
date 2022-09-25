@@ -305,7 +305,7 @@ SIMPLE_BINARY(multiply, *)
 			} else {				\
 			    ans.type = TYPE_FLOAT;		\
 			    ans.v.fnum = d;			\
-		        }					\
+			}					\
 		    } else {					\
 		        ans.type = TYPE_ERR;			\
 			ans.v.err = E_DIV;			\
@@ -830,7 +830,7 @@ register_numbers(void)
 
 char rcsid_numbers[] = "$Id$";
 
-/* 
+/*
  * $Log$
  * Revision 1.4  1998/12/14 13:18:37  nop
  * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
