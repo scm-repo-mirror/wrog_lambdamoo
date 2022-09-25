@@ -51,9 +51,9 @@ typedef struct {
     } u;
 } package;
 
-void register_bi_functions();
+void register_bi_functions(void);
 
-package make_kill_pack();
+package make_kill_pack(void);
 package make_error_pack(enum error err);
 package make_raise_pack(enum error err, const char *msg, Var value);
 package make_var_pack(Var v);
