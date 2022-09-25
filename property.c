@@ -41,7 +41,7 @@ add_to_list(void *data, const char *prop_name)
 }
 
 static package
-bf_properties(Var arglist, Byte next, void *vdata, Objid progr)
+bf_properties(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (object) */
     Objid oid = arglist.v.list[1].v.obj;
 
@@ -64,7 +64,7 @@ bf_properties(Var arglist, Byte next, void *vdata, Objid progr)
 
 
 static package
-bf_prop_info(Var arglist, Byte next, void *vdata, Objid progr)
+bf_prop_info(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (object, prop-name) */
     Objid oid = arglist.v.list[1].v.obj;
     const char *pname = arglist.v.list[2].v.str;
@@ -183,7 +183,7 @@ set_prop_info(Objid oid, const char *pname, Var info, Objid progr)
 }
 
 static package
-bf_set_prop_info(Var arglist, Byte next, void *vdata, Objid progr)
+bf_set_prop_info(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (object, prop-name, {owner, perms [, new-name]}) */
     Objid oid = arglist.v.list[1].v.obj;
     const char *pname = arglist.v.list[2].v.str;
@@ -198,7 +198,7 @@ bf_set_prop_info(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_add_prop(Var arglist, Byte next, void *vdata, Objid progr)
+bf_add_prop(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (object, prop-name, initial-value, initial-info) */
     Objid oid = arglist.v.list[1].v.obj;
     const char *pname = arglist.v.list[2].v.str;
@@ -228,7 +228,7 @@ bf_add_prop(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_delete_prop(Var arglist, Byte next, void *vdata, Objid progr)
+bf_delete_prop(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (object, prop-name) */
     Objid oid = arglist.v.list[1].v.obj;
     const char *pname = arglist.v.list[2].v.str;
@@ -249,7 +249,7 @@ bf_delete_prop(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_clear_prop(Var arglist, Byte next, void *vdata, Objid progr)
+bf_clear_prop(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (object, prop-name) */
     Objid oid = arglist.v.list[1].v.obj;
     const char *pname = arglist.v.list[2].v.str;
@@ -283,7 +283,7 @@ bf_clear_prop(Var arglist, Byte next, void *vdata, Objid progr)
 }
 
 static package
-bf_is_clear_prop(Var arglist, Byte next, void *vdata, Objid progr)
+bf_is_clear_prop(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {				/* (object, prop-name) */
     Objid oid = arglist.v.list[1].v.obj;
     const char *pname = arglist.v.list[2].v.str;
