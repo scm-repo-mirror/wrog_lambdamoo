@@ -24,10 +24,12 @@
 #include "my-unistd.h"
 #include "my-wait.h"
 
+#include "bf_register.h"
 #include "config.h"
 #include "db.h"
 #include "db_io.h"
 #include "disassemble.h"
+#include "exceptions.h"
 #include "execute.h"
 #include "functions.h"
 #include "list.h"
@@ -45,8 +47,6 @@
 #include "unparse.h"
 #include "utils.h"
 #include "version.h"
-
-#include "execute.h"
 
 static pid_t parent_pid;
 int in_child = 0;
@@ -587,7 +587,7 @@ server_connection_options(shandle * h, Var list)
 #undef SERVER_CO_TABLE
 
 static char *
-read_stdin_line()
+read_stdin_line(void)
 {
     static Stream *s = 0;
     char *line, buffer[1000];
@@ -622,7 +622,7 @@ emergency_notify(Objid player, const char *line)
 }
 
 static int
-emergency_mode()
+emergency_mode(void)
 {
     char *line;
     Var words;
