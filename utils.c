@@ -208,14 +208,11 @@ var_refcount(Var v)
     switch (v.type) {
     case TYPE_STR:
 	return refcount(v.v.str);
-	break;
     case TYPE_LIST:
 	return refcount(v.v.list);
-	break;
     default:
-	break;
+	return 1;
     }
-    return 1;
 }
 
 int
