@@ -1191,11 +1191,11 @@ re_match_2(bufp, string1, size1, string2, size2, pos, regs, mstop)
 	    code[-1] = Cupdate_failure_jump;
 	    code[0] = a & 0xff;
 	    code[1] = a >> 8;
-	    /* fall to next case */
+	    /* FALLS THROUGH */
 	case Cupdate_failure_jump:
 	    failure_sp[-1].text = text;
 	    failure_sp[-1].partend = partend;
-	    /* fall to next case */
+	    /* FALLS THROUGH */
 	case Cjump:
 	    a = (unsigned char) *code++;
 	    a |= (unsigned char) *code++ << 8;
