@@ -804,6 +804,8 @@ do {    						    	\
 		return OUTCOME_ABORTED;
 	    }
 	}
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch"
 	switch (op) {
 
 	case OP_IF_QUES:
@@ -2098,6 +2100,7 @@ do {    						    	\
 		panic("Unknown opcode!");
 	    break;
 	}
+#pragma GCC diagnostic pop
     }
 }
 
