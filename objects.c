@@ -141,7 +141,6 @@ do_move(Var arglist, Byte next, struct bf_move_data *data, Objid progr)
 
     default:
 	panic("Unknown PC in DO_MOVE");
-	return no_var_pack();	/* Dead code to eliminate compiler warning */
     }
 }
 
@@ -497,7 +496,6 @@ bf_recycle(Var arglist, Byte func_pc, void *vdata, Objid progr)
     }
 
     panic("Can't happen in BF_RECYCLE");
-    return no_var_pack();
 }
 
 static void
