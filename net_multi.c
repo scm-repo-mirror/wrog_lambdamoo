@@ -401,7 +401,7 @@ make_new_connection(server_listener sl, int rfd, int wfd,
 static void
 get_pocket_descriptors(void)
 {
-    int i;
+    unsigned i;
 
     if (!pocket_descriptors)
 	pocket_descriptors =
@@ -421,7 +421,8 @@ accept_new_connection(nlistener * l)
 {
     network_handle nh;
     nhandle *h;
-    int rfd, wfd, i;
+    int rfd, wfd;
+    unsigned i;
     const char *host_name;
 
     switch (proto_accept_connection(l->fd, &rfd, &wfd, &host_name)) {
@@ -663,7 +664,7 @@ network_set_client_echo(network_handle nh, int is_on)
 #define TN_WONT	252
 #define TN_ECHO	1
 
-    static char telnet_cmd[4] =
+    static unsigned char telnet_cmd[4] =
 	{TN_IAC, 0, TN_ECHO, 0};
 
     h->client_echo = is_on;
@@ -671,7 +672,7 @@ network_set_client_echo(network_handle nh, int is_on)
 	telnet_cmd[1] = TN_WONT;
     else
 	telnet_cmd[1] = TN_WILL;
-    enqueue_output(nh, telnet_cmd, 3, 0, 1);
+    enqueue_output(nh, (char *)telnet_cmd, 3, 0, 1);
 }
 
 #else /* NETWORK_PROTOCOL == NP_SINGLE */
