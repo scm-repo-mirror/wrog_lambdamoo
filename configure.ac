@@ -15,7 +15,7 @@ dnl   3333 Coyote Hill Rd.
 dnl   Palo Alto, CA 94304
 dnl   Pavel@Xerox.Com
 dnl
-AC_INIT
+AC_INIT([LambdaMOO],[1.9+])
 [if test "x$srcdir" != "x." && test -f "$srcdir/config.status" ; then]
   AC_MSG_ERROR([[clean up the source directory (make distclean) before attempting a VPATH build]])[
 fi]
@@ -23,15 +23,19 @@ fi]
 AC_CONFIG_MACRO_DIR([ac_include])
 AC_CONFIG_SRCDIR([Minimal.db])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADERS([options.h])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_COMMANDS([config.lastrun], [[
-  chmod -w Makefile config.h
+  chmod -w Makefile config.h options.h
   echo timestamp > config.lastrun
 ]])
 
-dnl ***************************************************************************
-dnl Start of actual configuration tests
-dnl ***************************************************************************
+m4_include([options.ac])dnl
+MOO_ALL_ARGUMENTS()dnl
+
+#-------------------------------------
+# Start of actual configuration tests
+#-------------------------------------
 
 AC_PROG_MAKE_SET
 AC_PROG_YACC
