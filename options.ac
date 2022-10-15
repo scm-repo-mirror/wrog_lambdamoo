@@ -1,0 +1,191 @@
+m4_if(#  options.ac
+# --------------------------------
+#  Things to know about this file:
+# --------------------------------
+#
+#  Whatever editing you do, nothing will take effect until you
+#  (re)run 'autoconf' (no arguments needed) to generate a new
+#  ./configure.
+#
+#  The autoconf flavor of M4 uses [] for quoting.
+#  (You need to do lots of quoting to survive in M4.)
+#
+#  Each argument to MOO_DECLARE_OPTIONS is an M4-quoted list of
+#  four M4-quoted values
+#
+#    [ [NAME], [TYPE], [[VALUE]], [HELPSTRING]]
+#
+#  that will (usually) result in
+#
+#     #define NAME VALUE
+#
+#  appearing in options.h if no --enable-* flags
+#  (e.g., --enable-def-NAME=OTHERVALUE) change anything.
+#  except that
+#
+#    VALUE=='no'  ->  #undef  NAME
+#    VALUE=='yes' ->  #define NAME  1
+#    VALUE==''    ->  #define NAME  OPTION_DEFAULT
+#
+#  with the last one indicating a variable/indeterminate default
+#  (depends on other settings) or some other situation that will
+#  need to be sorted out in options_epilog.h.
+#
+#  HELPSTRING is for describing --enable|disable-def-NAME in the
+#  --help message.  Please keep this under 37 characters.
+#  Anyone wanting the long version of what NAME does can read
+#  options.h{.in}.
+#
+#  See MOO_DECLARE_OPTIONS (ac_incude/moo_options.m4) for full
+#  details on what TYPES are available and what they mean.
+#
+#  VALUE should be double-quoted if it's anything other than 'yes',
+#  'no', or numeric.  If a single-quoted value references an M4
+#  macro, that macro will be expanded, and you most likely do not
+#  want that (note that we *are* pretty much guaranteed no one will
+#  ever define 'yes' or 'no' as M4 macros, because if someone were
+#  to do so, *everything* in autoconf would break).
+#
+#  In theory, single-vs-double quoting should not otherwise matter
+#  but if you are in doubt, you can change the quoting, rerun
+#  autoconf and diff the new ./configure with the old one to see if
+#  it made any difference.
+#
+#  Developers looking to add new options should scroll down below
+#  the options declarations and continue reading.
+#
+)dnl
+dnl
+MOO_DECLARE_OPTIONS(m4_if(#
+#
+# These only ever get used in #ifdef/#ifndef:
+#
+)[[LOG_COMMANDS],         [bool], no,  [log player commands]],
+ [[UNFORKED_CHECKPOINTS], [bool], no,  [do checkpoints in the foreground]],
+ [[INPUT_APPLY_BACKSPACE],[bool], yes, [BKSP/DEL edits nonbinary connections]],
+ [[IGNORE_PROP_PROTECTED],[bool], yes, [ignore builtin property protection]],
+ [[BYTECODE_REDUCE_REF],  [bool], no,  [do bytecode refcount optimization]],
+ [[STRING_INTERNING],     [bool], yes, [do interning of identical strings]],
+ [[MEMO_STRLEN],          [bool], no,  [memoize string lengths]],
+
+m4_if(#
+#
+# Everything from here on is only used in #if/#elif or substitutions
+#
+#  These default values are per the MCP 2.0 standard and are
+#  unlikely to ever change.
+#
+#  The wacky bracketing is to keep M4 from doing stupid things with
+#  $@ or $#.  Also, '@%:@' is the quadrigraph for '#', the M4
+#  comment character, which can cause boundless confusion when it
+#  appears raw outside of actual comments (quadrigraphs, translated
+#  very late in the game, provide a way to not have to use '#'
+#  directly).
+#
+)[[OUT_OF_BAND_PREFIX],       [str], ["[@%:@][$][@%:@]"], dnl "#$#"
+  [set prefix for out-of-band commands]],
+ [[OUT_OF_BAND_QUOTE_PREFIX], [str], ["[@%:@][$][\"]"],   dnl "#$\""
+  [set prefix for quoted inband lines]],
+
+m4_if(#
+#
+#  These default values are documented in the LambdaMOO Programmers
+#  Manual.  If you change them here, change them there, too.
+#
+)[[DEFAULT_BG_SECONDS],     [int], 3,     [max seconds for background tasks]],
+ [[DEFAULT_BG_TICKS],       [int], 15000, [max ticks for background tasks]],
+ [[DEFAULT_FG_SECONDS],     [int], 5,     [max seconds for foreground tasks]],
+ [[DEFAULT_FG_TICKS],       [int], 30000, [max ticks for foreground tasks]],
+ [[DEFAULT_MAX_STACK_DEPTH],[int], 50,    [max frames for evaluation stack]],
+
+m4_if(#
+#
+#  Network options
+#
+)[[NETWORK_PROTOCOL],    [NP_TCP NP_LOCAL NP_SINGLE], [[NP_TCP]],
+  [NP_TCP vs NP_LOCAL vs NP_SINGLE]],
+ [[NETWORK_STYLE],       [NS_BSD NS_SYSV],            [[NS_BSD]],
+  [NS_BSD vs NS_SYSV]],
+ [[MPLEX_STYLE],         [MP_SELECT MP_POLL MP_FAKE], no,
+  [MP_SELECT vs MP_POLL vs MP_FAKE]],
+ [[DEFAULT_PORT],        [int],                       7777,
+  [initial listening port for NP_TCP]],
+ [[DEFAULT_CONNECT_FILE],[str],                       [["/tmp/.MOO-server"]],
+  [initial socket file for NP_LOCAL]],
+ [[OUTBOUND_NETWORK],    [OBN_OFF OBN_ON],            [[OBN_OFF]],
+  [allow outgoing network connections]],
+
+m4_if(#
+#
+#  Misc value options
+#
+)[[MAX_QUEUED_OUTPUT],      [int], 65536,
+  [server outgoing buffer size]],
+ [[MAX_QUEUED_INPUT],       [int], [[MAX_QUEUED_OUTPUT]],
+  [server incoming buffer size]],
+ [[DEFAULT_CONNECT_TIMEOUT],[int], 300,
+  [not-logged-in max idle time]],
+ [[PATTERN_CACHE_SIZE],     [int], 20,
+  [number of remembered match() patterns]],
+
+)dnl
+dnl
+m4_if(# end of option declarations
+#
+#  ------------------------------
+#  Notes about adding new options:
+#  ------------------------------
+#
+#  (*) Each option specification needs a corresponding options.h.in
+#      line that does '#undef NAME' -- even if the default for NAME
+#      is to be #defined to something (./configure, when it builds
+#      options.h, replaces all exposed #undefs and verbatim copies
+#      everything else).
+#
+#  (*) options.h.in should contain a full description of what NAME
+#      really does.
+#
+#  (*) The values 'yes' and 'no' get special treatment in ./configure
+#      (--enable-def-NAME=no  is the same as --disable-def-NAME)
+#      (--enable-def-NAME=yes is the same as --enable-def-NAME
+#      without an =, both of which we convert to '#define NAME 1'
+#      by the time they reach C code).
+#
+#      Thus far, nobody has used 'yes' or 'no' explicitly in C code
+#      for options.  Please preserve this state of affairs.
+#
+#      Boolean options (TYPE=[bool]) where 'yes' and 'no' are
+#      supposed to be the only choices, should be named so that
+#      "--enable-..NAME" and "--disable-..NAME" will be sensible to
+#      the user, meaning NAME should evoke a behavior that one
+#      reasonably imagine being turned on and off.
+#
+#      Also, please avoid double negatives;
+#
+#        --disable-def-DONT_DO_X
+#
+#      is much more confusing than
+#
+#        --enable-def-X
+#
+#      so even if we do seem to be encouraging 'no' as the default
+#      whenever possible, sometimes 'yes' is the right choice.
+#      Also, defaults can change.
+#
+#  (*) The value '' (or equivalently just omitting the value;
+#      comma still has to be there) indicates that the default is
+#      variable, that --enable and --disable are to be used to force
+#      a particular choice and that otherwise the actual setting can
+#      left until later.  This will show up in options.h as
+#      'OPTION_DEFAULT', you should make a note of this in
+#      options.h.in (i.e., that
+#
+#        #define NAME OPTION_DEFAULT
+#
+#      is meaningful in options.h), **and** you will need to add
+#      code to options_epilog.h to actually resolve the option value
+#      in this case so that nothing in C code ever actually sees
+#      'OPTION_DEFAULT'.
+#
+# ------------------------------------------------------------------------
+)dnl
