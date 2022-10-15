@@ -30,6 +30,8 @@
  * You shouldn't need to change anything below this point.
  **********************************************************/
 
+#define OPTION_DEFAULT -1
+
 #define OBN_OFF		0
 #define OBN_ON		1
 

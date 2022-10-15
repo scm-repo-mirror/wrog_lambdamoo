@@ -15,8 +15,109 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+/*  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!! WARNING:  If you are about to edit this file,  !!!
+    !!! STOP.     READ THIS FIRST.                     !!!
+
+options.h      is what gets compiled into the server.
+options.h.in   is the template for options.h
+so this same text inevitably has to appear in both places.
+
+Know which file you're viewing.  options.h is read-only.
+
+Historically, options.h was a file you were SUPPOSED to edit in order
+to change option settings and much of the text is still written that
+way.  You *could* still edit it if you want, but you probably don't.
+
+(1) If you're seeing this comment in options.h.in
+    because options.h does not yet exist,
+    and you're a newbie wanting to learn more about options:
+
+    You should run ./configure
+
+    (no arguments or with --disable-unicode, whichever works.
+    If neither of those work, this file won't help you.)
+
+    ./configure generates an options.h file.
+    It won't necessarily be the options.h you want,
+
+    But *that* file will be more understandable than *this* file
+    (which has baffling '#undef's everywhere For Reasons...)
+
+    Once you understand the options you care about,
+    you'll be able to run ./configure again with
+    the right arguments to get the options.h you want.
+
+(2) If you're seeing this comment in options.h
+    and think you want to edit *this* file directly:
+
+    Read "Using ./configure to set options" in README.md
+
+    EDITS YOU MAKE HERE GET OVERWRITTEN whenever 'make' sees that
+    options.h.in -- or any other file that this file indirectly
+    depends on -- is changed (surprise).
+
+    Now, if you're looking to do some kind of quick experiment and
+    you're otherwise solely editing the C files---which this file does
+    *not* depend on--and you DO NOT MIND that your edits here will
+    eventually get overwritten when you're least expecting it, then
+
+       chmod +w options.h ,  and proceed.
+
+    Otherwise, you probably want to learn to use the
+    ./configure arguments.  It will be easier.
+
+    Also, ./configure -C is wickedly fast these days.
+
+(3) If you're seeing this comment in options.h.in
+
+    because you really do want to edit *this* file,
+    which is a template (and you *can* edit because
+    it's *not* read-only), and want to understand how it works,
+
+    scroll down to the #endif and continue reading.
+
+    !!!   (end of ominous warning text)
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+*/
+
 #ifndef Options_H
 #define Options_H 1
+/*
+General notes:
+
+(0) Options are named by C preprocessor names that this file will
+    either #define to some value or leave #undef'ed.
+
+(1) Be wary of option values marked "EXPERIMENTAL".
+
+(2) When using #define here, *always* provide a value; i.e.,
+    even if #define'd vs. #undef is all that matters, just do
+
+       #define NAME 1
+
+    That way, if somebody was sloppy (shouldn't happen, but it does)
+    and used #if when they should have used #ifdef, you don't lose.
+
+    (./configure takes care of this for you.)
+
+(3) Some option values mean "I don't care" and get revised by
+    options_epilog.h to some useful default.
+
+    Sometimes the "I don't care" value is #undef,
+
+    Sometimes the "I don't care" value is OPTION_DEFAULT,
+    usually when #undef needs to mean, "I want this OFF(false)".
+
+    Due to backwards compatibility needs, we're not always consistent
+    about using OPTION_DEFAULT everywhere it would make sense to do so.
+
+    Read the descriptions and/or look at options.ac to see
+    if the default is 'no' or ''.
+
+And now for the options:
+
+*/
 
 /******************************************************************************
  * The server is prepared to keep a log of every command entered by players
@@ -25,7 +126,7 @@
  * panics.  Define LOG_COMMANDS to enable this logging.
  */
 
-/* #define LOG_COMMANDS */
+#undef LOG_COMMANDS
 
 /******************************************************************************
  * The server normally forks a separate process to make database checkpoints;
@@ -39,7 +140,7 @@
  * checkpoints.
  */
 
-/* #define UNFORKED_CHECKPOINTS */
+#undef UNFORKED_CHECKPOINTS
 
 /******************************************************************************
  * If OUT_OF_BAND_PREFIX is defined as a non-empty string, then any lines of
@@ -50,7 +151,7 @@
  * server.
  */
 
-#define OUT_OF_BAND_PREFIX "#$#"
+#undef OUT_OF_BAND_PREFIX
 
 /******************************************************************************
  * If OUT_OF_BAND_QUOTE_PREFIX is defined as a non-empty string, then any
@@ -61,41 +162,42 @@
  * that would otherwise spawn #0:do_out_of_band_command tasks
  */
 
-#define OUT_OF_BAND_QUOTE_PREFIX "#$\""
+#undef OUT_OF_BAND_QUOTE_PREFIX
 
 /******************************************************************************
  * The following constants define the execution limits placed on all MOO tasks.
- *
- * DEFAULT_MAX_STACK_DEPTH is the default maximum depth allowed for the MOO
- *	verb-call stack, the maximum number of dynamically-nested calls at any
- *	given time.  If defined in the database and larger than this default,
- *	$server_options.max_stack_depth overrides this default.
- * DEFAULT_FG_TICKS and DEFAULT_BG_TICKS are the default maximum numbers of
- *	`ticks' (basic operations) any task is allowed to use without
- *	suspending.  If defined in the database, $server_options.fg_ticks and
- *	$server_options.bg_ticks override these defaults.
- * DEFAULT_FG_SECONDS and DEFAULT_BG_SECONDS are the default maximum numbers of
- *	real-time seconds any task is allowed to use without suspending.  If
- *	defined in the database, $server_options.fg_seconds and
- *	$server_options.bg_seconds override these defaults.
  *
  * The *FG* constants are used only for `foreground' tasks (those started by
  * either player input or the server's initiative and that have never
  * suspended); the *BG* constants are used only for `background' tasks (forked
  * tasks and those of any kind that have suspended).
- *
- * The values given below are documented in the LambdaMOO Programmer's Manual,
- * so they should either be left as they are or else the manual should be
- * updated.
  */
 
-#define DEFAULT_MAX_STACK_DEPTH	50
+/* DEFAULT_MAX_STACK_DEPTH is the default maximum depth allowed for the MOO
+ *	verb-call stack, the maximum number of dynamically-nested calls at any
+ *	given time.  If defined in the database and larger than this default,
+ *	$server_options.max_stack_depth overrides this default.
+ */
 
-#define DEFAULT_FG_TICKS	30000
-#define DEFAULT_BG_TICKS	15000
+#undef DEFAULT_MAX_STACK_DEPTH
 
-#define DEFAULT_FG_SECONDS	5
-#define DEFAULT_BG_SECONDS	3
+/* DEFAULT_FG_TICKS and DEFAULT_BG_TICKS are the default maximum numbers of
+ *	`ticks' (basic operations) any task is allowed to use without
+ *	suspending.  If defined in the database, $server_options.fg_ticks and
+ *	$server_options.bg_ticks override these defaults.
+ */
+
+#undef DEFAULT_FG_TICKS
+#undef DEFAULT_BG_TICKS
+
+/* DEFAULT_FG_SECONDS and DEFAULT_BG_SECONDS are the default maximum numbers of
+ *	real-time seconds any task is allowed to use without suspending.  If
+ *	defined in the database, $server_options.fg_seconds and
+ *	$server_options.bg_seconds override these defaults.
+ */
+
+#undef DEFAULT_FG_SECONDS
+#undef DEFAULT_BG_SECONDS
 
 /******************************************************************************
  * NETWORK_PROTOCOL must be defined as one of the following:
@@ -109,19 +211,22 @@
  *		to the machine on which the server is running.  Depending on
  *		the value of NETWORK_STYLE, below, this will be either UNIX-
  *		domain sockets (NS_BSD) or named pipes (NS_SYSV).
- *
- * If NP_TCP is selected, then DEFAULT_PORT is the TCP port number on which the
+ */
+
+#undef NETWORK_PROTOCOL
+
+/* If NP_TCP is selected, then DEFAULT_PORT is the TCP port number on which the
  * server listens when no port argument is given on the command line.
- *
- * If NP_LOCAL is selected, then DEFAULT_CONNECT_FILE is the name of the UNIX
+ */
+
+#undef DEFAULT_PORT
+
+/* If NP_LOCAL is selected, then DEFAULT_CONNECT_FILE is the name of the UNIX
  * pseudo-file through which the server will listen for connections when no
  * file name is given on the command line.
  */
 
-#define NETWORK_PROTOCOL 	NP_TCP
-
-#define DEFAULT_PORT 		7777
-#define DEFAULT_CONNECT_FILE	"/tmp/.MOO-server"
+#undef DEFAULT_CONNECT_FILE
 
 /******************************************************************************
  * If NETWORK_PROTOCOL is not defined as NP_SINGLE, then NETWORK_STYLE must be
@@ -133,7 +238,7 @@
  *		AT&T UNIX System V system.
  */
 
-#define NETWORK_STYLE NS_BSD
+#undef NETWORK_STYLE
 
 /******************************************************************************
  * If NETWORK_PROTOCOL is not defined as NP_SINGLE, then MPLEX_STYLE must be
@@ -151,7 +256,7 @@
  * the bottom of this file pick the right value.
  */
 
-/* #define MPLEX_STYLE MP_POLL */
+#undef MPLEX_STYLE
 
 /******************************************************************************
  * The built-in MOO function open_network_connection(), when enabled,
@@ -178,33 +283,38 @@
  *  in place of OBN_OFF/OBN_ON; do not rely on these going forward).
  */
 
-/* #define OUTBOUND_NETWORK OBN_OFF */
+#undef OUTBOUND_NETWORK
 
 /******************************************************************************
  * The following constants define certain aspects of the server's network
  * behavior if NETWORK_PROTOCOL is not defined as NP_SINGLE.
  *
- * MAX_QUEUED_OUTPUT is the maximum number of output characters the server is
- *		     willing to buffer for any given network connection before
- *		     discarding old output to make way for new.  The server
- *		     only discards output after attempting to send as much as
- *		     possible on the connection without blocking.
- * MAX_QUEUED_INPUT is the maximum number of input characters the server is
- *		    willing to buffer from any given network connection before
- *		    it stops reading from the connection at all.  The server
- *		    starts reading from the connection again once most of the
- *		    buffered input is consumed.
- * DEFAULT_CONNECT_TIMEOUT is the default number of seconds an un-logged-in
- *			   connection is allowed to remain idle without being
- *			   forcibly closed by the server; this can be
- *			   overridden by defining the `connect_timeout'
- *			   property on $server_options or on L, for connections
- *			   accepted by a given listener L.
+ * MAX_QUEUED_OUTPUT is the maximum number of output characters the
+ *   server is willing to buffer for any given network connection
+ *   before discarding old output to make way for new.  The server
+ *   only discards output after attempting to send as much as possible
+ *   on the connection without blocking.
  */
 
-#define MAX_QUEUED_OUTPUT	65536
-#define MAX_QUEUED_INPUT	MAX_QUEUED_OUTPUT
-#define DEFAULT_CONNECT_TIMEOUT	300
+#undef MAX_QUEUED_OUTPUT
+
+/* MAX_QUEUED_INPUT is the maximum number of input characters the
+ *   server is willing to buffer from any given network connection
+ *   before it stops reading from the connection at all.  The server
+ *   starts reading from the connection again once most of the
+ *   buffered input is consumed.
+ */
+
+#undef MAX_QUEUED_INPUT
+
+/* DEFAULT_CONNECT_TIMEOUT is the default number of seconds an
+ *   un-logged-in connection is allowed to remain idle without being
+ *   forcibly closed by the server; this can be overridden by defining
+ *   the `connect_timeout' property on $server_options or on L, for
+ *   connections accepted by a given listener L.
+ */
+
+#undef DEFAULT_CONNECT_TIMEOUT
 
 /******************************************************************************
  * On connections that have not been set to binary mode, the server normally
@@ -214,7 +324,7 @@
  * from the input stream.  (Comment this out to restore pre-1.8.3 behavior)
  */
 
-#define INPUT_APPLY_BACKSPACE
+#undef INPUT_APPLY_BACKSPACE
 
 /******************************************************************************
  * The server maintains a cache of the most recently used patterns from calls
@@ -223,7 +333,7 @@
  * number less than 1.
  */
 
-#define PATTERN_CACHE_SIZE	20
+#undef PATTERN_CACHE_SIZE
 
 /******************************************************************************
  * Prior to 1.8.4 property lookups were required on every reference to a
@@ -234,7 +344,7 @@
  * protect_<property> options are now cached, this #define is now deprecated.
  */
 
-/* #define IGNORE_PROP_PROTECTED */
+#undef IGNORE_PROP_PROTECTED
 
 /******************************************************************************
  * The code generator can now recognize situations where the code will not
@@ -264,7 +374,7 @@
  * NOTE WELL    NOTE WELL    NOTE WELL    NOTE WELL    NOTE WELL
  */
 
-/* #define BYTECODE_REDUCE_REF */
+#undef BYTECODE_REDUCE_REF
 
 /******************************************************************************
  * The server can merge duplicate strings on load to conserve memory.  This
@@ -276,14 +386,14 @@
  * INTERN: lines in the log at startup.
  */
 
-#define STRING_INTERNING /* */
+#undef STRING_INTERNING
 
 /******************************************************************************
  * Store the length of the string WITH the string rather than recomputing
  * it each time it is needed.
  */
 
-/* #define MEMO_STRLEN */
+#undef MEMO_STRLEN
 
 /******************************************************************************
  * DEFAULT_MAX_LIST_CONCAT,   if set to a positive value, is the length
@@ -303,8 +413,8 @@
  * were lucky enough to avoid a server memory allocation panic).
  */
 
-#define DEFAULT_MAX_LIST_CONCAT    4194302
-#define DEFAULT_MAX_STRING_CONCAT 33554423
+#undef DEFAULT_MAX_LIST_CONCAT
+#undef DEFAULT_MAX_STRING_CONCAT
 
 /* In order to avoid weirdness from these limits being set too small,
  * we impose the following (arbitrary) respective minimum values.
@@ -313,8 +423,8 @@
  * likewise for the string limit.
  */
 
-#define MIN_LIST_CONCAT_LIMIT   1022
-#define MIN_STRING_CONCAT_LIMIT 1015
+#undef MIN_LIST_CONCAT_LIMIT
+#undef MIN_STRING_CONCAT_LIMIT
 
 /******************************************************************************
  * Continue on to the part that ./configure should not be touching ...
@@ -323,6 +433,47 @@
 #include "options_epilog.h"
 
 #endif		/* !Options_H */
+
+/*
+Additional comments (there is no further code in this file):
+
+If what you want is to change the default setting for an option:
+
+    The best and easiest way to do this is to edit options.ac and rerun
+    autoconf (and then please fix the help text to make it match up
+    with whatever you did).
+
+    Commentary in options.ac explains how options.ac works.
+
+If what you want is to add an entirely new option:
+
+    options.ac has guidelines for that.
+
+options.h.in, being the template for options.h, is treated by
+./configure in exactly the same way as config.h.in:
+
+    When creating options.h, ./configure (config.status, actually)
+    reads options.h.in and replaces each bare #undef line with either
+    a #define or a comment, according to the command line arguments
+    provided or the default values in options.ac.  All other text is
+    copied verbatim.
+
+If autoconf is not available and you really want to change an option
+default instead of saving the ./configure command line you used
+(./config.status --config):
+
+    Changing an #undef in options.h.in to a #define will do what you'd
+    expect on the next ./configure run.  But to make something here
+    **stay** #undef'ed, you need to **comment out** the #undef so that
+    ./config.status can't find it.
+
+    (You might possibly instead prefer to put your changes at the
+    beginning of options_epilog.h instead.  I wouldn't, but since
+    these are changes that will never go back into the server
+    distribution, you can do what you like.  The hard part will be
+    remembering what you did 6 months from now.)
+*/
+
 
 /*
  * $Log$
