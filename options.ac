@@ -1,0 +1,189 @@
+m4_if(#  options.ac
+#
+#  Each argument to MOO_DECLARE_OPTIONS has the form
+#
+#    [[NAME], [TYPE], [[VALUE]], [HELPSTRING]]
+#
+#  (square brackets being literal from here down since autoconf's
+#  M4 dialect uses them and not `' for quoting values; also
+#  M4 always discards unquoted whitespace after a comma; also
+#  '#' and 'dnl' are M4 comment-to-end-of-line operators;
+#  here endeth the crash course in M4/autoconf syntax).
+#
+#  The above (1) makes
+#
+#     #define NAME VALUE
+#
+#  appear by default in options.h,
+#
+#  (2) defines
+#
+#     --enable-def-NAME=VALUE  (both '=' and VALUE are optional)
+#     --disable-def-NAME
+#
+#  as arguments for ./configure that are devoted to setting this one
+#  option, with three special cases for VALUE that translate thus:
+#
+#    'no'  (or --disable)            ->  #undef  NAME
+#    'yes' (or --enable with no '=') ->  #define NAME  1
+#    ''  (or omit argument entirely) ->  #define NAME  OPTION_DEFAULT
+#
+#  the third case being for dynamic defaults that need to be sorted
+#  out in options_epilog.h,
+#
+#  (3) sets HELPSTRING as the ./configure --help description
+#  for these arguments (which must be kept under 37 characters;
+#  anyone wanting the long version can read options.h), and
+#
+#  (4) indicates an expected TYPE for option VALUEs, where
+#        [bool] means only #define/yes vs. #undef/no matters
+#        [int]  means VALUE has to be an integer
+#        [str]  means insert VALUE literally in options.h,
+#        [WORD1 WORD2 ...] means VALUE should be one of these words
+#               where WORDs follow all-uppercase cpp-identifer syntax
+#
+#  For complete safety (***), default VALUEs should be double-quoted
+#  (i.e., as [[VALUE]]) if not 'yes', 'no', or numeric.
+#
+#  Remember that nothing in this file takes effect until you (re)run
+#  'autoconf' to generate a new ./configure.
+#
+#  Developers looking to add new options should scroll to the end
+#  of the options declarations and continue reading.
+#
+)dnl
+dnl
+MOO_DECLARE_OPTIONS(m4_if(#
+#
+# These only ever get used in #ifdef/#ifndef:
+#
+)[[LOG_COMMANDS],         [bool], no,  [log player commands]],
+ [[UNFORKED_CHECKPOINTS], [bool], no,  [do checkpoints in the foreground]],
+ [[INPUT_APPLY_BACKSPACE],[bool], yes, [BKSP/DEL edits nonbinary connections]],
+ [[IGNORE_PROP_PROTECTED],[bool], yes, [ignore builtin property protection]],
+ [[BYTECODE_REDUCE_REF],  [bool], no,  [do bytecode refcount optimization]],
+ [[STRING_INTERNING],     [bool], yes, [do interning of identical strings]],
+ [[MEMO_STRLEN],          [bool], no,  [memoize string lengths]],
+
+m4_if(#
+#
+# Everything from here on is only used in #if/#elif or substitutions
+#
+#  The wacky bracketing for these next two is because $@ and $# have
+#  special meaning in M4 and we need to prevent stupid things from
+#  happening with that.  Also, '@%:@' is the quadrigraph for '#', the
+#  M4 comment character, which can cause boundless confusion when it
+#  appears raw outside of actual comments (quadrigraphs, translated
+#  very late in the game, provide a way to not have to use '#'
+#  directly).
+#
+)[[OUT_OF_BAND_PREFIX],       [str], ["[@%:@][$][@%:@]"], dnl "#$#"
+  [set prefix for out-of-band commands]],
+ [[OUT_OF_BAND_QUOTE_PREFIX], [str], ["[@%:@][$][\"]"],   dnl "#$\""
+  [set prefix for quoted inband lines]],
+
+m4_if(#
+#
+#  These default values are documented in the LambdaMOO Programmers
+#  Manual.  If you change them here, change them there, too.
+#
+)[[DEFAULT_BG_SECONDS],     [int], 3,     [max seconds for background tasks]],
+ [[DEFAULT_BG_TICKS],       [int], 15000, [max ticks for background tasks]],
+ [[DEFAULT_FG_SECONDS],     [int], 5,     [max seconds for foreground tasks]],
+ [[DEFAULT_FG_TICKS],       [int], 30000, [max ticks for foreground tasks]],
+ [[DEFAULT_MAX_STACK_DEPTH],[int], 50,    [max frames for evaluation stack]],
+
+m4_if(#
+#
+#  Network options
+#
+)[[NETWORK_PROTOCOL],    [NP_TCP NP_LOCAL NP_SINGLE], [[NP_TCP]],
+  [NP_TCP vs NP_LOCAL vs NP_SINGLE]],
+ [[NETWORK_STYLE],       [NS_BSD NS_SYSV],            [[NS_BSD]],
+  [NS_BSD vs NS_SYSV]],
+ [[MPLEX_STYLE],         [MP_SELECT MP_POLL MP_FAKE], no,
+  [MP_SELECT vs MP_POLL vs MP_FAKE]],
+ [[DEFAULT_PORT],        [int],                       7777,
+  [initial listening port for NP_TCP]],
+ [[DEFAULT_CONNECT_FILE],[str],                       [["/tmp/.MOO-server"]],
+  [initial socket file for NP_LOCAL]],
+ [[OUTBOUND_NETWORK],    [OBN_OFF OBN_ON],            [[OBN_OFF]],
+  [allow outgoing network connections]],
+
+m4_if(#
+#
+#  Misc value options
+#
+)[[MAX_QUEUED_OUTPUT],      [int], 65536,
+  [server outgoing buffer size]],
+ [[MAX_QUEUED_INPUT],       [int], [[MAX_QUEUED_OUTPUT]],
+  [server incoming buffer size]],
+ [[DEFAULT_CONNECT_TIMEOUT],[int], 300,
+  [not-logged-in max idle time]],
+ [[PATTERN_CACHE_SIZE],     [int], 20,
+  [number of remembered match() patterns]],
+
+)dnl
+dnl
+m4_if(# end of option declarations
+#
+#  -----------------------------
+#   New option checklist/advice
+#  -----------------------------
+#
+#  (*) Each option needs a declaration line in this file as above,
+#
+#      (( **except** for the 'DO NOT EDIT' ones that may, in a future
+#      server, be moved to config.h.in because they are arguably not
+#      really options.  See Extensions.md ))
+#
+#  (*) Each option needs an '#undef NAME' line in options.h.in
+#      prefaced with a full description what #define NAME does.
+#      (See options.h.in final comment on editing options.h.in)
+#
+#  (*) ./configure gives the values 'yes' and 'no' special treatment.
+#      Please do NOT create situations where a literal 'yes' or
+#      'no' needs to show up in C code.
+#
+#  (*) Boolean options (TYPE=[bool]) where 'yes' and 'no' are
+#      supposed to be the only choices, should be named so that
+#      "--enable-..NAME" and "--disable-..NAME" will be sensible to
+#      the user, meaning NAME should a noun evoking behavior that
+#      one can reasonably imagine being "enabled" or "disabled".
+#
+#  (*) Please avoid double negatives; meaning,
+#      --enable-def-XIFICATION is way less confusing than
+#      --disable-def-DONT_DO_XIFICATION.
+#      In other words, it's okay for 'yes' be the default.
+#      (IGNORE_PROP_PROTECTED is the poster child here)
+#
+#  (*) Having VALUE being '' (or equivalently just omitting the value;
+#      the comma still has to be there in the M4 declaration above)
+#      indicates that the default is variable, that --enable-def and
+#      --disable-def are to be used to force a particular choice, and
+#      that, otherwise, the actual setting can left until later.
+#
+#      This will show up in options.h as 'OPTION_DEFAULT', in which
+#      case options_epilog.h will need to set an actual value --
+#      nothing in C code should ever actually see 'OPTION_DEFAULT' --
+#      and the options.h.in description should say something about
+#      what is happening in this case.
+#
+#  (***) If you think double-quoting VALUE is overkill, keep in mind
+#  that an unquoted or single-quoted value that unluckily references
+#  an M4 macro **will** be expanded and ruin your day.  Welcome to M4.
+#
+#  Oddly enough, we *are* essentially guaranteed that no one with any
+#  sense will ever define 'yes' or 'no' as M4 macros, because that
+#  would completely break everything in autoconf.
+#
+#  Granted, you can always test whether quoting is needed by trying
+#  the single-quoted or non-quoted versions, rerunning autoconf and
+#  diff-ing the new ./configure with the old one to make sure it's
+#  identical.  However this doesn't prevent you from being screwed by
+#  a later version of autoconf defining some new M4 macro you weren't
+#  expecting.  I believe that, in matters of M4 quoting, there is no
+#  such thing as overkill.  --wrog)
+#
+# ------------------------------------------------------------------------
+)dnl
