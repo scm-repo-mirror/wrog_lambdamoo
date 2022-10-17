@@ -239,7 +239,7 @@ extern int read_active_connections(void);
     }								\
 
 
-#endif				/* Server_H */
+#endif		/* !Server_H */
 
 /*
  * $Log$
