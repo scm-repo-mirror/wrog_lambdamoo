@@ -158,6 +158,8 @@ complex_free_var(Var v)
 	if (delref(v.v.fnum) == 0)
 	    myfree(v.v.fnum, M_FLOAT);
 	break;
+    default:
+	break;
     }
 }
 
@@ -173,6 +175,8 @@ complex_var_ref(Var v)
 	break;
     case TYPE_FLOAT:
 	addref(v.v.fnum);
+	break;
+    default:
 	break;
     }
     return v;
@@ -198,6 +202,8 @@ complex_var_dup(Var v)
     case TYPE_FLOAT:
 	v = new_float(*v.v.fnum);
 	break;
+    default:
+	break;
     }
     return v;
 }
@@ -211,15 +217,13 @@ var_refcount(Var v)
     switch (v.type) {
     case TYPE_STR:
 	return refcount(v.v.str);
-	break;
     case TYPE_LIST:
 	return refcount(v.v.list);
-	break;
     case TYPE_FLOAT:
 	return refcount(v.v.fnum);
-	break;
+    default:
+	return 1;
     }
-    return 1;
 }
 
 int
