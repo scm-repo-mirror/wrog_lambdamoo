@@ -107,7 +107,7 @@ extern db_verb_handle find_verb_for_programming(Objid player,
 						const char **message,
 						const char **vname);
 
-#endif				/* !Tasks_H */
+#endif		/* !Tasks_H */
 
 /*
  * $Log$
