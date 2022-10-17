@@ -50,7 +50,7 @@ extern const char *lookup_name_from_addr(struct sockaddr_in *addr,
 				 * form.
 				 */
 
-#endif				/* Name_Lookup_H */
+#endif		/* !Name_Lookup_H */
 
 /*
  * $Log$
