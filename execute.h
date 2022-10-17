@@ -15,8 +15,8 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
-#ifndef Execute_h
-#define Execute_h 1
+#ifndef Execute_H
+#define Execute_H 1
 
 #include "config.h"
 #include "db.h"
@@ -126,7 +126,7 @@ Var *reorder_rt_env(Var * old_rt_env, const char **old_names,
 extern void write_activ(activation a);
 extern int read_activ(activation * a, int which_vector);
 
-#endif
+#endif		/* !Execute_H */
 
 /*
  * $Log$

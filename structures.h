@@ -15,8 +15,8 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
-#ifndef Structures_h
-#define Structures_h 1
+#ifndef Structures_H
+#define Structures_H 1
 
 #include "my-stdio.h"
 
@@ -182,7 +182,7 @@ extern Var zero;		/* useful constant */
  :  end of DEC ALPHA experiment  :
  :...............................:*/
 
-#endif				/* !Structures_h */
+#endif		/* !Structures_H */
 
 
 /*
