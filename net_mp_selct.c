@@ -84,7 +84,7 @@ mplex_is_writable(int fd)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:36:22  pavel
  * Updated copyright notice for 1996.  Release 1.8.0beta1.

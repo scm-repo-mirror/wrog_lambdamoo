@@ -31,7 +31,7 @@ extern Var do_divide(Var, Var);
 extern Var do_modulus(Var, Var);
 extern Var do_power(Var, Var);
 
-/* 
+/*
  * $Log$
  * Revision 1.1  1996/02/08  07:28:25  pavel
  * Initial revision

@@ -121,7 +121,7 @@ read_vm(int task_id)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.2  1996/02/08  07:12:16  pavel
  * Renamed err/logf() to errlog/oklog().  Updated copyright notice for 1996.

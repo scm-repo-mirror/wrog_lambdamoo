@@ -417,7 +417,7 @@ dbio_write_forked_program(Program * program, int f_index)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.5  1996/03/19  07:16:12  pavel
  * Increased precision of floating-point numbers printed in the DB file.

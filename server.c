@@ -1804,7 +1804,7 @@ register_server(void)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.11  1996/05/12  21:26:10  pavel
  * Slightly cleaned up some code in bf_shutdown().  Release 1.8.0p5.

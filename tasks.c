@@ -72,7 +72,7 @@ typedef struct suspended_task {
 typedef struct {
     char *string;
     int length;
-    struct task *next_itail;	/* see tqueue.first_itail */ 
+    struct task *next_itail;	/* see tqueue.first_itail */
 } input_task;
 
 typedef struct task {
@@ -180,7 +180,7 @@ static ext_queue *external_queues = 0;
      : ttt->t.suspended.start_time)
 
 
-/* 
+/*
  *  ICMD_FOR_EACH(DEFINE,verb)
  *   expands to a table of intrinsic commands,
  *   each entry of the form
@@ -465,9 +465,9 @@ dequeue_input_task(tqueue * tq, enum dequeue_how how)
 		t->kind = TASK_INBAND;
 	}
 	else if (t->kind == TASK_QUOTED) {
-	    if (!tq->disable_oob) 
+	    if (!tq->disable_oob)
 		memmove(t->t.input.string,
-			t->t.input.string + oob_quote_prefix_length, 
+			t->t.input.string + oob_quote_prefix_length,
 			1 + strlen(t->t.input.string + oob_quote_prefix_length));
 	    t->kind = TASK_INBAND;
 	}
@@ -644,7 +644,7 @@ do_intrinsic_command(tqueue * tq, Parsed_Command * pc)
     if (!(icmd && (tq->icmds & (1<<icmd))))
 	return 0;
     switch (icmd) {
-    default: 
+    default:
 	panic("Bad return value from icmd_index()");
 	break;
     case ICMD_PROGRAM:
@@ -652,10 +652,10 @@ do_intrinsic_command(tqueue * tq, Parsed_Command * pc)
 	    return 0;
 	if (pc->args.v.list[0].v.num != 1)
 	    notify(tq->player, "Usage:  .program object:verb");
-	else	
+	else
 	    start_programming(tq, (char *) pc->args.v.list[1].v.str);
 	break;
-    case ICMD_PREFIX:	
+    case ICMD_PREFIX:
     case ICMD_OUTPUTPREFIX:
 	set_delimiter(&(tq->output_prefix), pc->argstr);
 	break;

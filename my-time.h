@@ -51,7 +51,7 @@ extern char *tzname;
 
 #endif				/* !My_Time_H */
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:00:41  pavel
  * *** empty log message ***

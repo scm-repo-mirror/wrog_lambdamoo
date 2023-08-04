@@ -31,7 +31,7 @@ extern int open(const char *, int,...);
 #define NONBLOCK_FLAG O_NDELAY
 #endif
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:05:07  pavel
  * Updated copyright notice for 1996.  Release 1.8.0beta1.

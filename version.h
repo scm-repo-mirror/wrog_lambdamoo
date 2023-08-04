@@ -30,7 +30,7 @@ extern Var server_version_full(Var);
 
 
 /*****************************************************************
- * Language / Database-Format Version 
+ * Language / Database-Format Version
  */
 
 /* The following list must never be reordered, only appended to.  There is one
@@ -68,7 +68,7 @@ extern int check_db_version(DB_Version);
 
 #endif				/* !Version_H */
 
-/* 
+/*
  * $Log$
  * Revision 2.3  1996/04/19  01:25:21  pavel
  * Added somewhat bogus DBV_BFBugFixed version.  Release 1.8.0p4.

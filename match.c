@@ -136,7 +136,7 @@ match_object(Objid player, const char *name)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:59:41  pavel
  * Fixed minor portability problem.  Updated copyright notice for 1996.

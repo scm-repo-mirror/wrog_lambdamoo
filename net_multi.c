@@ -701,7 +701,7 @@ network_shutdown(void)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.6  1996/05/12  21:29:09  pavel
  * Fixed mis-initialization of "client-echo" option.  Release 1.8.0p5.

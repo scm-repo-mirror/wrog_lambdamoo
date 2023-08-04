@@ -122,7 +122,7 @@ set_rt_env_var(Var * env, int slot, Var v)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  07:13:03  pavel
  * Renamed TYPE_NUM to TYPE_INT.  Made fill_in_rt_consts() version-dependent.

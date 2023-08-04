@@ -906,7 +906,7 @@ register_numbers(void)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.6  1997/03/04 04:34:06  eostrom
  * parse_number() now trusts strtol() and strtod() more instead of

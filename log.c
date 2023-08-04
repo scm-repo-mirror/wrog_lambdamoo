@@ -160,7 +160,7 @@ register_log(void)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.2  1996/04/08  01:06:25  pavel
  * Added `set_log_file()' entry point.  Made logging print undated messages to

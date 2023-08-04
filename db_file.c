@@ -738,7 +738,7 @@ db_shutdown()
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.5  1996/04/08  01:07:21  pavel
  * Changed a boot-time error message to go directly to stderr, instead of

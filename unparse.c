@@ -733,7 +733,7 @@ unparse_to_stderr(Program * p, int fully_parenthesize, int indent_lines,
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.5  1996/02/18  23:21:00  pavel
  * Fixed unparsing of expression `X.Y', where X is an integer, to add a space

@@ -122,7 +122,7 @@ typedef enum Extended_Opcode Extended_Opcode;
 
 #endif
 
-/* 
+/*
  * $Log$
  * Revision 2.3  1996/02/08  06:18:03  pavel
  * Removed unused NUM_BUILTIN_NAMES constant.  Rearranged EOPs to support tick

@@ -44,7 +44,7 @@ extern void free_parsed_command(Parsed_Command *);
 
 #endif				/* !Parse_Cmd_H */
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:15:41  pavel
  * Updated copyright notice for 1996.  Release 1.8.0beta1.

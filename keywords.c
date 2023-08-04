@@ -217,7 +217,7 @@ find_keyword(const char *word)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.2  1996/02/08  06:33:21  pavel
  * Added `break', `continue', and E_FLOAT.  Updated copyright notice for 1996.

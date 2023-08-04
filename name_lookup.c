@@ -384,7 +384,7 @@ lookup_addr_from_name(const char *name, unsigned timeout)
 #endif				/* NETWORK_PROTOCOL == NP_TCP */
 
 
-/* 
+/*
  * $Log$
  * Revision 2.2  1996/02/08  06:59:04  pavel
  * Renamed err/logf() to errlog/oklog().  Updated copyright notice for 1996.

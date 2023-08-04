@@ -68,7 +68,7 @@ free_str(const char *s)
 
 #endif				/* Storage_h */
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:13:09  pavel
  * Added M_FLOAT, removed unused M_PI.  Updated copyright notice for 1996.

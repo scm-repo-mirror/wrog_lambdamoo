@@ -76,7 +76,7 @@ typedef void *(*bf_read_type) (void);
 #define FUNC_NOT_FOUND   MAX_FUNC
 /* valid function numbers are 0 - 255, or a total of 256 of them.
    function number 256 is reserved for func_not_found signal.
-   hence valid function numbers will fit in one byte but the 
+   hence valid function numbers will fit in one byte but the
    func_not_found signal will not */
 
 extern const char *name_func_by_num(unsigned);
@@ -99,7 +99,7 @@ extern void load_server_options(void);
 
 #endif
 
-/* 
+/*
  * $Log$
  * Revision 2.2  1996/04/19  01:22:04  pavel
  * Added tail_call_pack() declaration and patches to allow generation of the

@@ -28,7 +28,7 @@ extern int toupper(int);
 
 #endif				/* !My_Ctype_H */
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:05:23  pavel
  * Updated copyright notice for 1996.  Release 1.8.0beta1.

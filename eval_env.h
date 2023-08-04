@@ -34,7 +34,7 @@ void fill_in_rt_consts(Var * env, DB_Version);
 
 #endif
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:26:34  pavel
  * Made fill_in_rt_consts() version-dependent.  Updated copyright notice for

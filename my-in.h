@@ -48,7 +48,7 @@ typedef unsigned32 in_addr_t;
 
 #endif
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:04:58  pavel
  * Updated copyright notice for 1996.  Release 1.8.0beta1.

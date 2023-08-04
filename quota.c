@@ -67,7 +67,7 @@ incr_quota(Objid player)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:54:04  pavel
  * Renamed TYPE_NUM to TYPE_INT.  Updated copyright notice for 1996.

@@ -42,7 +42,7 @@ network_set_connection_option(network_handle nh, const char *option, Var value)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.0  1995/11/30  05:11:37  pavel
  * New baseline version, corresponding to release 1.8.0alpha1.

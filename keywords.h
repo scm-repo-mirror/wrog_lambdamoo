@@ -30,7 +30,7 @@ typedef const struct keyword Keyword;
 
 extern Keyword *find_keyword(const char *);
 
-/* 
+/*
  * $Log$
  * Revision 2.2  1996/02/08  06:24:47  pavel
  * Fixed type of version number.  Updated copyright notice for 1996.

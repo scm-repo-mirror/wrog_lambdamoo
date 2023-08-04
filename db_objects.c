@@ -551,7 +551,7 @@ dbpriv_set_all_users(Var v)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.5  1996/04/08  00:42:11  pavel
  * Adjusted computation in `db_object_bytes()' to account for change in the

@@ -230,7 +230,7 @@ memory_usage(void)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:51:20  pavel
  * Renamed TYPE_NUM to TYPE_INT.  Updated copyright notice for 1996.

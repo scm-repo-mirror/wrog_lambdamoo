@@ -41,7 +41,7 @@
 
 #endif				/* !My_Types_h */
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:00:13  pavel
  * Updated copyright notice for 1996.  Release 1.8.0beta1.

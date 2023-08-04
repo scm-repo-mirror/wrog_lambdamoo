@@ -26,7 +26,7 @@ extern unsigned int delref(const void *p);
 #define refcount(X) (((int *)(X))[-1])
 #endif
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:13:28  pavel
  * Updated copyright notice for 1996.  Release 1.8.0beta1.

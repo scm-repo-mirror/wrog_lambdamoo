@@ -36,7 +36,7 @@ extern void add_command_to_history(Objid player, const char *command);
 extern int log_pcount;
 extern int log_report_progress_cktime();
 
-/* 
+/*
  * $Log$
  * Revision 2.2  1996/04/08  01:05:28  pavel
  * Added `set_log_file()' entry point.  Release 1.8.0p3.

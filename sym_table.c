@@ -147,7 +147,7 @@ free_names(Names * names)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.2  1996/03/10  01:16:32  pavel
  * Removed a bunch of obsolete unused functions.  Release 1.8.0.

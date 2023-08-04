@@ -70,7 +70,7 @@ extern int mplex_is_writable(int fd);
 
 #endif				/* !Net_MPlex_H */
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:18:23  pavel
  * Updated copyright notice for 1996.  Release 1.8.0beta1.

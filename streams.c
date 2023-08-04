@@ -263,7 +263,7 @@ stream_length(Stream * s)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.5  1996/03/19  07:14:02  pavel
  * Fixed default printing of floating-point numbers.  Release 1.8.0p2.

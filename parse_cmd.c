@@ -249,7 +249,6 @@ free_parsed_command(Parsed_Command * pc)
 }
 
 
-
 /*
  * $Log$
  * Revision 2.2  1996/02/08  06:55:06  pavel

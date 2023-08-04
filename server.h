@@ -266,13 +266,13 @@ extern int read_active_connections(void);
 
 /* All of the above require a TABLE of connection options #defined
  * as follows
- * 
+ *
  * #define TABLE(DEFINE, HANDLE, VALUE, _)
  *    DEFINE(<name>, _, TYPE_<foo>, <member>,
  *           <get-value-expression>,
  *           <set-value-statement>)
  *    ...
- *    
+ *
  * where
  *   <get-value-expression>
  *     should extract from HANDLE a value for option <name>
@@ -321,7 +321,7 @@ extern int read_active_connections(void);
 
 #endif				/* Server_H */
 
-/* 
+/*
  * $Log$
  * Revision 2.3  1996/04/08  01:07:52  pavel
  * Made get_server_option() public.  Release 1.8.0p3.

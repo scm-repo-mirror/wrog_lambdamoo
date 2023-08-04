@@ -25,7 +25,7 @@
 
 #endif
 
-/* 
+/*
  * $Log$
  * Revision 2.2  1996/03/10  01:06:01  pavel
  * Replaced HUGE_VAL with DBL_MAX, since some systems (e.g., BSDi 1.1)

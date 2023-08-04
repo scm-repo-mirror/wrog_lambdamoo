@@ -581,7 +581,7 @@ register_verbs(void)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.8  1996/05/12  21:29:46  pavel
  * Fixed memory leak for verb names string in bf_add_verb.  Release 1.8.0p5.

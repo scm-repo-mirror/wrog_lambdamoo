@@ -56,7 +56,7 @@ int malloc_dummy;		/* Prevent `empty compilation unit' warning */
 #endif
 
 
-/* 
+/*
  * $Log$
  * Revision 2.1  1996/02/08  06:59:50  pavel
  * Updated copyright notice for 1996.  Release 1.8.0beta1.

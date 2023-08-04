@@ -331,7 +331,7 @@ register_property(void)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.3  1996/02/11  00:44:45  pavel
  * Fixed potential panic in clear_property() when called on the definer of the

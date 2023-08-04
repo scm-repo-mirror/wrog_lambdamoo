@@ -654,7 +654,7 @@ dbpriv_fix_properties_after_chparent(Objid oid, Objid old_parent)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.6  1996/04/08  01:08:32  pavel
  * Fixed `db_rename_propdef()' to allow case-only changes.  Release 1.8.0p3.

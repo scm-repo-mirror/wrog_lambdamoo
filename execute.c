@@ -698,7 +698,7 @@ rangeset_check(Var base, Var inst, int from, int to)
 #define bi_prop_protected(prop, progr) ((!is_wizard(progr)) && server_flag_option_cached(prop))
 #endif				/* IGNORE_PROP_PROTECTED */
 
-/** 
+/**
   the main interpreter -- run()
   everything is just an entry point to it
 **/
@@ -1629,7 +1629,7 @@ do {								\
 		free_var(obj);
 		free_var(verb);
 
-		if (err != E_NONE) {	/* there is an error, RUN_ACTIV unchanged, 
+		if (err != E_NONE) {	/* there is an error, RUN_ACTIV unchanged,
 					   args must be freed */
 		    free_var(args);
 		    PUSH_ERROR(err);
@@ -2255,7 +2255,7 @@ do_task(Program * prog, int which_vector, Var * result, int is_fg, int do_db_tra
 {				/* which vector determines the vector for the root_activ.
 				   a forked task can also have which_vector == MAIN_VECTOR.
 				   this happens iff it is recovered from a read from disk,
-				   because in that case the forked statement is parsed as 
+				   because in that case the forked statement is parsed as
 				   the main vector */
 
     RUN_ACTIV.prog = program_ref(prog);
@@ -2782,7 +2782,7 @@ Var *
 reorder_rt_env(Var * old_rt_env, const char **old_names,
 	       int old_size, Program * prog)
 {
-    /* reorder old_rt_env, which is aligned according to old_names, 
+    /* reorder old_rt_env, which is aligned according to old_names,
        to align to prog->var_names -- return the new rt_env
        after freeing old_rt_env and old_names */
 

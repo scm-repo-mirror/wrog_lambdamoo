@@ -1355,7 +1355,7 @@ generate_code(Stmt * stmt, DB_Version version)
 }
 
 
-/* 
+/*
  * $Log$
  * Revision 2.4  1996/02/08  07:21:08  pavel
  * Renamed TYPE_NUM to TYPE_INT.  Added support for exponentiation expression,

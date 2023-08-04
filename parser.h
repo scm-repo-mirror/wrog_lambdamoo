@@ -33,7 +33,7 @@ extern Program *parse_list_as_program(Var code, Var * errors);
 
 #endif
 
-/* 
+/*
  * $Log$
  * Revision 2.2  1996/02/08  06:15:30  pavel
  * Removed ungetch() method on Parser_Client, added version number to

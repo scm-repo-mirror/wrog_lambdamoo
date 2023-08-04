@@ -233,7 +233,7 @@ proto_open_connection(Var arglist, int *read_fd, int *write_fd,
 	    log_perror("Making socket in proto_open_connection");
 	return E_QUOTA;
     }
-    
+
     if (bind_local_ip != INADDR_ANY) {
 	static struct sockaddr_in local_addr;
 
@@ -251,7 +251,7 @@ proto_open_connection(Var arglist, int *read_fd, int *write_fd,
 	    close(s);
 	    return e;
 	}
-    }	 
+    }
     TRY {
 	id = set_timer(server_int_option("outbound_connect_timeout", 5),
 		       timeout_proc, 0);
@@ -294,7 +294,7 @@ proto_open_connection(Var arglist, int *read_fd, int *write_fd,
 #endif				/* OUTBOUND_NETWORK */
 
 
-/* 
+/*
  * $Log$
  * Revision 2.5  1996/03/10  01:13:48  pavel
  * Moved definition of DEFAULT_PORT to options.h.  Release 1.8.0.
