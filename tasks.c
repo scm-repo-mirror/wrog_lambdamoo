@@ -1375,7 +1375,7 @@ write_forked_task(forked_task ft)
 {
     unsigned lineno = find_line_number(ft.program, ft.f_index, 0);
 
-    dbio_printf("0 %d %d %d\n", lineno, ft.start_time, ft.id);
+    dbio_printf("0 %u %jd %d\n", lineno, (intmax_t)ft.start_time, ft.id);
     write_activ_as_pi(ft.a);
     write_rt_env(ft.program->var_names, ft.rt_env, ft.program->num_var_names);
     dbio_write_forked_program(ft.program, ft.f_index);
@@ -1384,7 +1384,7 @@ write_forked_task(forked_task ft)
 static void
 write_suspended_task(suspended_task st)
 {
-    dbio_printf("%d %d ", st.start_time, st.the_vm->task_id);
+    dbio_printf("%jd %d ", (intmax_t)st.start_time, st.the_vm->task_id);
     dbio_write_var(st.value);
     write_vm(st.the_vm);
 }
@@ -1462,23 +1462,22 @@ read_task_queue(void)
 	return 0;
     }
     for (; count > 0; count--) {
-	int first_lineno, id;
+	unsigned first_lineno;
+	int id;
 	unsigned old_size;
-	int st;
+	intmax_t start_time;
 	char c;
-	time_t start_time;
 	Program *program;
 	Var *rt_env, *old_rt_env;
 	const char **old_names;
 	activation a;
 
-	if (dbio_scanf("%d %d %d %d%c",
-		       &dummy, &first_lineno, &st, &id, &c) != 5
+	if (dbio_scanf("%d %u %jd %d%c",
+		       &dummy, &first_lineno, &start_time, &id, &c) != 5
 	    || c != '\n') {
 	    errlog("READ_TASK_QUEUE: Bad numbers, count = %d.\n", count);
 	    return 0;
 	}
-	start_time = st;
 	if (!read_activ_as_pi(&a)) {
 	    errlog("READ_TASK_QUEUE: Bad activation, count = %d.\n", count);
 	    return 0;
@@ -1510,11 +1509,12 @@ read_task_queue(void)
     }
     for (; suspended_count > 0; suspended_count--) {
 	task *t = (task *) mymalloc(sizeof(task), M_TASK);
-	int task_id, start_time;
+	int task_id;
+	intmax_t start_time;
 	char c;
 
 	t->kind = TASK_SUSPENDED;
-	if (dbio_scanf("%d %d%c", &start_time, &task_id, &c) != 3) {
+	if (dbio_scanf("%jd %d%c", &start_time, &task_id, &c) != 3) {
 	    errlog("READ_TASK_QUEUE: Bad suspended task header, count = %d\n",
 		   suspended_count);
 	    return 0;
