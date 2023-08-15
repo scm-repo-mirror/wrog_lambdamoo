@@ -1260,22 +1260,31 @@ encode_chars(Stream *s, Var v)
 }
 
 static package
-bf_encode_chars(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
+bf_encode_chars(volatile Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     package p;
     size_t length;
-    Stream *s = new_stream(100);
-    Stream *s2 = new_stream(100);
-    if (!(encode_chars(s, arglist.v.list[1]) &&
-	  (length = stream_length(s),
-	   stream_add_recoded_chars(s2, reset_stream(s), length,
-				    BF_ENCODE_ENCODING, arglist.v.list[2].v.str))))
-	p = make_error_pack(E_INVARG);
-    else {
-	stream_add_moobinary_from_raw_bytes(
-	    s, stream_contents(s2), stream_length(s2));
-	p = make_string_pack(str_dup(reset_stream(s)));
+    Stream *volatile s = new_stream(100);
+    Stream *volatile s2 = new_stream(100);
+
+    TRY_STREAM {
+	if (!(encode_chars(s, arglist.v.list[1]) &&
+	      (length = stream_length(s),
+	       stream_add_recoded_chars(s2, reset_stream(s), length,
+					BF_ENCODE_ENCODING,
+					arglist.v.list[2].v.str))))
+	    p = make_error_pack(E_INVARG);
+	else {
+	    stream_add_moobinary_from_raw_bytes(
+		s, stream_contents(s2), stream_length(s2));
+	    p = make_string_pack(str_dup(reset_stream(s)));
+	}
     }
+    EXCEPT (stream_too_big) {
+	p = make_space_pack();
+    }
+    ENDTRY_STREAM;
+
     free_stream(s);
     free_stream(s2);
     free_var(arglist);
