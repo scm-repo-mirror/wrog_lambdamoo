@@ -280,7 +280,7 @@ pull_input(nhandle * h)
             h->excess_utf_count = 0;
 	} else {
 	    for (ptr = buffer, end = buffer + count; ptr < end && ptr + clearance_utf(*ptr) <= end;) {
-		int c = get_utf(&ptr);
+	        int c = get_utf((const char **) &ptr);
 
 		if (my_is_printable(c))
 		    stream_add_utf(s, c);
@@ -293,9 +293,7 @@ pull_input(nhandle * h)
 
 		h->last_input_was_CR = (c == '\r');
 	    }
-            if (ptr < end)
-            {
-                h->excess_utf_count = end - ptr;
+            if (ptr < end) {
                 memcpy(h->excess_utf, ptr, end - ptr);
             }
             h->excess_utf_count = end - ptr;
