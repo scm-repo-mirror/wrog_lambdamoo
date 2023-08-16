@@ -262,10 +262,21 @@ Exception dbpriv_dbio_failed;
 
 static FILE *output;
 
+static Stream *dbio_float_stream = NULL;
+
 void
 dbpriv_set_dbio_output(FILE * f)
 {
     output = f;
+}
+
+void
+dbpriv_dbio_output_finished(void)
+{
+    if (dbio_float_stream) {
+	free_stream(dbio_float_stream);
+	dbio_float_stream = NULL;
+    }
 }
 
 void
@@ -288,14 +299,10 @@ dbio_write_num(int64_t n)
 void
 dbio_write_float(FlNum d)
 {
-    static const char *fmt = 0;
-    static char buffer[10];
-
-    if (!fmt) {
-	sprintf(buffer, "%%.%d"PRIgR"\n", FLOAT_DIGITS + 4);
-	fmt = buffer;
-    }
-    dbio_printf(fmt, d);
+    if (!dbio_float_stream)
+	dbio_float_stream = new_stream(0);
+    stream_float_printf(dbio_float_stream, "%.*"PRIgR, FLOAT_DIGITS + 4, d);
+    dbio_printf("%s\n", reset_stream(dbio_float_stream));
 }
 
 void

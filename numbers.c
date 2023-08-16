@@ -27,11 +27,13 @@
 #include "my-string.h"
 #include "my-time.h"
 
+#include "exceptions.h"
 #include "functions.h"
 #include "log.h"
 #include "random.h"
 #include "storage.h"
 #include "structures.h"
+#include "streams.h"
 #include "utils.h"
 
 
@@ -919,21 +921,16 @@ bf_floatstr(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNU
     Num prec = arglist.v.list[2].v.num;
     int use_sci = (arglist.v.list[0].v.num >= 3
 		   && is_true(arglist.v.list[3]));
-    char fmt[10], output[500];	/* enough for IEEE double */
-    Var r;
 
     free_var(arglist);
     if (prec > FLOAT_DIGITS+4)
 	prec = FLOAT_DIGITS+4;
     else if (prec < 0)
 	return make_error_pack(E_INVARG);
-    sprintf(fmt, "%%.%"PRIdN"%s", prec, use_sci ? PRIeR : PRIfR);
-    sprintf(output, fmt, d);
 
-    r.type = TYPE_STR;
-    r.v.str = str_dup(output);
-
-    return make_var_pack(r);
+    Stream *s = new_stream(0);
+    stream_float_printf(s, use_sci ? "%.*"PRIeR : "%.*"PRIfR, prec, d);
+    return make_string_pack(str_dup_then_free_stream(s));
 }
 
 Var zero;			/* useful constant */
