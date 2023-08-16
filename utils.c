@@ -464,31 +464,33 @@ stream_add_recoded_chars(Stream *s,
     iconv_t cd;
     char *outbuf;
     size_t outbytesleft;
-    int ret;
+    volatile int ret;
 
     cd = iconv_open(tocode, fromcode);
     if (cd == (iconv_t) -1)
 	return 0;
 
-    do {
-	stream_beginfill(s, inbytesleft * 2,
-			 &outbuf, &outbytesleft);
-	ret = (size_t) -1 !=
-	    iconv(cd, (void *)&inbuf, &inbytesleft,
-		  /*  Evidently, Solaris wants inbuf
-		      to be const. Oh, well... */
-		  &outbuf, &outbytesleft);
+    TRY
+	do {
+	    stream_beginfill(s, inbytesleft * 2,
+			     &outbuf, &outbytesleft);
+	    ret = (size_t) -1 !=
+		iconv(cd, (void *)&inbuf, &inbytesleft,
+		      /*  Evidently, Solaris wants inbuf
+			  to be const. Oh, well... */
+		      &outbuf, &outbytesleft);
 
-	stream_endfill(s, outbytesleft);
-    }
-    while (!ret && errno == E2BIG);
-    /* E2BIG = remaining output buffer too small => try again
-     * die on all other errors, including
-     *   EILSEQ: invalid input sequence
-     *   EINVAL: incomplete input sequence
-     */
-
-    iconv_close(cd);
+	    stream_endfill(s, outbytesleft);
+	}
+	while (!ret && errno == E2BIG);
+	/* E2BIG = remaining output buffer too small => try again
+	 * die on all other errors, including
+	 *   EILSEQ: invalid input sequence
+	 *   EINVAL: incomplete input sequence
+	 */
+    FINALLY
+	iconv_close(cd);
+    ENDTRY;
 
     return ret;
 }
