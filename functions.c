@@ -463,12 +463,12 @@ load_server_protect_function_flags(void)
     oklog("Loaded protect cache for %d builtin functions\n", i);
 }
 
-int _server_int_option_cache[SVO__CACHE_SIZE];
+Num _server_int_option_cache[SVO__CACHE_SIZE];
 
 void
 load_server_options(void)
 {
-    int value;
+    Num value;
 
     load_server_protect_function_flags();
 
