@@ -17,7 +17,10 @@
 
 #include "streams.h"
 
-#include <float.h>
+#include "config.h"
+#include "options.h"
+
+#include "my-math.h"
 #include "my-stdarg.h"
 #include "my-string.h"
 #include "my-stdio.h"
@@ -25,6 +28,7 @@
 #include "exceptions.h"
 #include "log.h"
 #include "storage.h"
+#include "structures.h"
 #include "utf.h"
 
 /*
@@ -106,6 +110,24 @@ stream_delete_utf(Stream * s)
 	do
 	    --s->current;
 	while (is_utf8_cont_byte(s->buffer[s->current]));
+}
+
+void
+stream_unparse_float(Stream *s, FlNum n, int for_tostr)
+{
+    size_t here = s->current;
+    int prec = FLOAT_DIGITS;
+    for (;;) {
+	stream_float_printf(s, "%.*"PRIgR, prec, n);
+	if (for_tostr
+	    || (n == strtoflnum(s->buffer + here, NULL))
+	    || (prec - FLOAT_DIGITS >= 4))
+	    break;
+	s->current = here;
+	++prec;
+    }
+    if (!strpbrk(s->buffer + here, ".e"))
+	stream_add_string(s, ".0");   /* make it look floating */
 }
 
 void
