@@ -33,7 +33,7 @@ extern Stream *new_stream(size_t size);
 extern void stream_add_char(Stream *, char);
 extern void stream_delete_char(Stream *);
 
-extern int  stream_add_utf(Stream *, int);
+extern int  stream_add_utf(Stream *, uint32_t);
 extern void stream_delete_utf(Stream *);
 
 extern void stream_add_bytes(Stream *, const char *, size_t);
