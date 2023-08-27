@@ -25,13 +25,23 @@
 #include "program.h"
 #include "structures.h"
 
+/*------------------*
+ |  struct package  |
+ *------------------*/
+
+enum abort_reason {
+    ABORT_KILL    = -1, 	/* kill_task(task_id()) */
+    ABORT_SECONDS = 0,		/* out of seconds */
+    ABORT_TICKS   = 1		/* out of ticks */
+};
+
 typedef struct {
     enum {
 	BI_RETURN,		/* Normal function return */
 	BI_RAISE,		/* Raising an error */
 	BI_CALL,		/* Making a nested verb call */
 	BI_SUSPEND,		/* Suspending the current task */
-	BI_KILL			/* Killing the current task */
+	BI_ABORT		/* Aborting the current task */
     } kind;
     union {
 	Var ret;
@@ -48,16 +58,11 @@ typedef struct {
 	    enum error (*proc) (vm, void *);
 	    void *data;
 	} susp;
+	enum abort_reason why;
     } u;
 } package;
 
 void register_bi_functions();
-
-enum abort_reason {
-    ABORT_KILL    = -1, 	/* kill_task(task_id()) */
-    ABORT_SECONDS = 0,		/* out of seconds */
-    ABORT_TICKS   = 1		/* out of ticks */
-};
 
 package make_abort_pack(enum abort_reason reason);
 package make_error_pack(enum error err);
@@ -67,6 +72,10 @@ package no_var_pack(void);
 package make_call_pack(Byte pc, void *data);
 package tail_call_pack(void);
 package make_suspend_pack(enum error (*)(vm, void *), void *);
+
+/*----------------*
+ |  registration  |
+ *----------------*/
 
 typedef package(*bf_type) (Var, Byte, void *, Objid);
 typedef void (*bf_write_type) (void *vdata);
@@ -87,13 +96,25 @@ extern unsigned register_function_with_read_write(const char *, int, int,
 						  bf_type, bf_read_type,
 						  bf_write_type,...);
 
+/*--------------*
+ |  invocation  |
+ *--------------*/
+
 extern package call_bi_func(unsigned, Var, Byte, Objid, void *);
 /* will free or use Var arglist */
+
+/*-----------------*
+ |  serialization  |
+ *-----------------*/
 
 extern void write_bi_func_data(void *vdata, Byte f_id);
 extern int read_bi_func_data(Byte f_id, void **bi_func_state,
 			     Byte * bi_func_pc);
 extern Byte *pc_for_bi_func_data(void);
+
+/*--------------*
+ |  protection  |
+ *--------------*/
 
 extern void load_server_options(void);
 
