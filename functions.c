@@ -43,8 +43,8 @@ typedef void (*registry) ();
 
 static registry bi_function_registries[] =
 {
+    register_db_tune,
     register_disassemble,
-    register_extensions,
     register_execute,
     register_functions,
     register_list,
@@ -54,7 +54,9 @@ static registry bi_function_registries[] =
     register_property,
     register_server,
     register_tasks,
-    register_verbs
+    register_verbs,
+
+    register_extensions
 };
 
 void
