@@ -392,10 +392,10 @@ value_bytes(Var v)
 }
 
 const char *
-raw_bytes_to_moobinary(const char *buffer, int buflen)
+raw_bytes_to_moobinary(const char *buffer, size_t buflen)
 {
     static Stream *s = 0;
-    int i;
+    size_t i;
 
     if (!s)
 	s = new_stream(100);
@@ -413,7 +413,7 @@ raw_bytes_to_moobinary(const char *buffer, int buflen)
 }
 
 const char *
-moobinary_to_raw_bytes(const char *binary, int *buflen)
+moobinary_to_raw_bytes(const char *binary, size_t *buflen)
 {
     static Stream *s = 0;
     const char *ptr = binary;
@@ -453,7 +453,7 @@ moobinary_to_raw_bytes(const char *binary, int *buflen)
 }
 
 const char *
-recode_chars(const char *chars, int *length,
+recode_chars(const char *chars, size_t *length,
 	     const char *fromcode, const char *tocode)
 {
     iconv_t cd;
@@ -475,7 +475,9 @@ recode_chars(const char *chars, int *length,
     if (!s)
 	s = new_stream(inbytesleft);
 
-    while (iconv(cd, &inbuf, &inbytesleft,
+    while (iconv(cd, (void *)&inbuf, &inbytesleft,
+		 /*  Evidently, Solaris wants inbuf
+		     to be const. Oh, well... */
 		 &outbuf, &outbytesleft) == (size_t) -1) {
 	switch (errno) {
 	case E2BIG:
