@@ -95,3 +95,19 @@ proto_initialize(struct proto *proto, Var * desc, int argc, char **argv)
 
     return 1;
 }
+
+
+static int
+open_connection_arguments(Var arglist,
+			  const char **host_name, int *port)
+{
+    if (arglist.v.list[0].v.num != 2)
+	return E_ARGS;
+    if (arglist.v.list[1].type != TYPE_STR ||
+	     arglist.v.list[2].type != TYPE_INT)
+	return E_TYPE;
+
+    *host_name = arglist.v.list[1].v.str;
+    *port = arglist.v.list[2].v.num;
+    return E_NONE;
+}
