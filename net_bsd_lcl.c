@@ -32,6 +32,7 @@
 #include "my-unistd.h"		/* close() */
 
 #include "log.h"
+#include "server.h"
 #include "storage.h"
 #include "structures.h"
 #include "utils.h"
@@ -126,8 +127,8 @@ proto_listen(int fd)
 }
 
 enum proto_accept_error
-proto_accept_connection(int listener_fd, int *read_fd, int *write_fd,
-			const char **name)
+proto_accept_connection(int listener_fd, server_listener sl UNUSED_,
+			int *read_fd, int *write_fd, const char **name)
 {
     int fd;
     static struct sockaddr_un address;
