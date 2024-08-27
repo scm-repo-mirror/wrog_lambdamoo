@@ -82,7 +82,9 @@
 #include "exceptions.h"
 #include "list.h"
 #include "log.h"
+#include "network.h"
 #include "net_multi.h"
+#include "server.h"
 #include "storage.h"
 #include "streams.h"
 #include "utils.h"
@@ -210,8 +212,8 @@ proto_listen(int fd)
 }
 
 enum proto_accept_error
-proto_accept_connection(int listener_fd, int *read_fd, int *write_fd,
-			const char **name)
+proto_accept_connection(int listener_fd, server_listener sl UNUSED_,
+			int *read_fd, int *write_fd, const char **name)
 {
     /* There is input available on listener_fd; read up to 1K of it and try
      * to parse a line like this from it:
