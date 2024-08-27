@@ -112,6 +112,8 @@ init_version_structure(void)
     SET_##WHAT(item,value);			\
     the_list[0] = listappend(the_list[0], item);
 
+#define PUSH_STR(str)  PUSH_VALUE(STR,str)
+
 #define PUSH_PAIR(name,WHAT,value)		\
     item = new_list(2);				\
     SET_STR(item.v.list[1],name);		\
@@ -132,9 +134,8 @@ init_version_structure(void)
     PUSH_PAIR("string",STR,server_version);
 
     BEGIN_GROUP(features);
-#define _FDEF(name) PUSH_VALUE(STR,#name)
-#ifdef VERSION_FEATURES
-    VERSION_FEATURES(_FDEF);
+#ifdef VERSION_XTLIST
+    VERSION_XTLIST(PUSH_STR);
 #endif
     END_GROUP();
 
