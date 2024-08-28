@@ -484,7 +484,7 @@ useful for anything other than quick experiments.)
 
 /******************************************************************************
  * Unicode support is provided by the unicode extension (--enable-unicode)
- * and is indicated by UNICODE_STRINGS being set.  This
+ * and is indicated by UNICODE_STRINGS (see config.h) being set.  This
  *
  * (1) expands the character set of the STRING data type, used for
  *     string constants in verb code, property values, and in verb,
@@ -499,11 +499,7 @@ useful for anything other than quick experiments.)
  * in this server, including aspects that are currently deemed
  * EXPERIMENTAL and likely to change in future server releases.
  *
- * !!! eventually to be only settable by ./configure:   !!! */
-#undef UNICODE_STRINGS
-/* !!! for now, edit via --enable-def- or options.h.in  !!! */
-
-/* With basic Unicode support, the MOO language source code, as
+ * With basic Unicode support, the MOO language source code, as
  * expected by eval(), set_verb_code(), the .program command, and the
  * database file reader, will, outside of string constants, remain
  * restricted the prior ASCII character set, but there are options

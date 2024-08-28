@@ -1,6 +1,68 @@
 MOO_XT_DECLARE_EXTENSIONS([
 ### Everything above this line is boilerplate; do not edit.
 
+##==================
+%%extension unicode
+##==================
+  %disabled
+  %? Character set:
+
+  --enable- unicode = KWD,..
+    %?- use original ASCII charset
+    %?  support unicode
+
+  %cdefine UNICODE_%s
+
+  %option strings
+    %alt strs
+    %alt core
+    %?  in STR values and nonbinary connections
+  %option numbers
+    %alt nums
+    %?  in numeric constants
+    %implies strs
+  %option identifiers
+    %alt ids
+    %?  in variable names
+    %implies strs
+  %option_set code = ids,nums
+  %option_set all  = code
+  %option_set yes  = strs
+
+  XT_CSRCS = utf.c
+
+  %require uclib
+    --with- uclib = LIB,..
+      %?   choose Unicode character data source:
+      %?*  (gnu=unistring, icu, ucd)
+
+    %cdefine UNICODE_DATA UD_%s
+
+    %lib unistring GNU
+      %alt gnu
+      %ac AC_SEARCH_LIBS([[unicode_character_name]], [[unistring]], [%USE%])
+    %lib icu
+      %ac MOO_LIB_ICUUC([%USE%])
+    %lib ucd
+      %ac AC_SEARCH_LIBS([[unicode_character_data]], [[ucd]], [%USE%])
+      %build
+        --with- ucdpath = DIR
+          %?  use specified ucd build as uclib
+
+        %dirvar ucd_dir
+        CPPFLAGS = -I$(ucd_dir)
+        XT_LOBJS = $(ucd_dir)/libucd.a
+
+        %make <<END_UCD_MAKE
+$(ucd_dir)/libucd.a:
+	$(MAKE) -C $(ucd_dir) libucd.a
+
+$(ucd_dir)/ucd.h:
+	$(MAKE) -C $(ucd_dir) ucd.h
+
+utf-ctype.o: $(ucd_dir)/ucd.h
+END_UCD_MAKE
+
 ##=================
 %%extension regexp
 ##=================
@@ -11,7 +73,7 @@ MOO_XT_DECLARE_EXTENSIONS([
       %?  choose RE engine (ylo,pcre)
 
     # yes, this is a hack:
-    %ac_yes [pcre]
+    %ac_yes AS_IF([[$moo_xt_do_unicode]], [%LIBS%[=pcre]], [%LIBS%[=ylo]])
 
     %lib ylo
       XT_CSRCS = regexpr.c pattern_ylo.c
@@ -33,7 +95,6 @@ END
 
 MOO_DECLARE_OPTIONS(
 
- [[UNICODE_STRINGS],      [bool], no,  [(TEMPORARY) = --enable-unicode]],
  [[UNICODE_IDENTIFIERS],  [bool], no,  [allow Unicode in identifiers]],
  [[UNICODE_NUMBERS],      [bool], no,  [allow Unicode in numeric constants]],
 )

@@ -277,6 +277,16 @@
  */
 #undef WORDS_BIGENDIAN
 
+/*----------------------*
+ |  Extension settings  |
+ *----------------------*/
+
+/*
+ * --enable-unicode core implementation is present
+ * (we are using general UTF-8 in strings)
+ */
+#undef UNICODE_STRINGS
+
 /*
  * which unicode data library are we using?
  */
