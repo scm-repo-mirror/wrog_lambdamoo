@@ -39,6 +39,25 @@ MOO_DECLARE_OPTIONS(
 )
 
 
+# MOO_LIB_ICUUC( <IF-FOUND>, <IF-NOT-FOUND> )
+#
+AC_DEFUN([MOO_LIB_ICUUC],
+[AC_CACHE_CHECK([[for icu being installed]],[moo_cv_icuuc_lib],[[
+_moo_save_libs=$LIBS
+moo_cv_icuuc_lib=
+LIBS="-licuuc $_moo_save_libs"]
+AC_LINK_IFELSE([AC_LANG_PROGRAM(
+  [[@%:@include <unicode/uchar.h>]],
+  [[UChar32 c; int j = u_charDigitValue(c);]])],[[
+  moo_cv_icuuc_lib=yes
+]],[[
+  moo_cv_icuuc_lib=no
+]])
+LIBS=$_moo_save_libs])
+AS_IF([[test "$moo_cv_icuuc_lib" = yes]],[[
+  LIBS="-licuuc $LIBS"]
+  $1],[$2])])
+
 # MOO_LIB_PCRE1( <IF-FOUND>, <IF-NOT-FOUND>, <IF-BROKEN> )
 #
 AC_DEFUN([MOO_LIB_PCRE1],

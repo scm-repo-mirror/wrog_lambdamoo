@@ -69,6 +69,10 @@ my_is_printable(uint32_t x)
 extern const char *my_char_name(uint32_t);
 extern   uint32_t  my_char_lookup(const char *);
 
+extern   uint32_t  my_unicode_version(void);
+extern   uint32_t  my_unilib_version(void);
+extern const char *my_unilib_name;
+
 #endif		/* !UTF_CType_H */
 
 /*
