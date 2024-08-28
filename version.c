@@ -47,6 +47,8 @@
 #include "storage.h"
 #include "utils.h"
 #include "exceptions.h"
+#include "streams.h"
+#include "utf-ctype.h"
 
 /*
  * Server executable version
@@ -74,6 +76,12 @@
 const char *server_version = VERSION_STRING;
 
 static Var *version_structure = 0;
+
+static char *dotted_list(Stream *s, uint32_t vn)
+{
+    stream_printf(s, "%d.%d.%d", vn>>16, (vn>>8)&0xff, vn & 0xff);
+    return reset_stream(s);
+}
 
 static void
 init_version_structure(void)
@@ -166,6 +174,15 @@ init_version_structure(void)
     VERSION_CONFIG(_QNDEF);
     END_GROUP();
 #endif
+    {
+	Stream *ds = new_stream(5);
+	BEGIN_GROUP(unicode);
+	_DSTR("version",     dotted_list(ds, my_unicode_version()));
+	_DSTR("lib",         my_unilib_name);
+	_DSTR("lib_version", dotted_list(ds, my_unilib_version()));
+	END_GROUP();
+	free_stream(ds);
+    }
 
     if (stack != the_list)
 	panic("init_version_structure: unpopped stuff");
