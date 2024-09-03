@@ -245,7 +245,7 @@ disassemble(Program * prog, Printer p, void *data)
 	    if (b != OP_EXTENDED)
 		stream_add_string(insn, COUNT_TICK(b) ? " * " : "   ");
 	    if (IS_OPTIM_NUM_OPCODE(b))
-		stream_printf(insn, "NUM %d", OPCODE_TO_OPTIM_NUM(b));
+		stream_printf(insn, "NUM %"PRIdN, OPCODE_TO_OPTIM_NUM(b));
 #ifdef BYTECODE_REDUCE_REF
 	    else if (IS_PUSH_CLEAR_n(b))
 		stream_printf(insn, "PUSH_CLEAR %s", NAMES(PUSH_CLEAR_n_INDEX(b)));
