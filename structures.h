@@ -19,6 +19,7 @@
 #define Structures_H 1
 
 #include "config.h"
+#include "options.h"
 
 #include "my-math.h"
 #include "my-stdio.h"
@@ -29,28 +30,69 @@
  * Integers
  */
 
-/* This will move to options.h */
-#define INT_TYPE_BITSIZE 32
+/* The definition of NUM_MAX lives in options_epilog.h
+ * for reasons that are explained there.
+ */
 
-typedef int32_t   Num;
-typedef uint32_t UNum;
-#define PRIdN	PRId32
-#define PRIuN	PRIu32
-#define SCNdN	SCNd32
-#define SCNuN	SCNu32
-#define NUM_MAX	INT32_MAX
-#define NUM_MIN	INT32_MIN
+#if INT_TYPE_BITSIZE == 64
 
-#if HAVE_INT64_T
+typedef  int64_t    Num;
+typedef uint64_t   UNum;
+#  define PRIdN	   PRId64
+#  define PRIuN	   PRIu64
+#  define SCNdN	   SCNd64
+#  define SCNuN	   SCNu64
+#  define NUM_MIN  INT64_MIN
+
+#  if HAVE_INT128_T
 /*
  *  I was originally going to insist 'Num' be called something else,
  *  but I decided to let that go.  This is your pennance:    --wrog
  */
-#  define HAVE_UNUMNUM_T 1
+#    define HAVE_UNUMNUM_T 1
+typedef  int128_t   NumNum;
+typedef uint128_t  UNumNum;
+#  endif
+
+#elif INT_TYPE_BITSIZE == 32
+
+typedef  int32_t    Num;
+typedef uint32_t   UNum;
+#  define PRIdN	   PRId32
+#  define PRIuN	   PRIu32
+#  define SCNdN	   SCNd32
+#  define SCNuN	   SCNu32
+#  define NUM_MIN  INT32_MIN
+
+#  if HAVE_INT64_T
+#    define HAVE_UNUMNUM_T 1
 typedef  int64_t   NumNum;
 typedef uint64_t  UNumNum;
-#endif
+#  endif
 
+#elif INT_TYPE_BITSIZE == 16
+
+/* Oh sure, why not.  Probably NOT something anyone will want
+ * for production, but possibly useful for debugging/testing
+ * ... and pranks.
+ */
+typedef  int16_t    Num;
+typedef uint16_t   UNum;
+#  define PRIdN	   PRId16
+#  define PRIuN	   PRIu16
+#  define SCNdN	   SCNd16
+#  define SCNuN	   SCNu16
+#  define NUM_MIN  INT16_MIN
+
+#  if HAVE_INT32_T
+#    define HAVE_UNUMNUM_T 1
+typedef  int64_t   NumNum;
+typedef uint64_t  UNumNum;
+#  endif
+
+#else
+#  error "?? bad INT_TYPE_BITSIZE not handled in options_epilog.h ??"
+#endif        /* INT_TYPE_BITSIZE */
 
 /***********
  * Objects
@@ -291,8 +333,18 @@ extern Var zero;		/* useful constant */
  * (see DEFAULT_MAX_LIST_CONCAT and DEFAULT_MAX_STRING_CONCAT
  *  in options.h)
  */
-#define MAX_LIST   (INT32_MAX/sizeof(Var) - 2)
-#define MAX_STRING (INT32_MAX - 9)
+#if NUM_MAX > INT16_MAX
+#  define MAX_LIST   (INT32_MAX/(Num)sizeof(Var) - 2)
+#  define MAX_STRING (INT32_MAX - 9)
+#else
+
+/* In 16-bit land, length having to be a Num is the biggest
+ * constraint.  Subtract 1 to shut up the compiler about
+ * certain comparisons always evaluating true.
+ */
+#  define MAX_LIST   (NUM_MAX - 1)
+#  define MAX_STRING (NUM_MAX - 1)
+#endif
 
 
 #ifdef SHORT_ALPHA_VAR_POINTERS
