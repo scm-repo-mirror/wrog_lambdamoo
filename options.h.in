@@ -120,6 +120,24 @@ And now for the options:
 */
 
 /******************************************************************************
+ * INT_TYPE_BITSIZE explicitly fixes the size of the INT/NUM and OBJ
+ * datatypes in bits, for situations where you need them to be a
+ * particular size (e.g., legacy databases where arithmetic rollover
+ * needs to happen in the right place).
+ *
+ * Current allowed values are 16, 32, and 64.  The default, if left
+ * unset, is 64 if your platform has a 64-bit integer type and
+ * otherwise 32.
+ *
+ * !! WARNING:  16 is EXPERIMENTAL; expect weirdness.
+ *
+ * Loading a database previously written by a server with larger
+ * INT_TYPE_BITSIZE will fail there are out-of-range integers.
+ */
+
+#undef INT_TYPE_BITSIZE
+
+/******************************************************************************
  * The server is prepared to keep a log of every command entered by players
  * since the last checkpoint.  The log is flushed whenever a checkpoint is
  * successfully begun and is dumped into the server log when and if the server

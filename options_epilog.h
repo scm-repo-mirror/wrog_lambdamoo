@@ -122,11 +122,84 @@
 #  error Illegal value for "MPLEX_STYLE"
 #endif
 
+
+#ifdef INT_TYPE_BITSIZE
+#  if INT_TYPE_BITSIZE == 1
+    /* Both
+     *    --enable-def-INT_TYPE_BITSIZE=yes
+     *    --disable-def-INT_TYPE_BITSIZE
+     * should be ./configure errors because wtf.  But code
+     * has not yet been written to do that, so cope here.
+     */
+#    undef INT_TYPE_BITSIZE
+#  endif
+#endif
+
+#ifndef INT_TYPE_BITSIZE
+#  if HAVE_INT64_T
+#    define INT_TYPE_BITSIZE 64
+#  else
+#    define INT_TYPE_BITSIZE 32
+#  endif
+#endif
+
+#if HAVE_INT64_T
+/* everything is doable */
+#elif INT_TYPE_BITSIZE == 64
+#  error INT_TYPE_BITSIZE == 64 requires a platform that has 64-bit integers.
+#elif HAVE_INT32_T
+/* we can do 32 or 16 */
+#elif INT_TYPE_BITSIZE == 32
+#  error INT_TYPE_BITSIZE == 32 requires a platform that has 32-bit integers.
+#endif
+
+#if INT_TYPE_BITSIZE == 64
+#  define NUM_MAX  INT64_MAX
+#elif INT_TYPE_BITSIZE == 32
+#  define NUM_MAX  INT32_MAX
+#elif INT_TYPE_BITSIZE == 16
+#  define NUM_MAX  INT16_MAX
+#elif
+#  error INT_TYPE_BITSIZE can only be 64, 32, or 16.
+#endif
+
 #if DEFAULT_MAX_LIST_CONCAT < MIN_LIST_CONCAT_LIMIT
 #error DEFAULT_MAX_LIST_CONCAT < MIN_LIST_CONCAT_LIMIT ??
 #endif
 #if DEFAULT_MAX_STRING_CONCAT < MIN_STRING_CONCAT_LIMIT
 #error DEFAULT_MAX_STRING_CONCAT < MIN_STRING_CONCAT_LIMIT ??
+#endif
+
+#if NUM_MAX < INTMAX_MAX
+/* Options that are modifiable in-db must fit in a Num so we need an
+ * additional upper bound if Num is not the widest possible integer
+ * type.  This mostly only comes up in the INT16 world, but we may as
+ * well be general.
+ *
+ * And hence we need NUM_MAX here rather than structures.h
+ * because this file needs to be early, as explained above.
+ *
+ * The various subtractions of 1 are to nuke compiler
+ * warnings about branches always going the same way,
+ * which we might normally be concerned about but in
+ * these cases, no.
+ */
+#  if DEFAULT_MAX_LIST_CONCAT   >= NUM_MAX
+#    undef  DEFAULT_MAX_LIST_CONCAT
+#    define DEFAULT_MAX_LIST_CONCAT	(NUM_MAX - 1)
+#  endif
+#  if DEFAULT_MAX_STRING_CONCAT >= NUM_MAX
+#    undef  DEFAULT_MAX_STRING_CONCAT
+#    define DEFAULT_MAX_STRING_CONCAT	(NUM_MAX - 1)
+#  endif
+#  if MAX_QUEUED_OUTPUT >= NUM_MAX
+#    undef  MAX_QUEUED_OUTPUT
+#    define MAX_QUEUED_OUTPUT	(NUM_MAX - 1)
+#  endif
+#  if MAX_QUEUED_INPUT  >= NUM_MAX
+#    undef  MAX_QUEUED_INPUT
+#    define MAX_QUEUED_INPUT	(NUM_MAX - 1)
+#  endif
 #endif
 
 #endif		/* !Options_Epilog_H */
