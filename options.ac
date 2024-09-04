@@ -118,6 +118,13 @@ m4_if(#
 
 m4_if(#
 #
+#  Datatype options
+#
+)[[INT_TYPE_BITSIZE],  [int],                         no,
+  [bitsize of integer/object-id values]],
+
+m4_if(#
+#
 #  Misc value options
 #
 )[[MAX_QUEUED_OUTPUT],      [int], 65536,
