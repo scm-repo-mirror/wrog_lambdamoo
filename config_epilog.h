@@ -81,10 +81,6 @@
 #  endif
 #endif
 
-#ifndef HAVE_INT32_T
-#  error This platform does not have 32-bit integers?
-#endif
-
 #ifndef HAVE_INT64_T
 #  if LONG_MAX == 9223372036854775807
      typedef long          int64_t;
