@@ -33,27 +33,94 @@ extern DB_Version dbio_input_version;
 
 extern int dbio_scanf(const char *format,...) FORMAT(scanf,1,2);
 
-extern int dbio_read_num(void);
-extern Objid dbio_read_objid(void);
-extern FlBox dbio_read_float(void);
+/*--------------------------*
+ |  integer range checking  |
+ *--------------------------*
+ *  DEF(<XX>, <xx_t>, <fn>, <SCNxx>)
+ *    declares the enumeration constant 'DBIO_RANGE_<XX>'
+ *    to refer to the integer type '<xx_t>',
+ *    the corresponding reader function to be 'dbio_read_<fn>',
+ *    and the dbio_scxnf() conversion to be %"<SCNxx>"
+ *    (and if that value is quoted here, then it's unquoted
+ *    in the actual format string and vice versa, e.g.,
+ *    use '%jd' for intmax_t, but '%"SCNdN"' for Num).
+ */
+#define DBIO_INT_TYPE_LIST(DEF)			\
+    DEF(INTMAX, intmax_t, intmax,    "jd")	\
+    DEF(NUM,         Num, num,      SCNdN)	\
+    DEF(UNUM,       UNum, unum,     SCNuN)	\
+    DEF(INT16,   int16_t, int16,   SCNd16)	\
+    DEF(UINT16, uint16_t, uint16,  SCNu16)	\
+    DEF(INT,         int, int,        "d")	\
+    DEF(UINT,   unsigned, uint,       "u")	\
+    DEF(ERR,  enum error, err,  SCNu8"\a")	\
 
-extern const char *dbio_read_string_temp(void);
-				/* The returned string is in private storage of
-				 * the DBIO module, so the caller should
-				 * str_dup() it if it is to persist.
-				 */
+enum dbio_intrange {
+#   define DBIO_DO_(INTXX,_2,_3,_4)  DBIO_RANGE_##INTXX,
 
-extern const char *dbio_read_string_intern(void);
-				/* The returned string is duplicated
-				 * and possibly interned in a db-load
-				 * string intern table.
-				 */
+    DBIO_INT_TYPE_LIST(DBIO_DO_)
+    DBIO_RANGE__LENGTH
 
-extern Var dbio_read_var(void);
-				/* The DBIO module retains no references to
-				 * the returned value, so freeing it is
-				 * entirely the responsibility of the caller.
-				 */
+#   undef DBIO_DO_
+};
+
+/*---------------------------*
+ |  dbio_read_*() functions  |
+ *---------------------------*
+ *  The dbio_read_* functions (NOT including dbio_read_program) read
+ *  individual data items, and, when successful, assign the value read
+ *  to the designated lvalue (*P) argument and return non-zero.
+ *
+ *  When an error or premature EOF occurs, the return value is zero
+ *  with an error message being written to the server log, in which
+ *  case you should not count on (*P) to be anything in particular.
+ */
+
+extern int dbio_read_integer(enum dbio_intrange r, intmax_t *p);
+                /* a.k.a. dbio_read_intmax(p)  dbio_read_num(p)
+		 *        dbio_read_int16(p)   dbio_read_uint16(p)
+		 *        dbio_read_int(p)     dbio_read_uint(p)
+		 *
+		 * Reads an integer, with range checking (uses
+		 * str_to_imax() to read all available digits even for
+		 * (u)int16); the value read is assigned via the last
+		 * argument.
+		 */
+
+#   define DBIO_DO_(INTXX,intxx_t,intxx,_4)		\
+							\
+inline int dbio_read_##intxx(intxx_t *p) {		\
+    intmax_t i = 0;					\
+    int r = dbio_read_integer(DBIO_RANGE_##INTXX, &i);	\
+    *p = (intxx_t)i;					\
+    return r;						\
+}							\
+
+    DBIO_INT_TYPE_LIST(DBIO_DO_)
+#   undef DBIO_DO_
+
+extern int dbio_read_objid(Objid *);
+
+/* For this function, any string assigned will always be in private
+ * DBIO module storage, to be overwritten by the next dbio_read*()
+ * call; caller must make its own copy if persistence is needed.
+ */
+extern int dbio_read_string_temp(const char **);
+
+/*  For the following functions, in the event of a succesful
+ *  return (>0) the caller is responsible for eventually freeing
+ *  any allocated data via free_str() or free_var(), depending.
+ *  For an error return (==0), all such memory will have already
+ *  been reclaimed and any Var or char* assigned here can
+ *  (and must) be safely ignored.
+ */
+extern int dbio_read_float(FlBox *);
+extern int dbio_read_string_intern(const char **);
+extern int dbio_read_var(Var *);
+
+/*---------------------*
+ |  dbio_read_program  |
+ *---------------------*  is different */
 
 extern Program *dbio_read_program(DB_Version version,
 				  const char *(*fmtr) (void *),
