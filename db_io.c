@@ -23,11 +23,12 @@
 #include "db_private.h"
 
 #include "my-ctype.h"
-#include <float.h>
+#include "my-math.h"
 #include "my-stdarg.h"
 #include "my-stdio.h"
 #include "my-stdlib.h"
 #include "my-string.h"
+#include <errno.h>
 
 #include "exceptions.h"
 #include "list.h"
@@ -39,12 +40,15 @@
 #include "structures.h"
 #include "str_intern.h"
 #include "unparse.h"
+#include "utils.h"
 #include "version.h"
 
 
 /*********** Input ***********/
 
 static FILE *input;
+
+static const char *dbio_last_error = NULL;
 
 void
 dbpriv_set_dbio_input(FILE * f)
@@ -97,6 +101,16 @@ dbio_read_line(const char **end)
     return reset_stream(dbio_line_stream);
 }
 
+static inline int
+dbio_read_line_noisy(const char *caller, const char **s, const char **pend)
+{
+    if (!!(*s = dbio_read_line(pend)))
+	return 1;
+    errlog("%s: Unexpected end of file\n", caller);
+    dbio_last_error = "Unexpected end of file";
+    return 0;
+}
+
 int
 dbio_scanf(const char *format,...)
 {
@@ -110,101 +124,204 @@ dbio_scanf(const char *format,...)
     return count;
 }
 
+/*--------------------------*
+ |  integer range checking  |
+ *--------------------------*/
+
+#define  DBIO_INT16_INIT  { INT16_MIN,  INT16_MAX, 0 }
+#define DBIO_UINT16_INIT  {         0, UINT16_MAX, 0 }
+#define DBIO_INTMAX_INIT  { .skip=1 }
+#define    DBIO_ERR_INIT  {   ERR_MIN,    ERR_MAX, 0 }
+
+#if NUM_MAX == INTMAX_MAX
+#  define  DBIO_NUM_INIT  DBIO_INTMAX_INIT
+#else
+#  define  DBIO_NUM_INIT  { NUM_MIN, NUM_MAX, 0 }
+#endif
+#define  DBIO_UNUM_INIT   { 0, NUM_MAX, 0 }
+/* UNum is really Num that must not go negative */
+
+#if INT_MAX < INTMAX_MAX
+#  define  DBIO_INT_INIT  { INT_MIN,  INT_MAX, 0 }
+#  define DBIO_UINT_INIT  {      0,  UINT_MAX, 0 }
+
+#else  /* INT_MAX == INTMAX_MAX */
+#  define  DBIO_INT_INIT  DBIO_INTMAX_INIT
+#  define DBIO_UINT_INIT  { 0, INTMAX_MAX, 0 }
+/* Why INTMAX_MAX instead of UINTMAX_MAX?
+   Answer:
+   In this situation, we would have to go to extra trouble to preserve
+   that top bit, and having something declared as 'unsigned' rather
+   than 'uintmax_t' means the author was never intending to put really
+   large quantities there or be using that top bit as a flag.
+   Forbidding this means we can read everything as intmax_t and then
+   complain if we see anything going outside that range, which is most
+   likely a mistake anyway.
+*/
+#endif
+
+static struct intrange {
+    intmax_t min;
+    intmax_t max;
+    uint8_t skip;
+}
+#define DBIO_DO_(INTXX,_2,_3,_4)   DBIO_##INTXX##_INIT,
+    dbio_intranges[] = {
+       DBIO_INT_TYPE_LIST(DBIO_DO_)
+};
+#undef DBIO_DO_
+
+
+static intmax_t
+dbio_string_to_integer(enum dbio_intrange range_id, const char *s, const char **end)
+{
+    errno = 0;
+    intmax_t i = strtoimax(s, (char **)end, 10);
+    const struct intrange *range = dbio_intranges + range_id;
+
+    dbio_last_error = NULL;
+    if (errno == ERANGE)
+	dbio_last_error = "Integer overflow on read";
+    else if (errno)
+	dbio_last_error = "Some other strtoimax() error";
+    else if (*end == s)
+	dbio_last_error = "Integer expected";
+    else if (range->skip)
+	;
+    else if (i < range->min)
+	dbio_last_error = range->min ? "Integer too negative" : "Integer must be unsigned";
+    else if (range->max < i)
+	dbio_last_error = "Integer too large";
+    return i;
+}
+
 /*-----------------------------*
  |  reading individual values  |
  *-----------------------------*/
 
-int64_t
-dbio_read_num(void)
+int
+dbio_read_integer(enum dbio_intrange range_id, intmax_t *ip)
 {
-    char s[22];
-    char *p;
-    long long i;
+    const char *s, *p1, *p2;
 
-    fgets(s, sizeof(s), input);
-    i = strtoll(s, &p, 10);
-    if (isspace(*s) || *p != '\n')
-	errlog("DBIO_READ_NUM: Bad number: \"%s\" at file pos. %ld\n",
-	       s, ftell(input));
-    return i;
+    if (!dbio_read_line_noisy("DBIO_READ_INTEGER", &s, &p1))
+	return 0;
+
+    *ip = dbio_string_to_integer(range_id, s, &p2);
+    if (!dbio_last_error && (isspace(*s) || p1 != p2))
+	dbio_last_error = "Did not read entire line";
+
+    if (dbio_last_error) {
+	errlog("DBIO_READ_INTEGER: %s: \"%s\" at file pos. %ld\n",
+	       dbio_last_error, s, ftell(input));
+	return 0;
+    }
+    return 1;
 }
 
-FlBox
-dbio_read_float(void)
+int
+dbio_read_float(FlBox *fbp)
 {
-    char s[40];
-    char *p;
-    FlNum d;
+    const char *s, *p1, *p2;
 
-    fgets(s, 40, input);
-    d = strtoflnum(s, &p);
-    if (isspace(*s) || *p != '\n')
-	errlog("DBIO_READ_FLOAT: Bad number: \"%s\" at file pos. %ld\n",
-	       s, ftell(input));
-    return box_fl(d);
+    if (!dbio_read_line_noisy("DBIO_READ_FLOAT", &s, &p1))
+	return 0;
+
+    FlNum d = strtoflnum(s, (char **)&p2);
+    dbio_last_error =
+	((isspace(*s) || p1 != p2)
+	 ? "Did not read entire line"
+	 : (!IS_REAL(d)
+	    ? "Magnitude too large or NaN"
+	    : NULL));
+
+    if (dbio_last_error) {
+	errlog("DBIO_READ_FLOAT: %s: \"%s\" at file pos. %ld\n",
+	       dbio_last_error, s, ftell(input));
+	return 0;
+    }
+    *fbp = box_fl(d);
+    return 1;
 }
 
-Objid
-dbio_read_objid(void)
+int
+dbio_read_objid(Objid *op)
 {
-    return dbio_read_num();
+    return dbio_read_num(op);
 }
 
-const char *
-dbio_read_string_temp(void)
+int
+dbio_read_string_temp(const char **s)
 {
-    return dbio_read_line(NULL);
+    return dbio_read_line_noisy("DBIO_READ_STRING", s, NULL);
 }
 
-const char *
-dbio_read_string_intern(void)
+int
+dbio_read_string_intern(const char **s)
 {
-    return str_intern(dbio_read_line(NULL));
+    if (!dbio_read_line_noisy("DBIO_READ_STRING_INTERN", s, NULL))
+	return 0;
+    *s = str_intern(*s);
+    return 1;
 }
 
-Var
-dbio_read_var(void)
+int
+dbio_read_var(Var *vp)
 {
-    Var r;
-    int i, l = dbio_read_num();
-
-    if (l == (int) TYPE_ANY && dbio_input_version == DBV_Prehistory)
-	l = TYPE_NONE;		/* Old encoding for VM's empty temp register
-				 * and any as-yet unassigned variables.
-				 */
-    r.type = (var_type) l;
-    switch (l) {
+    intmax_t vtype;
+    if (!dbio_read_intmax(&vtype)) {
+	*vp = zero;
+	return 0;
+    }
+    if (vtype == TYPE_ANY && dbio_input_version == DBV_Prehistory)
+	vtype = TYPE_NONE;  /* Old encoding for VM's empty temp register
+			     * and any as-yet unassigned variables.
+			     */
+    vp->type = (var_type) vtype;
+    switch (vtype) {
     case TYPE_CLEAR:
     case TYPE_NONE:
 	break;
     case _TYPE_STR:
-	r.v.str = dbio_read_string_intern();
-	r.type |= TYPE_COMPLEX_FLAG;
+	if (!dbio_read_string_intern(&vp->v.str))
+	    goto bad_value;
+	vp->type = TYPE_STR;
 	break;
     case TYPE_OBJ:
+	return dbio_read_objid(&vp->v.obj);
     case TYPE_ERR:
+	return dbio_read_err(&vp->v.err);
     case TYPE_INT:
     case TYPE_CATCH:
     case TYPE_FINALLY:
-	r.v.num = dbio_read_num();
-	break;
+	return dbio_read_num(&vp->v.num);
     case _TYPE_FLOAT:
-	r.type = TYPE_FLOAT;
-	r.v.fnum = dbio_read_float();
+	if (!dbio_read_float(&vp->v.fnum))
+	    goto bad_value;
+	vp->type = TYPE_FLOAT;
 	break;
-    case _TYPE_LIST:
-	l = dbio_read_num();
-	r = new_list(l);
-	for (i = 0; i < l; i++)
-	    r.v.list[i + 1] = dbio_read_var();
+    case _TYPE_LIST: ;
+	UNum len;
+	if (!dbio_read_unum(&len))
+	    goto bad_value;
+	*vp = new_list(len); /* overwrites vp->type */
+	UNum i;
+	for (i = 1; i <= len; ++i)
+	    if (!dbio_read_var(&vp->v.list[i])) {
+		vp->v.list[0].v.num = i-1;
+		free_var(*vp);
+		goto bad_value;
+	    }
 	break;
     default:
-	errlog("DBIO_READ_VAR: Unknown type (%d) at DB file pos. %ld\n",
-	       l, ftell(input));
-	r = zero;
-	break;
+	dbio_last_error = "Unknown Var type";
+	errlog("DBIO_READ_VAR: Unknown type (%jd) at DB file pos. %ld\n",
+	       vtype, ftell(input));
+    bad_value:
+	*vp = zero;
+	return 0;
     }
-    return r;
+    return 1;
 }
 
 /*---------------------*
