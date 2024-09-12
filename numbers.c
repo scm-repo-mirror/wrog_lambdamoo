@@ -22,6 +22,7 @@
 
 #include <limits.h>
 #include <errno.h>
+#include "my-ctype.h"
 #include "my-math.h"
 #include "my-stdlib.h"
 #include "my-string.h"
@@ -44,65 +45,266 @@ inrange_for_float_to_int(FlNum d)
 	    && d < (-(FlNum)NUM_MIN));
 }
 
-static int
-parse_number(const char *str, Num *result, int try_floating_point)
+
+Var
+parse_number(unsigned flags, int32_t c_first,
+	     int32_t (*getch)(void),
+	     void (*ungetch)(int32_t))
 {
+    int32_t c = c_first;
+    Stream *ns = new_stream(30);
+
+    Var ret = zero;
+    /* ret.type = TYPE_INT minus compiler
+       warnings about uninitialized .num */
+
+    /* state flags */
+
+/* sticky flags; they stay on, once set:           */
+#   define F_INT    0x01     /* integer-only mode  */
+#   define F_MINUS  0x02     /* '-' seen at all    */
+#   define F_DOT    0x04     /* '.' seen at all    */
+#   define F_EXP    0x08     /* we are in exponent */	\
+
+/* these get reset when 'E'|'e' shows up:          */
+#   define F_DIGIT  0x10     /* number is viable   */
+#   define F_XSIGN  0x20     /* forbid '-' and '+' */
+
+    if (flags & PN_NONNEG) {
+	stream_add_char(ns, '-');
+	/* Yes, we are being tricky.
+	   See Very Long Comment below. */
+    }
+
+    unsigned state = F_INT*(!(flags & PN_FLOAT_OK));
+
+    if (EOF == c) goto donechars;
+
+#   define NEXTC(what_to_do_at_eof)		\
+        do {					\
+	   if (EOF == (c = getch())) {		\
+	       what_to_do_at_eof;		\
+	   }					\
+	} while (0)				\
+
+    if (flags & PN_LDSPACE)
+	while (isspace(c))
+	    NEXTC(goto donechars);
+
+    if ((flags & PN_OCTOTHORPE) && (c == '#')) {
+	NEXTC(goto donechars);
+	if (flags & PN_OCTOSPACE)
+	    while (isspace(c))
+		NEXTC(goto donechars);
+    }
+
+    for (;;) {
+	switch (c) {
+	case '+':
+	    if ((state & (F_EXP|F_XSIGN)) != F_EXP)
+		goto badchar;
+	    state |= F_XSIGN;
+	    break;
+	case '-':
+	    if (state & (F_XSIGN))
+		goto badchar;
+	    state |= F_MINUS|F_XSIGN;
+	    break;
+	case '.':
+	    if (state & (F_DOT|F_EXP|F_INT))
+		goto badchar;
+	    if (ungetch) {
+		/* we can do lookahead to decide whether this
+		 * '.' is a decimal point or it starts a new token
+		 */
+		int32_t cc = getch();
+		ungetch(cc);
+		if (cc == '.') {
+		    /* treat '..' as if it were some other character */
+		    goto badchar;
+		}
+	    }
+	    ret.type = TYPE_FLOAT;
+	    state |= F_DOT|F_XSIGN;
+	    break;
+	case 'e':
+	case 'E':
+	    if ((state & (F_DIGIT|F_EXP|F_INT)) != F_DIGIT)
+		goto badchar;
+	    ret.type = TYPE_FLOAT;
+	    state |= F_EXP;
+	    state &= ~(F_DIGIT|F_XSIGN);
+	    break;
+	default:
+	    if (flags & PN_TRSPACE) {
+		while (isspace(c))
+		    NEXTC(goto donechars);
+	    }
+	    goto badchar;
+	case '0': case '1': case '2': case '3': case '4':
+	case '5': case '6': case '7': case '8': case '9':
+	    state |= F_DIGIT|F_XSIGN;
+	    break;
+	}
+	stream_add_char(ns, c);
+	NEXTC(goto donechars);
+    }
+#   undef NEXTC
+
+ badchar:
+    if (ungetch) ungetch(c);
+    if (flags & PN_MUST_EOF)
+	goto parse_error;
+
+ donechars:
+    if (state & F_DIGIT)
+	goto have_digits;
+    if ((state & F_EXP) || !ungetch)
+	goto parse_error;
+
+    if (state & F_DOT)
+	(*ungetch)('.');
+    if (state & F_MINUS)
+	(*ungetch)('-');
+
+    /* "Dr. Corby ... was never here." */
+    ret.v.err = E_NONE;
+    goto return_error;
+
+#   undef F_INT
+#   undef F_MINUS
+#   undef F_DOT
+#   undef F_EXP
+#   undef F_DIGIT
+#   undef F_XSIGN
+
+ have_digits: ;
     char *p;
+    const char *s = stream_contents(ns);
+    const char *p0 = s + stream_length(ns);
+    errno = 0;
 
-    *result = (Num) strtoimax(str, &p, 10);
-    if (try_floating_point &&
-	(p == str || *p == '.' || *p == 'e' || *p == 'E'))
-	*result = (Num) strtod(str, &p);
-    if (p == str)
-	return 0;
-    while (*p) {
-	if (*p != ' ')
-	    return 0;
-	p++;
+    if (ret.type == TYPE_INT && !(flags & PN_REQ_FLOAT)) {
+	intmax_t i = strtoimax(stream_contents(ns), &p, 10);
+	/* Recall that this is negated in the PN_NONNEG case.
+         * See Very Long Comment below.
+	 */
+	if (errno == ERANGE
+#if NUM_MAX < INTMAX_MAX
+	    || i < NUM_MIN || i > NUM_MAX
+#endif
+	   )
+	    goto range_error;
+	if (p != p0)
+	    goto parse_error;
+	ret.v.num = ((flags & PN_NONNEG) ? -i : i);
     }
-    return 1;
-}
+    else {
+	FlNum d = strtoflnum(stream_contents(ns)
+			     /* Extra negation is not needed here. */
+			     + ((flags & PN_NONNEG) ? 1 : 0), &p);
+	if (p != p0)
+	    goto parse_error;
+	if (!IS_REAL(d))
+	    goto range_error;
+	if (flags & PN_REQ_INT) {
+	    if (!inrange_for_float_to_int(d))
+		goto range_error;
+	    ret.type = TYPE_INT;
+	    ret.v.num = (Num)d;
+	}
+	else {
+	    ret.type = TYPE_FLOAT;
+	    ret.v.fnum = box_fl(d);
+	}
+    }
+ return_value:
+    free_stream(ns);
+    return ret;
 
-static int
-parse_object(const char *str, Objid * result)
+ range_error:
+    ret.v.err = E_RANGE;
+    goto return_error;
+
+ parse_error:
+    ret.v.err = E_INVARG;
+ return_error:
+    ret.type = TYPE_ERR;
+    goto return_value;
+
+}
+/* The extra initial minus for the PN_NONNEG case is for the yacc
+ * parser, which splits minus signs away from constants, and hence has
+ * to be able to read a bare (NUM_MAX+1) -- which we would normally want
+ * to flag as out-of-range -- the problem being that NUM_MIN, which can
+ * show up in dumped databases, will essentially have been pre-parsed as
+ *   '-' (NUM_MAX+1)
+ * and there's nothing we can do about that, or at least, nothing
+ * pleasant.
+ *
+ * However, for the yacc parser, we will be certain the number we are
+ * reading is non-negative, so artifically adding a minus before
+ * sending it off to strimax() will
+ *   (1) not lose information or create anything unparseable, and
+ *   (2) make strtoimax read something in the range [NUM_MIN..0]
+ *       rather than [0..NUM_MAX+1], which is then guaranteed to
+ *       succeed, and, upon re-negation a few lines later, these
+ *       numbers will all become [0..(NUM_MAX+1)(**)],
+ *
+ * and anything at started out as NUM_MIN will be returned from
+ * parse_number as NUM_MAX+1 but then will later get fed to a unary
+ * negation op constant-folding, and then become the NUM_MIN
+ * that it was originally supposed to be...
+ *
+ * (**)... the one weirdness being that if we're on a platform whose
+ * INTMAX_MAX == NUM_MAX, then strtoimax() will produce NUM_MIN
+ * directly and the two subsequent negations will actually be
+ * no-ops,... but this will be completely invisible.
+ *
+ * The one downside to all of this is if someone tries to write a
+ * *positive* (NUM_MAX+1) into verbcode (i.e., without any leading
+ * '-'), this will get silently rewritten into NUM_MIN as well, *but*,
+ * on a virtual machine using 2s-complement integers of that width,
+ * the two numbers *will* be functionally equivalent, even if NUM_MIN
+ * might not be what they're expecting to see when they list out the
+ * verb again.  However given that, in the database format, the only
+ * integers of that magnitude will all be NUM_MINs, the only way a
+ * postive (NUM_MAX+1) can show up is if someone enters all of the
+ * digits directly anew into a set_verb_ode()/.program session, at
+ * which point we have to presume that if they're playing in this
+ * world, they know what they're doing (and thus know that it's going
+ * to get immediately negated anyway because that's how 2-s complement
+ * integers work.)
+ *
+ * (... still sucks that we cannot even issue a warning about this
+ * but I have yet to come up with a good way to do even that.
+ * --wrog)
+ */
+
+
+static const char *snp_string;
+static const char *snp_end;
+static void
+snp_init(const char *str)
 {
-    Num number;
-
-    while (*str && *str == ' ')
-	str++;
-    if (*str == '#')
-	str++;
-    if (parse_number(str, &number, 0)) {
-	*result = number;
-	return 1;
-    } else
-	return 0;
+    snp_string = str;
+    snp_end = str + memo_strlen(str);
 }
-
-static int
-parse_float(const char *str, FlNum *result)
+static int32_t
+snp_getch(void)
 {
-    char *p;
-    int negative = 0;
-
-    while (*str && *str == ' ')
-	str++;
-    if (*str == '-') {
-	str++;
-	negative = 1;
-    }
-    *result = strtoflnum(str, &p);
-    if (p == str)
-	return 0;
-    while (*p) {
-	if (*p != ' ')
-	    return 0;
-	p++;
-    }
-    if (negative)
-	*result = -*result;
-    return 1;
+    if (snp_string >= snp_end)
+	return EOF;
+    return *snp_string++;
 }
+
+static Var
+parse_number_from_string(const char *str, unsigned flags)
+{
+    snp_init(str);
+    return parse_number(flags|PN_MUST_EOF, snp_getch(), snp_getch, NULL );
+}
+
 
 enum error
 become_integer(Var in, Num *ret, int called_from_tonum)
@@ -111,12 +313,27 @@ become_integer(Var in, Num *ret, int called_from_tonum)
     case TYPE_INT:
 	*ret = in.v.num;
 	break;
-    case TYPE_STR:
-	if (!(called_from_tonum
-	      ? parse_number(in.v.str, ret, 1)
-	      : parse_object(in.v.str, ret)))
-	    *ret = 0;
+    case TYPE_STR: {
+	/*  PRAGMA_ALERT***
+	 *   1.8.3lm => E_NONE,*ret=0
+	 *   on no number or junk after the end
+	 */
+	Var r = parse_number_from_string(
+              in.v.str,
+	      PN_SPACE|PN_REQ_INT|
+	      (called_from_tonum
+	       ? PN_FLOAT_OK : PN_OCTOTHORPE));
+	if (r.type == TYPE_ERR) {
+	    if (r.v.err == E_NONE)
+		/* cannot happen but current gcc is
+		   not smart enough to know that. */
+		*ret = 12345;
+	    return r.v.err;
+	}
+	*ret = r.v.num;
+	free_var(r);  /* gratuitous */
 	break;
+    }
     case TYPE_OBJ:
 	*ret = in.v.obj;
 	break;
@@ -142,6 +359,7 @@ become_integer(Var in, Num *ret, int called_from_tonum)
     return E_NONE;
 }
 
+
 static enum error
 become_float(Var in, FlNum *ret)
 {
@@ -149,10 +367,25 @@ become_float(Var in, FlNum *ret)
     case TYPE_INT:
 	*ret = (FlNum)in.v.num;
 	break;
-    case TYPE_STR:
-	if (!parse_float(in.v.str, ret) || !IS_REAL(*ret))
-	    return E_INVARG;
+    case TYPE_STR: {
+	/* PRAGMA_ALERT***:
+	 *  1.8.3lm => E_INVARG on no number, junk after end
+	 *    NaN, or infinity (out of float range)
+	 */
+	Var r = parse_number_from_string(
+	     in.v.str,
+	     PN_SPACE|PN_FLOAT_OK|PN_REQ_FLOAT);
+	if (r.type == TYPE_ERR) {
+	    if (r.v.err == E_NONE)
+		/* cannot happen but current gcc is
+		   not smart enough to know that. */
+		*ret = 12345.0;
+	    return r.v.err;
+	}
+	*ret = fl_unbox(r.v.fnum);
+	free_var(r);  /* not gratuitous if FLOATS_ARE_BOXED */
 	break;
+    }
     case TYPE_OBJ:
 	*ret = (FlNum)in.v.obj;
 	break;
