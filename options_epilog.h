@@ -132,6 +132,8 @@
 /* For temporary fake implementation of pragmas that will go away: */
 #define PG_ALL             -1
 #define PG_FLOATINT_INEQ  0x1
+#define PG_TONUM_RAISE    0x4
+#define PG_TOFLOAT_EFLOAT 0x8
 
 #define PRAGMA_ON(WHICH) ((PRAGMAS)&PG_##WHICH)
 #define PRAGMA_OFF(WHICH) ((~(PRAGMAS))&PG_##WHICH)

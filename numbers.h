@@ -32,6 +32,79 @@ extern Var do_divide(Var, Var);
 extern Var do_modulus(Var, Var);
 extern Var do_power(Var, Var);
 
+/*
+ * parse_number(flags, c_first, getch, ungetch|NULL )
+ *
+ * parses and returns the next integer or float value,
+ * possibly allowing whitespace, decimal points, exponents
+ * or a leading #, in accordance with the specified
+ *   flags   - keep reading
+ * from an input stream defined by the last three arguments
+ *   c_first - the first character
+ *   getch() - advance input, return next character or EOF
+ *   ungetch(c) - NULL or routine that pushes c back to input
+ *
+ * flags are as follows:
+ */
+#define PN_FLOAT_OK    0x01   /* allow decimal. and exponent  */
+#define PN_REQ_FLOAT   0x02   /* force returning a float      */
+#define PN_REQ_INT     0x04   /* force returning an integer   */
+#define PN_NONNEG      0x08   /* non-negative numbers only,   */
+          /*  i.e., do not accept leading minus signs; this
+           *  also changes the range of acceptable integers
+	   *  and *may* make it possible for them to overflow
+	   *  to NUM_MIN -- what the yacc parser needs.
+           *  See Very Long Comment in numbers.c for details. */
+
+/* The following should only be used when ungetch == NULL     */
+#define PN_OCTOTHORPE  0x10   /* a leading # is allowed       */
+#define PN_LDSPACE     0x20   /* allow leading whitespace     */
+#define PN_TRSPACE     0x40   /* allow trailing whitespace    */
+#define PN_OCTOSPACE   0x80   /* allow whitespace after #     */
+#define PN_MUST_EOF   0x100   /* must use all of the input    */
+#define PN_SPACE     (PN_LDSPACE|PN_TRSPACE|PN_OCTOSPACE)
+/*
+ * The return value will be a Var with .type =
+ *    TYPE_INT or TYPE_FLOAT if the parse was successful *and*
+ *      the resulting value was within the representable range
+ *      (integers must be in [NUM_MIN..NUM_MAX], or,
+ *       if PN_NONNEG is set,   in [0..NUM_MAX+1];
+ *       floats must have magnitude < HUGE_VAL)
+ *    TYPE_ERROR otherwise
+ *      .v.err = E_NONE if ungetch != NULL and no digits were seen
+ *      .v.err = E_INVARG for all other syntax errors
+ *      .v.err = E_RANGE or E_FLOAT for unrepresentable values
+ *
+ * as per the following chart:
+ *
+ *    PN_REQ_flags             Value encountered
+ *     specified    No decimal./exponent   Decimal./exponent seen
+ *   _____________||_____________________|________________________
+ *                ||    TYPE_INT         |  TYPE_INT or E_FLOAT
+ *    PN_REQ_INT  ||       or            |  (float is truncated)
+ *   _____________|| _   E_RANGE   _  _  |________________________
+ *     neither    ||                     |
+ *   -------------||---------------------+     TYPE_FLOAT
+ *   PN_REQ_FLOAT ||  (int is floated)   .      or E_FLOAT
+ *
+ * If ungetch() is non-NULL:
+ *  (1)  E_NONE returned means the parser has fully backtracked,
+ *       i.e., the next getch() would return c_first.
+ *  (2)  The parser will backtrack out of '..'
+ *       and certain bitwise operator situations, meaning,
+ *       that '..' will always be treated as a distinct token
+ *       and not included in any number so that, e.g.,
+ *         "1.." parses as:     [integer 1] ['..']
+ *         "1...2" parses as:   [integer 1] ['..'] [float 0.2]
+ *         "1....2" parses as:  [integer 1] ['..'] ['..']
+ */
+extern Var
+parse_number(unsigned flags,
+	     int32_t c_first,
+	     int32_t (*getch)(void),
+	     void (*ungetch)(int32_t));
+
+
 #endif		/* !Numbers_H */
 
 /*
