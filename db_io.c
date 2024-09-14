@@ -260,12 +260,6 @@ dbio_read_objid(Objid *op)
 }
 
 int
-dbio_read_string_temp(const char **s)
-{
-    return dbio_read_line_noisy("DBIO_READ_STRING", s, NULL);
-}
-
-int
 dbio_read_string_intern(const char **s)
 {
     if (!dbio_read_line_noisy("DBIO_READ_STRING_INTERN", s, NULL))
