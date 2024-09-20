@@ -40,8 +40,8 @@ typedef  int64_t    Num;
 typedef uint64_t   UNum;
 #  define PRIdN	   PRId64
 #  define PRIuN	   PRIu64
-#  define SCNdN	   SCNd64
-#  define SCNuN	   SCNu64
+#  define SCNdN_   SCNd64
+#  define SCNuN_   SCNu64
 #  define NUM_MIN  INT64_MIN
 
 #  if HAVE_INT128_T
@@ -60,8 +60,8 @@ typedef  int32_t    Num;
 typedef uint32_t   UNum;
 #  define PRIdN	   PRId32
 #  define PRIuN	   PRIu32
-#  define SCNdN	   SCNd32
-#  define SCNuN	   SCNu32
+#  define SCNdN_   SCNd32
+#  define SCNuN_   SCNu32
 #  define NUM_MIN  INT32_MIN
 
 #  if HAVE_INT64_T
@@ -80,8 +80,8 @@ typedef  int16_t    Num;
 typedef uint16_t   UNum;
 #  define PRIdN	   PRId16
 #  define PRIuN	   PRIu16
-#  define SCNdN	   SCNd16
-#  define SCNuN	   SCNu16
+#  define SCNdN_   SCNd16
+#  define SCNuN_   SCNu16
 #  define NUM_MIN  INT16_MIN
 
 #  if HAVE_INT32_T
@@ -93,6 +93,15 @@ typedef uint64_t  UNumNum;
 #else
 #  error "?? bad INT_TYPE_BITSIZE not handled in options_epilog.h ??"
 #endif        /* INT_TYPE_BITSIZE */
+
+#define SCNdN  SCNdN_"\a"
+#define SCNuN  SCNuN_"\a"
+/* For use in dbio_scxnf() only.  (scanf() is never used.)
+ * Extra character following conversion spec allows these
+ * to be distinguished from other uses of SCN### in a way
+ * that won't screw up the FORMAT(scanf...) typechecking.
+ */
+
 
 /***********
  * Objects
@@ -240,7 +249,7 @@ enum error {
  */
 typedef  int32_t    TaskID;
 #  define PRIdT	    PRId32
-#  define SCNdT     SCNd32
+#  define SCNdT_    SCNd32
 #  define TASK_MAX  INT32_MAX
 
 /* This is only used for searching */
@@ -251,13 +260,15 @@ inline TaskID task_id_from_num(Num n) {
 #else
 typedef   Num       TaskID;
 #  define PRIdT	    PRIdN
-#  define SCNdT     SCNdN
+#  define SCNdT_    SCNdN_
 #  define TASK_MAX  NUM_MAX
 
 inline TaskID task_id_from_num(Num n) {
     return n < 0 ? 0 : n;
 }
 #endif
+
+#define SCNdT  SCNdT_"\b"
 
 inline Num num_from_task_id(TaskID t) { return t; }
 
