@@ -110,24 +110,23 @@ read_object(void)
 {
     Objid oid;
     Object *o;
-    char s[20];
     int i;
     Verbdef *v, **prevv;
     int nprops;
 
     if (dbio_scanf("#%"SCNdN, &oid) != 1 || oid != db_last_used_objid() + 1)
 	return 0;
-    dbio_read_line(s, sizeof(s));
 
-    if (strcmp(s, " recycled\n") == 0) {
+    const char *s = dbio_read_string_temp();
+    if (strcmp(s, " recycled") == 0) {
 	dbpriv_new_recycled_object();
 	return 1;
-    } else if (strcmp(s, "\n") != 0)
+    } else if (s[0])
 	return 0;
 
     o = dbpriv_new_object();
     o->name = dbio_read_string_intern();
-    (void) dbio_read_string();	/* discard old handles string */
+    (void) dbio_read_string_temp();  /* discard old handles string */
     o->flags = dbio_read_num();
 
     o->owner = dbio_read_objid();
@@ -478,6 +477,7 @@ read_db_file(void)
 	errlog("DB_READ: Can't read active connections.\n");
 	return 0;
     }
+    dbpriv_dbio_input_finished();
     return 1;
 }
 

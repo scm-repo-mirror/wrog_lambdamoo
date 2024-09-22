@@ -164,6 +164,7 @@ extern Exception dbpriv_dbio_failed;
 extern void dbpriv_set_dbio_input(FILE *);
 extern void dbpriv_set_dbio_output(FILE *);
 
+extern void dbpriv_dbio_input_finished(void);
 extern void dbpriv_dbio_output_finished(void);
 				/* Do internal cleanups.
 				 */
