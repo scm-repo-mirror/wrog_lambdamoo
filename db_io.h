@@ -31,19 +31,13 @@
 extern DB_Version dbio_input_version;
 				/* What DB-format version are we reading? */
 
-extern void dbio_read_line(char *s, int n);
-				/* Reads at most N-1 characters through the
-				 * next newline into S, terminating S with a
-				 * null.  (Like the `fgets()' function.)
-				 */
-
 extern int dbio_scanf(const char *format,...) FORMAT(scanf,1,2);
 
 extern int dbio_read_num(void);
 extern Objid dbio_read_objid(void);
 extern FlBox dbio_read_float(void);
 
-extern const char *dbio_read_string(void);
+extern const char *dbio_read_string_temp(void);
 				/* The returned string is in private storage of
 				 * the DBIO module, so the caller should
 				 * str_dup() it if it is to persist.
