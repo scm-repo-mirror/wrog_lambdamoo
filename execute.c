@@ -2514,7 +2514,7 @@ static void *
 bf_call_function_read(void)
 {
     struct cf_state *s = alloc_data(sizeof(struct cf_state));
-    const char *line = dbio_read_string();
+    const char *line = dbio_read_string_temp();
     const char *hdr = "bf_call_function data: fname = ";
     int hlen = strlen(hdr);
 
@@ -2762,10 +2762,10 @@ read_activ_as_pi(activation * a)
 	errlog("READ_A: Bad numbers.\n");
 	return 0;
     }
-    dbio_read_string();		/* was argstr */
-    dbio_read_string();		/* was dobjstr */
-    dbio_read_string();		/* was iobjstr */
-    dbio_read_string();		/* was prepstr */
+    dbio_read_string_temp();	/* was argstr */
+    dbio_read_string_temp();	/* was dobjstr */
+    dbio_read_string_temp();	/* was iobjstr */
+    dbio_read_string_temp();	/* was prepstr */
     a->verb = dbio_read_string_intern();
     a->verbname = dbio_read_string_intern();
     return 1;
@@ -2949,7 +2949,7 @@ read_activ(activation * a, int which_vector)
 	return 0;
     }
     if (a->bi_func_pc != 0) {
-	func_name = dbio_read_string();
+	func_name = dbio_read_string_temp();
 	if ((i = number_func_by_name(func_name)) == FUNC_NOT_FOUND) {
 	    errlog("READ_ACTIV: Unknown built-in function `%s'\n", func_name);
 	    return 0;
