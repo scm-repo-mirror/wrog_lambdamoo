@@ -138,9 +138,8 @@ read_object(void)
 
     intmax_t i;
     intmax_t nverbdefs;
-    const char *skip;
     if (!(dbio_read_string_intern(&o->name) &&
-	  dbio_read_string_temp(&skip) &&
+	  dbio_skip_lines(1, "READ_OBJECT") &&
 	  /* discard old handles string */
 
 	  dbio_read_uint16(&o->flags)   &&
