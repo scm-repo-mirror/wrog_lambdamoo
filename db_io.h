@@ -31,6 +31,18 @@
 extern DB_Version dbio_input_version;
 				/* What DB-format version are we reading? */
 
+extern int dbio_peek_byte(void);
+                                /* Does one-byte lookahead.
+				 * Returns 0-255 or EOF.
+				 */
+
+extern int dbio_skip_lines(size_t n, const char *caller);
+				/* Read and discard N lines of input.
+				 * Return true iff successful.
+				 * errlog() about failure in CALLER
+				 * otherwise.
+				 */
+
 extern int dbio_scanf(const char *format,...) FORMAT(scanf,1,2);
 
 /*--------------------------*
@@ -117,6 +129,12 @@ extern int dbio_read_string_temp(const char **);
 extern int dbio_read_float(FlBox *);
 extern int dbio_read_string_intern(const char **);
 extern int dbio_read_var(Var *);
+extern int dbio_read_var_value(intmax_t, Var *);
+                                /* dbio_read_var() reads a type (integer)
+				 * first, then the value;
+				 * dbio_read_var_value() is for reading
+				 * a value where the type is already known.
+				 */
 
 /*---------------------*
  |  dbio_read_program  |
