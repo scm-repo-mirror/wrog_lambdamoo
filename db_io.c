@@ -56,6 +56,28 @@ dbpriv_set_dbio_input(FILE * f)
     input = f;
 }
 
+int
+dbio_peek_byte(void)
+{
+    int c = fgetc(input);
+    if (EOF != c)
+	ungetc(c, input);
+    return c;
+}
+
+int
+dbio_skip_lines(size_t n, const char *caller)
+{
+    int32_t c;
+    while ((EOF != (c = getc(input)))
+	   && (c != '\n' || --n));
+    if (n) {
+	errlog("%s: Unexpected end of file\n", caller);
+	dbio_last_error = "Unexpected end of file";
+    }
+    return !n;
+}
+
 /*------------------------*
  |  reading entire lines  |
  *------------------------*/
@@ -273,6 +295,12 @@ dbio_read_var(Var *vp)
 	*vp = zero;
 	return 0;
     }
+    return dbio_read_var_value(vtype, vp);
+}
+
+int
+dbio_read_var_value(intmax_t vtype, Var *vp)
+{
     if (vtype == TYPE_ANY && dbio_input_version == DBV_Prehistory)
 	vtype = TYPE_NONE;  /* Old encoding for VM's empty temp register
 			     * and any as-yet unassigned variables.

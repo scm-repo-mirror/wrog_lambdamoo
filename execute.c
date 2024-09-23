@@ -2770,12 +2770,10 @@ read_activ_as_pi(activation * a)
 	return 0;
     }
 
-    const char *skip;
     return
-	dbio_read_string_temp(&skip) &&	/* was argstr */
-	dbio_read_string_temp(&skip) &&	/* was dobjstr */
-	dbio_read_string_temp(&skip) &&	/* was iobjstr */
-	dbio_read_string_temp(&skip) &&	/* was prepstr */
+	dbio_skip_lines(4, "READ_A") &&
+	/* was:  argstr, dobjstr, iobjstr, prepstr */
+
         dbio_read_string_intern(&a->verb) &&
 	dbio_read_string_intern(&a->verbname);
 }
