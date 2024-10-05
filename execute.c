@@ -691,28 +691,27 @@ int_or_float(Var v)
     return v.type == TYPE_INT || v.type == TYPE_FLOAT;
 }
 
-static enum error
-rangeset_check(Var base, Var inst, int from, int to)
+static inline int
+list_or_string(Var v)
 {
-    int blen;
-    int ilen;
-    int max;
-    if (base.type == TYPE_STR) {
-	blen = memo_strlen(base.v.str);
-	ilen = memo_strlen(inst.v.str);
-	max  = server_int_option_cached(SVO_MAX_STRING_CONCAT);
-    }
-    else {
-	blen = base.v.list[0].v.num;
-	ilen = inst.v.list[0].v.num;
-	max  = server_int_option_cached(SVO_MAX_LIST_CONCAT);
-    }
+    return v.type == TYPE_LIST || v.type == TYPE_STR;
+}
 
-    if (from > blen + 1 || to < 0)
+static int
+rangeref_fails(size_t length, int from, int after)
+{
+    return !(from >= after
+	     || (1 <= from && after <= length + 1));
+}
+
+static enum error
+rangeset_error(size_t max, size_t blen, size_t ilen, int from, int after)
+{
+    if (!(1 <= after && (from <= 0 || ((size_t)from <= blen + 1))))
 	return E_RANGE;
-
-    if (max < (((from > 1) ? from - 1 : 0) + ilen
-	       + ((blen > to) ? blen - to : 0)))
+    if (max < (((from > 1) ? (size_t)(from - 1) : 0)
+	       + ilen
+	       + ((blen >= (size_t)after) ? (blen - (size_t)after) + 1 : 0)))
 	return E_QUOTA;
 
     return E_NONE;
@@ -1024,51 +1023,53 @@ do {								\
 
 	case OP_INDEXSET:
 	    {
-		Var value, index, list;
+		enum error e = E_NONE;
+		Var value = POP(); /* rhs value */
+		Var index = POP(); /* index, should be integer */
+		Var list  = POP(); /* lhs except last index, should be list or str */
 
-		value = POP();	/* rhs value */
-		index = POP();	/* index, should be integer */
-		list = POP();	/* lhs except last index, should be list or str */
-		/* whole thing should mean list[index] = value */
-		if ((list.type != TYPE_LIST && list.type != TYPE_STR)
-		    || index.type != TYPE_INT
-		  || (list.type == TYPE_STR && value.type != TYPE_STR)) {
-		    free_var(value);
-		    free_var(index);
-		    free_var(list);
-		    PUSH_ERROR(E_TYPE);
-		} else if (index.v.num < 1
-			   || (list.type == TYPE_LIST
-		       && index.v.num > list.v.list[0].v.num /* size */ )
-			   || (list.type == TYPE_STR
-			    && index.v.num > (int) memo_strlen(list.v.str))) {
-		    free_var(value);
-		    free_var(index);
-		    free_var(list);
-		    PUSH_ERROR(E_RANGE);
-		} else if (list.type == TYPE_STR
-			   && memo_strlen(value.v.str) != 1) {
-		    free_var(value);
-		    free_var(index);
-		    free_var(list);
-		    PUSH_ERROR(E_INVARG);
-		} else if (list.type == TYPE_LIST) {
-		    Var res;
-
-		    if (var_refcount(list) == 1)
-			res = list;
+		/** list[index] = value **/
+		if (index.type != TYPE_INT || !list_or_string(list))
+		    e = E_TYPE;
+		else if (index.v.num < 1)
+		    e = E_RANGE;
+		else if (list.type == TYPE_LIST) {
+		    if (index.v.num > list.v.list[0].v.num)
+			e = E_RANGE;
 		    else {
-			res = var_dup(list);
-			free_var(list);
+			Var res;
+			if (var_refcount(list) == 1)
+			    res = list;
+			else {
+			    res = var_dup(list);
+			    free_var(list);
+			}
+			PUSH(listset(res, value, index.v.num));
 		    }
-		    PUSH(listset(res, value, index.v.num));
-		} else {	/* TYPE_STR */
-		    char *tmp_str = str_dup(list.v.str);
-		    free_str(list.v.str);
-		    tmp_str[index.v.num - 1] = value.v.str[0];
-		    list.v.str = tmp_str;
+		}
+		else {  /* list.type == TYPE_STR */
+		    if (value.type != TYPE_STR)
+			e = E_TYPE;
+		    else if (index.v.num > (int) memo_strlen(list.v.str))
+			e = E_RANGE;
+		    else if (memo_strlen(value.v.str) != 1)
+			e = E_INVARG;
+		    else {
+			char *tmp_str = str_dup(list.v.str);
+			free_str(list.v.str);
+			tmp_str[index.v.num - 1] = value.v.str[0];
+			list.v.str = tmp_str;
+			free_var(value);
+			PUSH(list);
+		    }
+		}
+		/* listset() uses both list and value;
+		   STR case has already freed both */
+		free_var(index);
+		if (e != E_NONE) {
 		    free_var(value);
-		    PUSH(list);
+		    free_var(list);
+		    PUSH_ERROR(e);
 		}
 	    }
 	    break;
@@ -1321,37 +1322,36 @@ do {								\
 
 	case OP_REF:
 	    {
-		Var index, list;
+		enum error e = E_NONE;
+		Var index = POP(); /* should be integer */
+		Var list  = POP(); /* should be list or string */
 
-		index = POP();	/* should be integer */
-		list = POP();	/* should be list or string */
-
-		if (index.type != TYPE_INT ||
-		    (list.type != TYPE_LIST && list.type != TYPE_STR)) {
-		    free_var(index);
-		    free_var(list);
-		    PUSH_ERROR(E_TYPE);
-		} else if (list.type == TYPE_LIST) {
-		    if (index.v.num <= 0 || index.v.num > list.v.list[0].v.num) {
-			free_var(index);
-			free_var(list);
-			PUSH_ERROR(E_RANGE);
-		    } else {
+		/** list[index] **/
+		if (index.type != TYPE_INT || !list_or_string(list))
+		    e = E_TYPE;
+		else if (index.v.num < 1)
+		    e = E_RANGE;
+		else if (list.type == TYPE_LIST) {
+		    if (index.v.num > list.v.list[0].v.num)
+			e = E_RANGE;
+		    else {
 			PUSH(var_ref(list.v.list[index.v.num]));
-			free_var(index);
 			free_var(list);
 		    }
-		} else {	/* list.type == TYPE_STR */
-		    if (index.v.num <= 0
-			|| index.v.num > (int) memo_strlen(list.v.str)) {
-			free_var(index);
-			free_var(list);
-			PUSH_ERROR(E_RANGE);
-		    } else {
+		}
+		else {  /* list.type == TYPE_STR */
+
+		    if (index.v.num > (int) memo_strlen(list.v.str))
+			e = E_RANGE;
+		    else {
 			PUSH(strget(list, index));
-			free_var(index);
 			free_var(list);
 		    }
+		}
+		free_var(index);
+		if (e != E_NONE) {
+		    free_var(list);
+		    PUSH_ERROR(e);
 		}
 	    }
 	    break;
@@ -1375,35 +1375,35 @@ do {								\
 
 	case OP_RANGE_REF:
 	    {
-		Var base, from, to;
+		enum error e = E_NONE;
+		Var to   = POP();  /* should be integer */
+		Var from = POP();  /* should be integer */
+		Var base = POP();  /* should be list or string */
 
-		to = POP();	/* should be integer */
-		from = POP();	/* should be integer */
-		base = POP();	/* should be list or string */
-
-		if ((base.type != TYPE_LIST && base.type != TYPE_STR)
-		    || to.type != TYPE_INT || from.type != TYPE_INT) {
-		    free_var(to);
-		    free_var(from);
-		    PUSH_ERROR(E_TYPE);
-		} else {
-		    int len = (base.type == TYPE_STR ? memo_strlen(base.v.str)
-			       : base.v.list[0].v.num);
-		    if (from.v.num <= to.v.num
-			&& (from.v.num <= 0 || from.v.num > len
-			    || to.v.num <= 0 || to.v.num > len)) {
-			free_var(to);
-			free_var(from);
-			free_var(base);
-			PUSH_ERROR(E_RANGE);
-		    } else {
-			PUSH((base.type == TYPE_STR
-			      ? substr(base, from.v.num, to.v.num)
-			      : sublist(base, from.v.num, to.v.num)));
-			/* base freed by substr/sublist */
-			free_var(from);
-			free_var(to);
-		    }
+		/** base[from..to] **/
+		if (to.type != TYPE_INT || from.type != TYPE_INT
+		    || !list_or_string(base))
+		    e = E_TYPE;
+		else if (base.type == TYPE_LIST) {
+		    if (rangeref_fails(base.v.list[0].v.num,
+				       from.v.num, to.v.num + 1))
+			e = E_RANGE;
+		    else
+			PUSH(sublist(base, from.v.num, to.v.num + 1));
+		}
+		else {  /* base.type == TYPE_STR */
+		    if (rangeref_fails(memo_strlen(base.v.str),
+				       from.v.num, to.v.num + 1))
+			e = E_RANGE;
+		    else
+			PUSH(substr(base, from.v.num, to.v.num + 1));
+		}
+		free_var(to);
+		free_var(from);
+		/* base freed by substr/sublist */
+		if (e != E_NONE) {
+		    free_var(base);
+		    PUSH_ERROR(e);
 		}
 	    }
 	    break;
@@ -1737,33 +1737,44 @@ do {								\
 		switch (eop) {
 		case EOP_RANGESET:
 		    {
-			Var base, from, to, value;
-			enum error e;
+			enum error e = E_NONE;
+			Var value = POP();  /* rhs value (list or string) */
+			Var to    = POP();  /* end of range (integer) */
+			Var from  = POP();  /* start of range (integer) */
+			Var base  = POP();  /* lhs (list or string) */
 
-			value = POP();	/* rhs value (list or string) */
-			to = POP();	/* end of range (integer) */
-			from = POP();	/* start of range (integer) */
-			base = POP();	/* lhs (list or string) */
-			/* base[from..to] = value */
-			if (to.type != TYPE_INT || from.type != TYPE_INT
-			    || (base.type != TYPE_LIST && base.type != TYPE_STR)
-			    || (value.type != TYPE_LIST && value.type != TYPE_STR)
-			    || (base.type != value.type)) {
+			/** base[from..to] = value **/
+			if (     to.type != TYPE_INT
+			    || from.type != TYPE_INT
+			    || !list_or_string(base)
+			    || value.type != base.type)
+			    e = E_TYPE;
+			else if (base.type == TYPE_LIST) {
+			    e = rangeset_error(server_int_option_cached(SVO_MAX_LIST_CONCAT),
+					       base.v.list[0].v.num,
+					       value.v.list[0].v.num,
+					       from.v.num, to.v.num + 1);
+			    if (e == E_NONE)
+				PUSH(listrangeset(base, from.v.num,
+						  to.v.num + 1, value));
+			}
+			else {  /* base.type == TYPE_STR */
+			    e = rangeset_error(server_int_option_cached(SVO_MAX_STRING_CONCAT),
+					       memo_strlen(base.v.str),
+					       memo_strlen(value.v.str),
+					       from.v.num, to.v.num + 1);
+			    if (e == E_NONE)
+				PUSH(strrangeset(base, from.v.num,
+						 to.v.num + 1, value));
+			}
+			/* listrangeset/strrangeset free base and value */
+			free_var(to);
+			free_var(from);
+			if (e != E_NONE) {
 			    free_var(base);
-			    free_var(to);
-			    free_var(from);
-			    free_var(value);
-			    PUSH_ERROR(E_TYPE);
-			} else if (E_NONE != (e = rangeset_check(base, value, from.v.num, to.v.num))) {
-			    free_var(base);
-			    free_var(to);
-			    free_var(from);
 			    free_var(value);
 			    PUSH_ERROR_UNLESS_QUOTA(e);
-			} else if (base.type == TYPE_LIST)
-			    PUSH(listrangeset(base, from.v.num, to.v.num, value));
-			else	/* TYPE_STR */
-			    PUSH(strrangeset(base, from.v.num, to.v.num, value));
+			}
 		    }
 		    break;
 
