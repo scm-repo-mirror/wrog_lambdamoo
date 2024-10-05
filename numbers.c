@@ -35,6 +35,7 @@
 #include "storage.h"
 #include "structures.h"
 #include "streams.h"
+#include "utf.h"
 #include "utils.h"
 
 
@@ -295,7 +296,7 @@ snp_getch(void)
 {
     if (snp_string >= snp_end)
 	return EOF;
-    return *snp_string++;
+    return get_utf(&snp_string);
 }
 
 static Var
