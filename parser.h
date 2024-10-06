@@ -26,7 +26,7 @@
 typedef struct {
     void (*error) (void *, const char *);
     void (*warning) (void *, const char *);
-    int (*getch) (void *);
+    int32_t (*getch) (void *);
 } Parser_Client;
 
 extern Program *parse_program(DB_Version, Parser_Client, void *);
