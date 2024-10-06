@@ -1206,6 +1206,7 @@ bf_ord(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
     return make_int_pack(ucs);
 }
 
+#if !UNICODE_STRINGS
 static inline int
 stream_add_utf32(Stream *s, uint32_t ch)
 {
@@ -1228,10 +1229,24 @@ stream_add_string_for_ec(Stream *s, const char *str)
 	(void)stream_add_utf32(s, *c);
 }
 
-#ifdef WORDS_BIGENDIAN
-#  define BF_ENCODE_ENCODING "UTF-32BE"
-#else
-#  define BF_ENCODE_ENCODING "UTF-32LE"
+#  ifdef WORDS_BIGENDIAN
+#    define BF_ENCODE_ENCODING "UTF-32BE"
+#  else
+#    define BF_ENCODE_ENCODING "UTF-32LE"
+#  endif
+
+#else /* UNICODE_STRINGS */
+
+static inline int
+stream_add_char_for_ec(Stream *s, uint32_t ch)
+{ return stream_add_utf(s, ch); }
+
+static inline void
+stream_add_string_for_ec(Stream *s, const char *str)
+{ stream_add_string(s, str); }
+
+#  define BF_ENCODE_ENCODING "UTF-8"
+
 #endif
 
 static int
