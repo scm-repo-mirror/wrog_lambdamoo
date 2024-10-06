@@ -406,11 +406,11 @@ And now for the options:
 #undef DEFAULT_CONNECT_TIMEOUT
 
 /******************************************************************************
- * On connections that have not been set to binary mode, the server normally
- * discards incoming characters that are not printable ASCII, including
- * backspace (8) and delete(127).  If INPUT_APPLY_BACKSPACE is defined,
- * backspace and delete cause the preceding character (if any) to be removed
- * from the input stream.  (Comment this out to restore pre-1.8.3 behavior)
+ * On connections that have not been set to binary mode, the server
+ * normally discards incoming characters that are not in the allowed
+ * MOO character set, including backspace (8) and delete(127).
+ * If INPUT_APPLY_BACKSPACE is defined, backspace and delete cause the
+ * preceding character (if any) to be removed from the input stream.
  */
 
 #undef INPUT_APPLY_BACKSPACE
@@ -514,6 +514,76 @@ And now for the options:
 
 #undef MIN_LIST_CONCAT_LIMIT
 #undef MIN_STRING_CONCAT_LIMIT
+
+/******************************************************************************
+ * Unicode support
+ * --------------------------------------------------------
+ * UNICODE_STRINGS compiles the server for basic Unicode support, which
+ *
+ * (1) provides an expanded character set for the STRING data type,
+ *     used for string constants occurring in verb code and property
+ *     values, and in verb, property, and object names.
+ *
+ * (2) treats all connections that have not been set to binary mode
+ *     as UTF-8 encoded, so that command lines and notify() responses
+ *     likewise use this expanded character set.
+ *
+ * The expanded character set currently consists of all values in the
+ * Unicode range up to the maximum of 0x10FFFF, except for
+ *
+ * (*) the 32 (out of 33) ASCII control characters that were already
+ *     excluded from the original MOO character set, namely, all
+ *     control characters except for HORIZONTAL TAB (0x9), which is
+ *     included, and
+ *
+ * (*) the 66 "non-character" code points (0xFDD0-FDEF,0x*FFFE,0x*FFFF),
+ *     that are essentially "internal use only forever"
+ *     (our "internal use" being to not allow them).
+ *
+ * (*) the surrogate values (0xd800-0xdfff)
+ *     which are not actually legal Unicode code points.
+ *
+ * !! Certain aspects of this support are EXPERIMENTAL, including
+ * !! (*) inclusion of non-ASCII line breaks (LS, PS)
+ * !!     and control characters (0x80-0x9f)
+ * !!     in the expanded character set.
+ * !! (*) treatment of non-ASCII code points in string comparisons
+ * !!     and substitutions (canonical and compatibility
+ * !!     equivalence are currently NOT recognized,
+ * !!     nor is non-ASCII case-folding performed)
+ * !! Defaults here will likely change in future releases.
+ */
+
+#undef UNICODE_STRINGS
+
+/* --------------------------------------------------------
+ * By default, MOO verb source code (as expected by eval(),
+ * set_verb_code(), the .program command, and the database reader)
+ * outside of string constants is restricted to ASCII,
+ * but the next two options change this:
+ *
+ * UNICODE_IDENTIFIERS expands the set of code points legal for use in
+ *     identifiers (i.e., variables and direct references to verbs and
+ *     properties) in verb code to anything in the Unicode 'XID_Continue'
+ *     class provided the first character is in the 'XID_Start' class.
+ *
+ * UNICODE_NUMBERS allows non-ASCII Unicode code points with
+ *     'NumericType=Decimal' to be recognized as decimal digits in
+ *     numeric parsing contexts (MOO code numeric constants and
+ *     string arguments to to_num(), to_obj(), and to_float())
+ *     provided all digits in a given constant are from the
+ *     same digit family.
+ *
+ *     (Currently, the internal representation of numeric constants
+ *     does *not* preserve source character information, so non-ASCII
+ *     digits will not re-appear appear outside of string literals in
+ *     unparsed (output) verb code.)
+ *
+ * Note that both of these require UNICODE_STRINGS.
+ */
+
+#undef UNICODE_IDENTIFIERS
+#undef UNICODE_NUMBERS
 
 /******************************************************************************
  * Continue on to the part that ./configure should not be touching ...
