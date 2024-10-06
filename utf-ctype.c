@@ -4,18 +4,124 @@
  * Interface to unicode character data library routines.
  */
 
-#include "config.h"
-
 #include "utf-ctype.h"
 
 #include "storage.h"
 #include "streams.h"
 #include "utils.h"
 
+#if UNICODE_STRINGS
+#include <uniname.h>
+#include <unistring/version.h>
+#include <unictype.h>
+#include <unicase.h>
+#endif
+
+/*------------*
+ |   digits   |
+ *------------*/
+
+#if UNICODE_NUMBERS
+
+int
+my_isdigit(uint32_t x)
+{
+    return uc_is_property_decimal_digit(x);
+}
+
+int
+my_digitval(uint32_t x)
+{
+    return uc_decimal_value(x);
+}
+
+#endif /* UNICODE_NUMBERS */
+
+/*---------------------------*
+ |   identifier characters   |
+ *---------------------------*/
+
+#if UNICODE_IDENTIFIERS
+/*
+ * The XID categories are the best thing in Unicode to what
+ * characters should allow to begin and continue identifiers,
+ * respectively.
+ */
+int
+my_is_xid_start(uint32_t x)
+{
+    return uc_is_property_xid_start(x);
+}
+
+int
+my_is_xid_cont(uint32_t x)
+{
+    return uc_is_property_xid_continue(x);
+}
+
+#endif /* UNICODE_IDENTIFIERS */
+
+/*-------------------------*
+ |   simple case folding   |
+ *-------------------------*/
+
+#if UNICODE_STRINGS
+/*
+ * Yes, this is inadequate in general, but we knew that already.
+ * The goal here is to have the MOO programming environment continue to
+ * make sense, to have it be deterministic/easy/fast to know when two
+ * identifiers are equivalent, not to accomodate every last quirk of
+ * world language case folding.  Presumably, future designers of
+ * actual international programming languages will now know not to
+ * include case-insensitivity in their creations.  --wrog
+ */
+
+uint32_t
+my_tolower(uint32_t x)
+{
+    return uc_tolower(x);
+}
+
+uint32_t
+my_toupper(uint32_t x)
+{
+    return uc_toupper(x);
+}
+
+/*----------------*
+ |   whitespace   |
+ *----------------*/
+
+int
+my_isspace(uint32_t x)
+{
+    return uc_is_property_white_space(x);
+}
+
+/*------------------------------*
+ |   MOO-string character set   |
+ *------------------------------*/
+
+int
+my_is_printable(uint32_t x)
+{
+    if (x == 0x09)
+        return 1;
+    if ((x <= 0xff && ((x & 0x60) == 0x00 || x == 0x7f)) ||
+	(x >= 0xd800 && x <= 0xdfff))
+        return 0;
+
+    return x <= 0x10ffff &&
+	!uc_is_property_not_a_character(x);
+}
+
+#endif /* UNICODE_STRINGS */
+
 /*----------------------------------*
  |   character name/number lookup   |
  *----------------------------------*/
 
+#if !UNICODE_STRINGS
 /* Build character data tables for ASCII World's "library" */
 
 static
@@ -149,16 +255,29 @@ ascii_char_lookup(const char* name)
     return c;
 }
 
+#endif /* !UNICODE_STRINGS */
+
 const char *
 my_char_name(uint32_t x)
 {
+#if UNICODE_STRINGS
+    if (x > 0x10ffff)
+#else
     if (x > 0x7e)
+#endif
 	return NULL;
 
     Stream *s = new_stream(0);
 
+#if !UNICODE_STRINGS
     const char *name;
     name = ascii_char_name(s, x);
+#else
+    char *name;
+    size_t nlen;
+    stream_beginfill(s, UNINAME_MAX-1, &name, &nlen);
+    name = unicode_character_name(x, name);
+#endif
     if (name)
 	name = str_dup(name);
     else if (x == '\t')
@@ -170,5 +289,10 @@ my_char_name(uint32_t x)
 uint32_t
 my_char_lookup(const char *name)
 {
+#if !UNICODE_STRINGS
     return ascii_char_lookup(name);
+#else
+    uint32_t ucs = unicode_name_character(name);
+    return (ucs == UNINAME_INVALID) ? 0 : ucs;
+#endif
 }

@@ -29,6 +29,7 @@
 #include "log.h"
 #include "storage.h"
 #include "structures.h"
+#include "utf.h"
 
 /*
  * v must be a variable.
@@ -114,6 +115,31 @@ stream_delete_char(Stream * s)
     if (s->current > 0)
       s->current--;
 }
+
+#if UNICODE_STRINGS
+
+int
+stream_add_utf(Stream * s, uint32_t c)
+{
+    (void)grew(s, 4);
+
+    char *b = s->buffer + s->current;
+    int result = put_utf(&b, c);
+    s->current = b - s->buffer;
+
+    return result;
+}
+
+void
+stream_delete_utf(Stream * s)
+{
+    if (s->current > 0)
+	do
+	    --s->current;
+	while (is_utf8_cont_byte(s->buffer[s->current]));
+}
+
+#endif /* UNICODE_STRINGS */
 
 #if FLOATING_TYPE == FT_QUAD
 

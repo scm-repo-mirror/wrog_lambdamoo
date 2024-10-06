@@ -19,6 +19,7 @@
 #define Streams_H 1
 
 #include "config.h"
+#include "options.h"
 
 #include "my-string.h"
 
@@ -39,8 +40,12 @@ extern size_t stream_length(Stream *);
 extern int32_t stream_last_byte(Stream *s);
 
 extern void stream_delete_char(Stream *);
+#if !UNICODE_STRINGS
 inline void stream_delete_utf(Stream *s)
 { stream_delete_char(s); }
+#else
+extern void stream_delete_utf(Stream *);
+#endif
 
 extern char *reset_stream(Stream *);
 extern const char *str_dup_then_free_stream(Stream *s);
@@ -50,8 +55,12 @@ extern const char *str_dup_then_free_stream(Stream *s);
  * all of the following may RAISE(stream_too_big)
  */
 extern void stream_add_char(Stream *, char);
+#if !UNICODE_STRINGS
 inline int  stream_add_utf(Stream *s, uint32_t c)
 { stream_add_char(s, c); return 0; }
+#else
+extern int  stream_add_utf(Stream *, uint32_t);
+#endif
 
 extern void stream_add_bytes(Stream *, const char *, size_t);
 inline void stream_add_string(Stream * s, const char *string)
