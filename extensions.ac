@@ -31,6 +31,13 @@ END
 ### Next line is boilerplate; do not edit.
 ],,,,,,,,[ end of extension declarations ],,,,,,,,
 
+MOO_DECLARE_OPTIONS(
+
+ [[UNICODE_STRINGS],      [bool], no,  [(TEMPORARY) = --enable-unicode]],
+ [[UNICODE_IDENTIFIERS],  [bool], no,  [allow Unicode in identifiers]],
+ [[UNICODE_NUMBERS],      [bool], no,  [allow Unicode in numeric constants]],
+)
+
 
 # MOO_LIB_PCRE1( <IF-FOUND>, <IF-NOT-FOUND>, <IF-BROKEN> )
 #
