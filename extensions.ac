@@ -6,6 +6,28 @@ MOO_XT_DECLARE_EXTENSIONS([
 ##==================
   %? Character set:
 
+  --enable- unicode = KWD,..
+    %?- use original ASCII charset
+    %?  support unicode
+
+  %cdefine UNICODE_%s
+
+  %option strings
+    %alt strs
+    %alt core
+    %?  in STR values and nonbinary connections
+  %option numbers
+    %alt nums
+    %?  in numeric constants
+    %implies strs
+  %option identifiers
+    %alt ids
+    %?  in variable names
+    %implies strs
+  %option_set code = ids,nums
+  %option_set all  = code
+  %option_set yes  = strs
+
   XT_CSRCS = utf.c
 
   %require uclib
@@ -69,6 +91,12 @@ END
 
 ### Next line is boilerplate; do not edit.
 ],,,,,,,,[ end of extension declarations ],,,,,,,,
+
+MOO_DECLARE_OPTIONS(
+
+ [[UNICODE_IDENTIFIERS],  [bool], yes, [allow Unicode in identifiers]],
+ [[UNICODE_NUMBERS],      [bool], yes, [allow Unicode in numeric constants]],
+)
 
 
 # MOO_LIB_ICUUC( <IF-FOUND>, <IF-NOT-FOUND> )

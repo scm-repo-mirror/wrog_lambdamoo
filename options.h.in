@@ -292,11 +292,11 @@ useful for anything other than quick experiments.)
 #undef DEFAULT_CONNECT_TIMEOUT
 
 /******************************************************************************
- * On connections that have not been set to binary mode, the server normally
- * discards incoming characters that are not printable ASCII, including
- * backspace (8) and delete(127).  If INPUT_APPLY_BACKSPACE is defined,
- * backspace and delete cause the preceding character (if any) to be removed
- * from the input stream.  (Comment this out to restore pre-1.8.3 behavior)
+ * On connections that have not been set to binary mode, the server
+ * normally discards incoming characters that are not in the allowed
+ * MOO character set, including backspace (8) and delete(127).
+ * If INPUT_APPLY_BACKSPACE is defined, backspace and delete cause the
+ * preceding character (if any) to be removed from the input stream.
  */
 
 #undef INPUT_APPLY_BACKSPACE
@@ -369,6 +369,51 @@ useful for anything other than quick experiments.)
  */
 
 #undef MEMO_STRLEN
+
+/******************************************************************************
+ * Unicode support is provided by the unicode extension (--enable-unicode)
+ * and is indicated by UNICODE_STRINGS (see config.h) being set.  This
+ *
+ * (1) expands the character set of the STRING data type, used for
+ *     string constants in verb code, property values, and in verb,
+ *     property, and object names, to nearly all legal Unicode
+ *     code points, and
+ *
+ * (2) treats all connections not set to binary mode as being UTF-8
+ *     encoded, so that command lines and notify() responses can
+ *     likewise use the expanded character set.
+ *
+ * See README.md for more detail on the state of Unicode support
+ * in this server, including aspects that are currently deemed
+ * EXPERIMENTAL and likely to change in future server releases.
+ *
+ * With basic Unicode support, the MOO language source code, as
+ * expected by eval(), set_verb_code(), the .program command, and the
+ * database file reader, will, outside of string constants, remain
+ * restricted the prior ASCII character set, but there are options
+ * to change this:
+ *
+ * UNICODE_IDENTIFIERS expands the set of code points legal for use in
+ *     verb source code identifiers, i.e., variables and direct
+ *     references to verbs and properties, to anything in the Unicode
+ *     'XID_Continue' class provided the first character is in the
+ *     'XID_Start' class.
+ *
+ * UNICODE_NUMBERS allows non-ASCII Unicode code points with
+ *     'NumericType=Decimal' to be recognized as decimal digits in
+ *     numeric parsing contexts (verb source numeric constants and
+ *     string arguments to to_num(), to_obj(), and to_float()),
+ *     provided all digits in a given constant are from the
+ *     same digit family.
+ *
+ *     (Currently, the internal representation of numeric constants
+ *     does *not* preserve source character information, so non-ASCII
+ *     digits will never re-appear outside of string literals in
+ *     unparsed (output) verb code.)
+ */
+
+#undef UNICODE_IDENTIFIERS
+#undef UNICODE_NUMBERS
 
 /******************************************************************************
  * Pragmas are a proposed future server feature that will *not* be

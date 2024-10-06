@@ -19,6 +19,7 @@
 #include "bf_register.h"
 
 #include "config.h"
+#include "options.h"
 
 #include <limits.h>
 #include <errno.h>
@@ -38,8 +39,6 @@
 #include "utf-ctype.h"
 #include "utils.h"
 
-/* for now */
-#define UNICODE_NUMBERS 1
 
 inline int
 inrange_for_float_to_int(FlNum d)

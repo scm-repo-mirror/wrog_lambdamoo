@@ -122,6 +122,14 @@
 #  error Illegal value for "MPLEX_STYLE"
 #endif
 
+
+#if UNICODE_NUMBERS && !UNICODE_STRINGS
+#  error "UNICODE_NUMBERS requires --enable-unicode"
+#endif
+#if UNICODE_IDENTIFIERS && !UNICODE_STRINGS
+#  error "UNICODE_IDENTIFIERS requires --enable-unicode"
+#endif
+
 /* For temporary fake implementation of pragmas that will go away: */
 #define PG_ALL             -1
 #define PG_FLOATINT_INEQ  0x1
