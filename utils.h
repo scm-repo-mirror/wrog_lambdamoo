@@ -81,10 +81,12 @@ extern Objid get_system_object(const char *);
 
 extern int value_bytes(Var);
 
-extern void stream_add_raw_bytes_to_binary(Stream *, const char *buffer, int buflen);
-extern const char *binary_to_raw_bytes(const char *binary, int *rawlen);
+extern void stream_add_moobinary_from_raw_bytes(
+    Stream *, const char *buffer, int buflen);
+extern const char *moobinary_to_raw_bytes(const char *binary, int *rawlen);
 
 #endif		/* !Utils_H */
+
 
 /*
  * $Log$
