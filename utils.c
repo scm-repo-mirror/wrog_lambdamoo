@@ -383,7 +383,7 @@ value_bytes(Var v)
 }
 
 const char *
-raw_bytes_to_binary(const char *buffer, int buflen)
+raw_bytes_to_moobinary(const char *buffer, int buflen)
 {
     static Stream *s = 0;
     int i;
@@ -404,7 +404,7 @@ raw_bytes_to_binary(const char *buffer, int buflen)
 }
 
 const char *
-binary_to_raw_bytes(const char *binary, int *buflen)
+moobinary_to_raw_bytes(const char *binary, int *buflen)
 {
     static Stream *s = 0;
     const char *ptr = binary;
