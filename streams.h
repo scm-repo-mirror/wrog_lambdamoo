@@ -30,9 +30,11 @@ typedef struct {
 
 extern Stream *new_stream(size_t size);
 extern void stream_add_char(Stream *, char);
-extern int stream_add_utf(Stream *, int);
 extern void stream_delete_char(Stream *);
+
+extern int  stream_add_utf(Stream *, int);
 extern void stream_delete_utf(Stream *);
+
 extern void stream_add_bytes(Stream *, const char *, size_t);
 inline void stream_add_string(Stream * s, const char *string)
 { stream_add_bytes(s, string, strlen(string)); }
