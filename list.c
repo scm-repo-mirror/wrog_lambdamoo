@@ -536,24 +536,19 @@ bf_is_member(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UN
 static package
 bf_strsub(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {				/* (source, what, with [, case-matters]) */
-    int case_matters = 0;
-    Stream *s;
-    package p;
-
-    if (arglist.v.list[0].v.num == 4)
-	case_matters = is_true(arglist.v.list[4]);
     if (arglist.v.list[2].v.str[0] == '\0') {
 	free_var(arglist);
 	return make_error_pack(E_INVARG);
     }
-    s = new_stream(100);
+
+    package p;
+    Stream *s = new_stream(100);
     TRY_STREAM {
-	Var r;
+	int case_matters = arglist.v.list[0].v.num == 4
+	    && is_true(arglist.v.list[4]);
 	stream_add_strsub(s, arglist.v.list[1].v.str, arglist.v.list[2].v.str,
 			  arglist.v.list[3].v.str, case_matters);
-	r.type = TYPE_STR;
-	r.v.str = str_dup(stream_contents(s));
-	p = make_var_pack(r);
+	p = make_string_pack(str_dup(stream_contents(s)));
     }
     EXCEPT (stream_too_big) {
 	p = make_space_pack();
@@ -571,7 +566,7 @@ extern const char *crypt(const char *, const char *);
 static package
 bf_crypt(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {				/* (string, [salt]) */
-    Var r;
+    package p;
 
 #if HAVE_CRYPT
     char salt[3];
@@ -590,15 +585,13 @@ bf_crypt(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED
 	 * for all crypt versions */
 	saltp = arglist.v.list[2].v.str;
     }
-    r.type = TYPE_STR;
-    r.v.str = str_dup(crypt(arglist.v.list[1].v.str, saltp));
+    p = make_string_pack(str_dup(crypt(arglist.v.list[1].v.str, saltp)));
 #else				/* !HAVE_CRYPT */
-    r.type = TYPE_STR;
-    r.v.str = str_ref(arglist.v.list[1].v.str);
+    p = make_string_pack(str_ref(arglist.v.list[1].v.str));
 #endif
 
     free_var(arglist);
-    return make_var_pack(r);
+    return p;
 }
 
 static int
@@ -658,15 +651,12 @@ bf_tostr(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED
     Stream *s = new_stream(100);
 
     TRY_STREAM {
-	Var r;
 	int i;
 
 	for (i = 1; i <= arglist.v.list[0].v.num; i++) {
 	    stream_add_tostr(s, arglist.v.list[i]);
 	}
-	r.type = TYPE_STR;
-	r.v.str = str_dup(stream_contents(s));
-	p = make_var_pack(r);
+	p = make_string_pack(str_dup(stream_contents(s)));
     }
     EXCEPT (stream_too_big) {
 	p = make_space_pack();
@@ -684,12 +674,8 @@ bf_toliteral(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UN
     Stream *s = new_stream(100);
 
     TRY_STREAM {
-	Var r;
-
 	unparse_value(s, arglist.v.list[1]);
-	r.type = TYPE_STR;
-	r.v.str = str_dup(stream_contents(s));
-	p = make_var_pack(r);
+	p = make_string_pack(str_dup(stream_contents(s)));
     }
     EXCEPT (stream_too_big) {
 	p = make_space_pack();
@@ -894,7 +880,7 @@ bf_substitute(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr U
 {
     int template_length;
     const char *template, *subject;
-    Var subs, ans;
+    Var subs;
     package p;
     Stream *s;
     char c = '\0';
@@ -934,9 +920,7 @@ bf_substitute(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr U
 		    stream_add_char(s, subject[start++]);
 	    }
 	}
-	ans.type = TYPE_STR;
-	ans.v.str = str_dup(stream_contents(s));
-	p = make_var_pack(ans);
+	p = make_string_pack(str_dup(stream_contents(s)));
       oops: ;
     }
     EXCEPT (stream_too_big) {
@@ -982,28 +966,24 @@ hash_bytes(const char *input, size_t length)
 static package
 bf_binary_hash(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    Var r;
     size_t length;
     const char *bytes = moobinary_to_raw_bytes(arglist.v.list[1].v.str, &length);
 
     free_var(arglist);
     if (!bytes)
 	return make_error_pack(E_INVARG);
-    r.type = TYPE_STR;
-    r.v.str = hash_bytes(bytes, length);
-    return make_var_pack(r);
+    return make_string_pack(hash_bytes(bytes, length));
 }
 
 static package
 bf_string_hash(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    Var r;
+    package p;
     const char *str = arglist.v.list[1].v.str;
 
-    r.type = TYPE_STR;
-    r.v.str = hash_bytes(str, memo_strlen(str));
+    p = make_string_pack(hash_bytes(str, memo_strlen(str)));
     free_var(arglist);
-    return make_var_pack(r);
+    return p;
 }
 
 static package
@@ -1013,12 +993,8 @@ bf_value_hash(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr U
     Stream *s = new_stream(100);
 
     TRY_STREAM {
-	Var r;
-
 	unparse_value(s, arglist.v.list[1]);
-	r.type = TYPE_STR;
-	r.v.str = hash_bytes(stream_contents(s), stream_length(s));
-	p = make_var_pack(r);
+	p = make_string_pack(hash_bytes(stream_contents(s), stream_length(s)));
     }
     EXCEPT (stream_too_big) {
 	p = make_space_pack();
@@ -1132,7 +1108,6 @@ encode_binary(Stream * s, Var v)
 static package
 bf_encode_binary(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    Var r;
     package p;
     Stream *s = new_stream(100);
     Stream *s2 = new_stream(100);
@@ -1141,9 +1116,7 @@ bf_encode_binary(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid prog
 	if (encode_binary(s, arglist)) {
 	    stream_add_moobinary_from_raw_bytes(
 		s2, stream_contents(s), stream_length(s));
-	    r.type = TYPE_STR;
-	    r.v.str = str_dup(stream_contents(s2));
-	    p = make_var_pack(r);
+	    p = make_string_pack(str_dup(stream_contents(s2)));
 	}
 	else
 	    p = make_error_pack(E_INVARG);
