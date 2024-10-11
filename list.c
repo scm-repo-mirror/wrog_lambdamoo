@@ -596,7 +596,7 @@ extern const char *crypt(const char *, const char *);
 static package
 bf_crypt(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {				/* (string, [salt]) */
-    Var r;
+    package p;
 
 #if HAVE_CRYPT
     char salt[3];
@@ -615,15 +615,13 @@ bf_crypt(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED
 	 * for all crypt versions */
 	saltp = arglist.v.list[2].v.str;
     }
-    r.type = TYPE_STR;
-    r.v.str = str_dup(crypt(arglist.v.list[1].v.str, saltp));
+    p = make_string_pack(str_dup(crypt(arglist.v.list[1].v.str, saltp)));
 #else				/* !HAVE_CRYPT */
-    r.type = TYPE_STR;
-    r.v.str = str_ref(arglist.v.list[1].v.str);
+    p = make_string_pack(str_ref(arglist.v.list[1].v.str));
 #endif
 
     free_var(arglist);
-    return make_var_pack(r);
+    return p;
 }
 
 static int
@@ -990,28 +988,24 @@ hash_bytes(const char *input, int length)
 static package
 bf_binary_hash(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    Var r;
     int length;
     const char *bytes = binary_to_raw_bytes(arglist.v.list[1].v.str, &length);
 
     free_var(arglist);
     if (!bytes)
 	return make_error_pack(E_INVARG);
-    r.type = TYPE_STR;
-    r.v.str = hash_bytes(bytes, length);
-    return make_var_pack(r);
+    return make_string_pack(hash_bytes(bytes, length));
 }
 
 static package
 bf_string_hash(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    Var r;
+    package p;
     const char *str = arglist.v.list[1].v.str;
 
-    r.type = TYPE_STR;
-    r.v.str = hash_bytes(str, memo_strlen(str));
+    p = make_string_pack(hash_bytes(str, memo_strlen(str)));
     free_var(arglist);
-    return make_var_pack(r);
+    return p;
 }
 
 static package
