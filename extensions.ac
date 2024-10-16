@@ -95,7 +95,7 @@ END
 MOO_DECLARE_OPTIONS(
 
  [[UNICODE_IDENTIFIERS],  [bool], yes, [allow Unicode in identifiers]],
- [[UNICODE_NUMBERS],      [bool], yes, [allow Unicode in numeric constants]],
+ [[UNICODE_NUMBERS],      [bool], no,  [allow Unicode in numeric constants]],
 )
 
 
