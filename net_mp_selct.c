@@ -17,13 +17,14 @@
 
 /* Multiplexing wait implementation using the BSD UNIX select() system call */
 
+#include "net_mplex.h"
+
 #include <errno.h>		/* errno */
 #include "my-string.h"		/* bzero() or memset(), used in FD_ZERO */
 #include "my-sys-time.h"	/* select(), struct timeval */
 #include "my-types.h"		/* fd_set, FD_ZERO(), FD_SET(), FD_ISSET() */
 
 #include "log.h"
-#include "net_mplex.h"
 
 static fd_set input, output;
 static int max_descriptor;

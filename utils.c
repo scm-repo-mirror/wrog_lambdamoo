@@ -15,11 +15,12 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "utils.h"
+
 #include "my-ctype.h"
 #include "my-stdio.h"
 #include "my-string.h"
 
-#include "config.h"
 #include "db.h"
 #include "db_io.h"
 #include "exceptions.h"
@@ -33,7 +34,6 @@
 #include "streams.h"
 #include "structures.h"
 #include "utf.h"
-#include "utils.h"
 
 /*
  * These versions of strcasecmp() and strncasecmp() depend on ASCII.

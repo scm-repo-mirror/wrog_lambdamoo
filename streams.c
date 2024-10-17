@@ -15,15 +15,15 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "streams.h"
+
 #include <float.h>
 #include "my-stdarg.h"
 #include "my-string.h"
 #include "my-stdio.h"
 
-#include "config.h"
 #include "log.h"
 #include "storage.h"
-#include "streams.h"
 #include "utf.h"
 
 Stream *

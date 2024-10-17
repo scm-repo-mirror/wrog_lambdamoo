@@ -15,17 +15,17 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "parse_cmd.h"
+
 #include "my-ctype.h"
 #include "my-stdio.h"
 #include "my-stdlib.h"
 #include "my-string.h"
 #include "my-time.h"
 
-#include "config.h"
 #include "db.h"
 #include "list.h"
 #include "match.h"
-#include "parse_cmd.h"
 #include "storage.h"
 #include "structures.h"
 #include "utils.h"

@@ -8,12 +8,12 @@
  * "as is" without express or implied warranty.
  */
 
+# include "pattern.h"
+
 # include <pcre.h>
 # include "my-stdio.h"
 # include "my-string.h"
 
-# include "config.h"
-# include "pattern.h"
 # include "streams.h"
 # include "utf.h"
 # include "storage.h"

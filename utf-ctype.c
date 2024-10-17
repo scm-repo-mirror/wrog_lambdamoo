@@ -4,9 +4,9 @@
  * Invoke libucd to test for specific character classes.
  */
 
-#include "config.h"
-#include "ucd.h"
 #include "utf-ctype.h"
+
+#include "ucd.h"
 
 /*------------*
  |   digits   |

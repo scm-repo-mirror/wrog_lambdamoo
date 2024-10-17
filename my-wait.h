@@ -19,6 +19,7 @@
 #define My_Wait_H 1
 
 #include "config.h"
+
 #include <sys/wait.h>
 
 #if NDECL_WAITPID

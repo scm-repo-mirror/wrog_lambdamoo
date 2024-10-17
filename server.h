@@ -26,9 +26,13 @@
 #ifndef Server_H
 #define Server_H 1
 
-#include "my-stdio.h"
-
 #include "config.h"
+
+/********
+ *  shared typedefs that must go ahead of the #include block
+ *  because network.h and server.h reference both and
+ *  mutually include each other
+ */
 
 typedef struct {		/* Server's handle on a connection */
     void *ptr;
@@ -38,7 +42,14 @@ typedef struct {		/* Server's handle on a listening point */
     void *ptr;
 } server_listener;
 
-#include "network.h"		/* Include this *after* defining the types */
+/*
+ *  end of common typedefs
+ ***************************/
+
+#include "my-stdio.h"
+
+#include "network.h"
+#include "structures.h"
 
 extern server_listener null_server_listener;
 
@@ -109,8 +120,6 @@ extern void set_server_cmdline(const char *line);
 				 * operation is effectively a no-op in some
 				 * cases.
 				 */
-
-#include "structures.h"
 
 extern int server_flag_option(const char *name);
 				/* Return true iff both $server_options and

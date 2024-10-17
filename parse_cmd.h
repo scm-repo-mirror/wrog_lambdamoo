@@ -19,6 +19,7 @@
 #define Parse_Cmd_H 1
 
 #include "config.h"
+
 #include "db.h"
 #include "structures.h"
 

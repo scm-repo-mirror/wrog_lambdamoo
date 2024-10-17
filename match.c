@@ -15,14 +15,14 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "match.h"
+
 #include "my-stdlib.h"
 #include "my-string.h"
 
-#include "config.h"
 #include "db.h"
 #include "exceptions.h"
 #include "structures.h"
-#include "match.h"
 #include "parse_cmd.h"
 #include "storage.h"
 #include "unparse.h"

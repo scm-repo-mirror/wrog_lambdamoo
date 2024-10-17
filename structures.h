@@ -18,9 +18,10 @@
 #ifndef Structures_H
 #define Structures_H 1
 
+#include "config.h"
+
 #include "my-stdio.h"
 
-#include "config.h"
 
 /***********
  * Numbers
