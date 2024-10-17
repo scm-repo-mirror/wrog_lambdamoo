@@ -21,6 +21,9 @@
  * subprocess is restarted.
  */
 
+#include "name_lookup.h"
+
+#include "config.h"
 #include "options.h"
 
 #if NETWORK_PROTOCOL == NP_TCP	/* Skip almost entire file otherwise... */
@@ -36,10 +39,6 @@
 #include "my-wait.h"
 #include "my-string.h"
 #include <errno.h>
-
-#include "config.h"
-
-#include "name_lookup.h"
 
 #include "log.h"
 #include "server.h"

@@ -23,6 +23,7 @@
 #define DB_Private_H 1
 
 #include "config.h"
+
 #include "exceptions.h"
 #include "program.h"
 #include "structures.h"

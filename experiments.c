@@ -44,9 +44,10 @@
  *  extension.)
  */
 
+#include "bf_register.h"
+
 #define EXAMPLE 0
 
-#include "bf_register.h"
 #include "functions.h"
 
 #if EXAMPLE

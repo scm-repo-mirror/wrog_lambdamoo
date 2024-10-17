@@ -37,8 +37,9 @@
  *
  */
 
-#include "config.h"
 #include "version.h"
+
+#include "config.h"
 
 const char *server_version = "1.8.3";
 

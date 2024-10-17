@@ -15,9 +15,11 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
-#include "config.h"
-#include "db.h"
 #include "quota.h"
+
+#include "config.h"
+
+#include "db.h"
 #include "structures.h"
 
 static const char *quota_name = "ownership_quota";

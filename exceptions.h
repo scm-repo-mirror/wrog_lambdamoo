@@ -95,9 +95,9 @@
 #ifndef Exceptions_H
 #define Exceptions_H 1
 
-#include <setjmp.h>
-
 #include "config.h"
+
+#include <setjmp.h>
 
 #define ES_MaxExceptionsPerScope	10
 

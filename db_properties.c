@@ -19,9 +19,9 @@
  * Routines for manipulating properties on DB objects
  *****************************************************************************/
 
-#include "config.h"
 #include "db.h"
 #include "db_private.h"
+
 #include "list.h"
 #include "storage.h"
 #include "utils.h"

@@ -19,6 +19,7 @@
 #define Parser_H 1
 
 #include "config.h"
+
 #include "program.h"
 #include "version.h"
 

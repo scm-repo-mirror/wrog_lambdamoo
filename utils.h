@@ -18,9 +18,10 @@
 #ifndef Utils_H
 #define Utils_H 1
 
+#include "config.h"
+
 #include "my-stdio.h"
 
-#include "config.h"
 #include "execute.h"
 
 #undef MAX

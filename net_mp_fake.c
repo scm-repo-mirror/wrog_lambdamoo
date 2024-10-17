@@ -17,12 +17,15 @@
 
 /* Multiplexing wait implementation using fstat (only works for FIFOs) */
 
+#include "net_mplex.h"
+
+#include "config.h"
+#include "options.h"
+
 #include "my-types.h"
 #include "my-stat.h"
 #include "my-unistd.h"		/* sleep() */
 
-#include "net_mplex.h"
-#include "options.h"
 #include "storage.h"
 
 #if (NETWORK_PROTOCOL != NP_LOCAL) || (NETWORK_STYLE != NS_SYSV)

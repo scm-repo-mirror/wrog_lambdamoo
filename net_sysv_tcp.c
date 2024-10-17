@@ -31,6 +31,11 @@
  * basis for the eventual POSIX standard networking interface.
  */
 
+#include "net_proto.h"
+
+#include "config.h"
+#include "options.h"
+
 #include "my-inet.h"		/* inet_addr() */
 #include <errno.h>		/* EMFILE */
 #include "my-fcntl.h"		/* O_RDWR */
@@ -45,11 +50,8 @@
 #include "my-tiuser.h"		/* t_open(), t_bind(), t_alloc(), t_accept() */
 #include "my-unistd.h"		/* close() */
 
-#include "config.h"
 #include "log.h"
 #include "name_lookup.h"
-#include "net_proto.h"
-#include "options.h"
 #include "server.h"
 #include "streams.h"
 #include "structures.h"

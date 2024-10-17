@@ -15,15 +15,15 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "sym_table.h"
+
 #include "my-stdio.h"
 
 #include "ast.h"
-#include "config.h"
 #include "exceptions.h"
 #include "log.h"
 #include "storage.h"
 #include "structures.h"
-#include "sym_table.h"
 #include "utils.h"
 #include "version.h"
 
