@@ -15,9 +15,9 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
-#include "options.h"
-
 #include "network.h"
+
+#include "options.h"
 
 #if NETWORK_PROTOCOL == NP_SINGLE
 #  include "net_single.c"

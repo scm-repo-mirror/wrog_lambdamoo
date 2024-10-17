@@ -15,6 +15,8 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "net_mplex.h"
+
 #include "options.h"
 
 #  if MPLEX_STYLE == MP_SELECT

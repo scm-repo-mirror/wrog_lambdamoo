@@ -15,6 +15,11 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "net_multi.h"
+
+#include "config.h"
+#include "options.h"
+
 #include "my-ctype.h"
 #include <errno.h>
 #include "my-fcntl.h"
@@ -25,17 +30,12 @@
 #include "my-string.h"
 #include "my-unistd.h"
 
-#include "config.h"
-
-#include "net_multi.h"
-
 #include "exceptions.h"
 #include "list.h"
 #include "log.h"
 #include "net_mplex.h"
 #include "net_proto.h"
 #include "network.h"
-#include "options.h"
 #include "server.h"
 #include "streams.h"
 #include "structures.h"

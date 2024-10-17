@@ -19,20 +19,22 @@
  * Routines for initializing, loading, dumping, and shutting down the database
  *****************************************************************************/
 
+#include "db.h"
+
+#include "config.h"
+#include "options.h"
+
 #include "my-stat.h"
 #include "my-unistd.h"
 #include "my-stdio.h"
 #include "my-stdlib.h"
 #include "my-string.h"
 
-#include "config.h"
-#include "db.h"
 #include "db_io.h"
 #include "db_private.h"
 #include "exceptions.h"
 #include "list.h"
 #include "log.h"
-#include "options.h"
 #include "server.h"
 #include "storage.h"
 #include "streams.h"

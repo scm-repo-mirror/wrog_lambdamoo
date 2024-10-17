@@ -18,6 +18,10 @@
 /* Multi-user networking protocol implementation for local clients on BSD UNIX
  */
 
+#include "net_proto.h"
+
+#include "config.h"
+
 #include <errno.h>		/* EMFILE */
 #include "my-socket.h"		/* socket(), AF_UNIX, SOCK_STREAM,
 				   * bind(), struct sockaddr, accept(),
@@ -27,9 +31,7 @@
 #include <sys/un.h>		/* struct sockaddr_un */
 #include "my-unistd.h"		/* close() */
 
-#include "config.h"
 #include "log.h"
-#include "net_proto.h"
 #include "storage.h"
 #include "structures.h"
 #include "utils.h"

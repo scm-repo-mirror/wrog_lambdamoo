@@ -15,10 +15,10 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "ast.h"
+
 #include "my-string.h"
 
-#include "ast.h"
-#include "config.h"
 #include "list.h"
 #include "log.h"
 #include "program.h"

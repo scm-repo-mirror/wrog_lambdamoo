@@ -15,12 +15,12 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "pattern.h"
+
 #include "my-ctype.h"
 #include "my-stdlib.h"
 #include "my-string.h"
 
-#include "config.h"
-#include "pattern.h"
 #include "regexpr.h"
 #include "storage.h"
 #include "streams.h"

@@ -15,16 +15,17 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "numbers.h"
+#include "bf_register.h"
+
+#include "config.h"
+
 #include <limits.h>
 #include <errno.h>
 #include "my-math.h"
 #include "my-stdlib.h"
 #include "my-string.h"
 #include "my-time.h"
-
-#include "config.h"
-
-#include "numbers.h"
 
 #include "functions.h"
 #include "log.h"
@@ -33,7 +34,6 @@
 #include "structures.h"
 #include "utils.h"
 
-#include "bf_register.h"
 
 static int
 parse_number(const char *str, int *result, int try_floating_point)

@@ -17,6 +17,9 @@
 
 /* BSD/LOCAL MUD client */
 
+#include "config.h"
+#include "options.h"
+
 #include <errno.h>
 #include "my-socket.h"
 #include "my-stdio.h"
@@ -26,9 +29,6 @@
 #include <sys/un.h>
 #include "my-types.h"
 #include "my-unistd.h"
-
-#include "config.h"
-#include "options.h"
 
 int
 main(int argc, char **argv)

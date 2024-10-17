@@ -17,6 +17,11 @@
 
 /* Multi-user networking protocol implementation for TCP/IP on BSD UNIX */
 
+#include "net_proto.h"
+
+#include "config.h"
+#include "options.h"
+
 #include "my-inet.h"		/* inet_addr() */
 #include <errno.h>		/* EMFILE, EADDRNOTAVAIL, ECONNREFUSED,
 				   * ENETUNREACH, ETIMEOUT */
@@ -30,12 +35,9 @@
 #include "my-string.h"		/* memcpy() */
 #include "my-unistd.h"		/* close() */
 
-#include "config.h"
 #include "list.h"
 #include "log.h"
 #include "name_lookup.h"
-#include "net_proto.h"
-#include "options.h"
 #include "server.h"
 #include "streams.h"
 #include "timers.h"

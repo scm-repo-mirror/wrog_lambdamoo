@@ -15,9 +15,9 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
-#include <limits.h>
-
 #include "code_gen.h"
+
+#include <limits.h>
 
 #include "ast.h"
 #include "exceptions.h"
