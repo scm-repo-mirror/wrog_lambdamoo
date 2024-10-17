@@ -15,7 +15,20 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "config.h"
+#include "options.h"
+
 #include "my-types.h"		/* must be first on some systems */
+/* ( Um, hello?  Which systems and why?  Leaving this here because I'll assume
+ |   whoever left this comment did it for a reason, even though there is no
+ |   way in hell this should go in front of config.h or options.h and
+ |   I really want to have server.h at the top, but server.h does include
+ |   rather a lot, so...   Still not a happy camper.   --wrog )
+ */
+
+#include "server.h"
+#include "bf_register.h"
+
 #include "my-signal.h"
 #include "my-stdarg.h"
 #include "my-stdio.h"
@@ -24,8 +37,6 @@
 #include "my-unistd.h"
 #include "my-wait.h"
 
-#include "bf_register.h"
-#include "config.h"
 #include "db.h"
 #include "db_io.h"
 #include "disassemble.h"
@@ -35,10 +46,8 @@
 #include "list.h"
 #include "log.h"
 #include "network.h"
-#include "options.h"
 #include "parser.h"
 #include "random.h"
-#include "server.h"
 #include "storage.h"
 #include "streams.h"
 #include "structures.h"

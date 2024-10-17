@@ -30,7 +30,6 @@
 
 #include "ast.h"
 #include "code_gen.h"
-#include "config.h"
 #include "functions.h"
 #include "keywords.h"
 #include "list.h"

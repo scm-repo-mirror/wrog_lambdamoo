@@ -15,7 +15,7 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
-#include "options.h"
+#include "net_proto.h"
 
 #  if NETWORK_PROTOCOL == NP_TCP
 #    if NETWORK_STYLE == NS_BSD

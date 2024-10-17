@@ -20,7 +20,6 @@
 
 #include "my-stdarg.h"
 
-#include "config.h"
 #include "db_io.h"
 #include "execute.h"
 #include "list.h"

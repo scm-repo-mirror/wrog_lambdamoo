@@ -19,6 +19,7 @@
 #define Eval_VM_H 1
 
 #include "config.h"
+
 #include "execute.h"
 #include "structures.h"
 

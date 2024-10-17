@@ -19,7 +19,6 @@
 
 #include "my-string.h"
 
-#include "config.h"
 #include "list.h"
 #include "log.h"
 #include "program.h"
