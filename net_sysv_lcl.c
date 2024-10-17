@@ -67,6 +67,10 @@
  * function connection_name(player).  Caveat Emptor.
  */
 
+#include "net_proto.h"
+
+#include "config.h"
+
 #include <errno.h>		/* EMFILE */
 #include "my-fcntl.h"		/* open(), O_RDONLY, O_WRONLY, NONBLOCK_FLAG */
 #include <pwd.h>		/* struct passwd, getpwuid() */
@@ -75,12 +79,10 @@
 #include "my-stdlib.h"		/* exit() */
 #include "my-unistd.h"		/* chmod(), close(), pipe(), read(), write() */
 
-#include "config.h"
 #include "exceptions.h"
 #include "list.h"
 #include "log.h"
 #include "net_multi.h"
-#include "net_proto.h"
 #include "storage.h"
 #include "streams.h"
 #include "utils.h"

@@ -19,6 +19,7 @@
 #define Version_H 1
 
 #include "config.h"
+
 #include "structures.h"
 
 /*****************************************************************

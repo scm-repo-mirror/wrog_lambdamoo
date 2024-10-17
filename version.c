@@ -37,13 +37,15 @@
  *
  */
 
-#include "config.h"
 #include "version.h"
+
+#include "config.h"
+#include "options.h"
+
 #include "structures.h"
 #include "list.h"
 #include "storage.h"
 #include "utils.h"
-#include "options.h"
 #include "exceptions.h"
 
 /*

@@ -17,13 +17,14 @@
 
 #include "storage.h"
 
+#include "config.h"
+#include "options.h"
+
 #include "my-stdlib.h"
 #include "my-string.h"
 
-#include "config.h"
 #include "exceptions.h"
 #include "list.h"
-#include "options.h"
 #include "ref_count.h"
 #include "structures.h"
 #include "utils.h"

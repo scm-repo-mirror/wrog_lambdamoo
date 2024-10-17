@@ -18,9 +18,10 @@
 #ifndef Functions_H
 #define Functions_H 1
 
+#include "config.h"
+
 #include "my-stdio.h"
 
-#include "config.h"
 #include "execute.h"
 #include "program.h"
 #include "structures.h"

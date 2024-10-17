@@ -15,11 +15,13 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "verbs.h"
 #include "bf_register.h"
+
+#include "config.h"
 
 #include "my-string.h"
 
-#include "config.h"
 #include "db.h"
 #include "exceptions.h"
 #include "execute.h"
@@ -33,7 +35,6 @@
 #include "storage.h"
 #include "unparse.h"
 #include "utils.h"
-#include "verbs.h"
 
 struct verb_data {
     Var r;

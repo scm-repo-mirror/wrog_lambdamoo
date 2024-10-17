@@ -18,14 +18,14 @@
 #include "numbers.h"
 #include "bf_register.h"
 
+#include "config.h"
+
 #include <limits.h>
 #include <errno.h>
 #include "my-math.h"
 #include "my-stdlib.h"
 #include "my-string.h"
 #include "my-time.h"
-
-#include "config.h"
 
 #include "functions.h"
 #include "log.h"

@@ -15,13 +15,15 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "eval_vm.h"
+
 #include "config.h"
+#include "options.h"
+
 #include "db_io.h"
 #include "decompile.h"
-#include "eval_vm.h"
 #include "execute.h"
 #include "log.h"
-#include "options.h"
 #include "storage.h"
 #include "structures.h"
 #include "tasks.h"

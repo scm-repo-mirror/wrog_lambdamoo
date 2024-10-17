@@ -18,25 +18,26 @@
 #include "list.h"
 #include "bf_register.h"
 
+#include "config.h"
+#include "options.h"
+
 #include "my-ctype.h"
 #include "my-string.h"
 #include "my-math.h"
 
-#include "config.h"
 #include "exceptions.h"
 #include "functions.h"
 #include "log.h"
 #include "md5.h"
-#include "options.h"
 #include "pattern.h"
 #include "random.h"
 #include "ref_count.h"
+#include "server.h"
 #include "streams.h"
 #include "storage.h"
 #include "structures.h"
 #include "unparse.h"
 #include "utils.h"
-#include "server.h"
 
 Var
 new_list(int size)

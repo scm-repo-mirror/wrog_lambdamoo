@@ -17,11 +17,12 @@
 
 /* Multiplexing wait implementation using the System V poll() system call. */
 
+#include "net_mplex.h"
+
 #include <errno.h>
 #include "my-poll.h"
 
 #include "log.h"
-#include "net_mplex.h"
 #include "storage.h"
 
 typedef struct pollfd Port;

@@ -26,7 +26,12 @@
 
 #include "config.h"
 #include "options.h"
-#include "structures.h"
+
+/********
+ *  shared typedefs that must go ahead of the #include block
+ *  because network.h and server.h reference both and
+ *  mutually include each other
+ */
 
 typedef struct {		/* Network's handle on a connection */
     void *ptr;
@@ -36,7 +41,12 @@ typedef struct {		/* Network's handle on a listening point */
     void *ptr;
 } network_listener;
 
-#include "server.h"		/* Include this *after* defining the types */
+/*
+ *  end of common typedefs
+ ***************************/
+
+#include "server.h"
+#include "structures.h"
 
 extern const char *network_protocol_name(void);
 				/* Returns a string naming the networking
