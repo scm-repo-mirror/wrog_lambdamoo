@@ -19,6 +19,7 @@
 #define DB_h 1
 
 #include "config.h"
+
 #include "program.h"
 #include "structures.h"
 

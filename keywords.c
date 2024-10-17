@@ -22,10 +22,10 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "keywords.h"
+
 #include "my-string.h"
 
-#include "config.h"
-#include "keywords.h"
 #include "tokens.h"
 #include "utils.h"
 

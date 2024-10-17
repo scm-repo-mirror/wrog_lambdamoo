@@ -19,6 +19,7 @@
 #define Execute_H 1
 
 #include "config.h"
+
 #include "db.h"
 #include "opcode.h"
 #include "parse_cmd.h"

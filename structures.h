@@ -18,9 +18,9 @@
 #ifndef Structures_H
 #define Structures_H 1
 
-#include "my-stdio.h"
-
 #include "config.h"
+
+#include "my-stdio.h"
 
 #define MAXINT	((int32) 2147483647L)
 #define MAXOBJ	((Objid) MAXINT)

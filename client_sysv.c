@@ -17,6 +17,9 @@
 
 /* SYSV/LOCAL MUD client */
 
+#include "config.h"
+#include "options.h"
+
 #include <errno.h>
 #include "my-fcntl.h"
 #include "my-signal.h"
@@ -26,9 +29,6 @@
 #include "my-types.h"
 #include "my-stat.h"
 #include "my-unistd.h"
-
-#include "config.h"
-#include "options.h"
 
 int
 set_non_blocking(int fd)

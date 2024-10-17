@@ -18,10 +18,12 @@
 #include "tasks.h"
 #include "bf_register.h"
 
+#include "config.h"
+#include "options.h"
+
 #include "my-string.h"
 #include "my-time.h"
 
-#include "config.h"
 #include "db.h"
 #include "db_io.h"
 #include "decompile.h"
@@ -33,7 +35,6 @@
 #include "list.h"
 #include "log.h"
 #include "match.h"
-#include "options.h"
 #include "parse_cmd.h"
 #include "parser.h"
 #include "random.h"

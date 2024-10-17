@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include "options.h"
+
 #include "structures.h"
 
 struct proto {

@@ -15,9 +15,9 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
-#include "config.h"
-#include "exceptions.h"
 #include "ref_count.h"
+
+#include "exceptions.h"
 #include "storage.h"
 
 #if 0

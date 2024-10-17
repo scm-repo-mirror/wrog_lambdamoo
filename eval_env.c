@@ -15,8 +15,8 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
-#include "config.h"
 #include "eval_env.h"
+
 #include "storage.h"
 #include "structures.h"
 #include "sym_table.h"

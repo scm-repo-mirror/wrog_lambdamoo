@@ -27,6 +27,8 @@
 
  */
 
+#include "config.h"
+
 #include "my-stdio.h"
 #include <assert.h>
 #include "regexpr.h"
@@ -115,7 +117,6 @@ static int regexp_ansi_sequences;
 
 /* This code is for emacs compatibility only. */
 
-#include "config.h"
 #include "lisp.h"
 #include "buffer.h"
 #include "syntax.h"

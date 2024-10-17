@@ -2,6 +2,9 @@
 
 #include "str_intern.h"
 
+#include "config.h"
+#include "options.h"
+
 #include "my-stdlib.h"
 #include "my-string.h"
 

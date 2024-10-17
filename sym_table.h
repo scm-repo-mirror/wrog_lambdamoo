@@ -19,6 +19,7 @@
 #define Sym_Table_H 1
 
 #include "config.h"
+
 #include "version.h"
 
 typedef struct {

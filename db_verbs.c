@@ -19,13 +19,13 @@
  * Routines for manipulating verbs on DB objects
  *****************************************************************************/
 
+#include "db.h"
+#include "db_private.h"
+
 #include <ctype.h>
 #include "my-stdlib.h"
 #include "my-string.h"
 
-#include "config.h"
-#include "db.h"
-#include "db_private.h"
 #include "db_tune.h"
 #include "list.h"
 #include "log.h"

@@ -21,7 +21,6 @@
 #include "my-stdio.h"
 
 #include "ast.h"
-#include "config.h"
 #include "decompile.h"
 #include "exceptions.h"
 #include "functions.h"

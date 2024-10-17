@@ -18,9 +18,10 @@
 #ifndef Unparse_H
 #define Unparse_H 1
 
+#include "config.h"
+
 #include "my-stdio.h"
 
-#include "config.h"
 #include "program.h"
 #include "structures.h"
 
