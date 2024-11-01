@@ -69,8 +69,8 @@ write_verbdef(Verbdef * v)
 {
     dbio_write_string(v->name);
     dbio_write_objid(v->owner);
-    dbio_write_num(v->perms);
-    dbio_write_num(v->prep);
+    dbio_write_intmax(v->perms);
+    dbio_write_intmax(v->prep);
 }
 
 static Propdef
@@ -99,7 +99,7 @@ write_propval(Pval * p)
 {
     dbio_write_var(p->var);
     dbio_write_objid(p->owner);
-    dbio_write_num(p->perms);
+    dbio_write_intmax(p->perms);
 }
 
 
@@ -188,7 +188,7 @@ write_object(Objid oid)
     dbio_printf("#%"PRIdN"\n", oid);
     dbio_write_string(o->name);
     dbio_write_string("");	/* placeholder for old handles string */
-    dbio_write_num(o->flags);
+    dbio_write_intmax(o->flags);
 
     dbio_write_objid(o->owner);
 
@@ -203,17 +203,17 @@ write_object(Objid oid)
     for (v = o->verbdefs, nverbdefs = 0; v; v = v->next)
 	nverbdefs++;
 
-    dbio_write_num(nverbdefs);
+    dbio_write_intmax(nverbdefs);
     for (v = o->verbdefs; v; v = v->next)
 	write_verbdef(v);
 
-    dbio_write_num(o->propdefs.cur_length);
+    dbio_write_intmax(o->propdefs.cur_length);
     for (i = 0; i < o->propdefs.cur_length; i++)
 	write_propdef(&o->propdefs.l[i]);
 
     nprops = dbpriv_count_properties(oid);
 
-    dbio_write_num(nprops);
+    dbio_write_intmax(nprops);
     for (i = 0; i < nprops; i++)
 	write_propval(o->propval + i);
 }
