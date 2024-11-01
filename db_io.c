@@ -308,9 +308,9 @@ dbio_printf(const char *format,...)
 }
 
 void
-dbio_write_num(int n)
+dbio_write_intmax(intmax_t n)
 {
-    dbio_printf("%d\n", n);
+    dbio_printf("%"PRIdMAX"\n", n);
 }
 
 void
@@ -325,7 +325,7 @@ dbio_write_float(FlNum d)
 void
 dbio_write_objid(Objid oid)
 {
-    dbio_write_num(oid);
+    dbio_write_intmax(oid);
 }
 
 void
@@ -339,7 +339,7 @@ dbio_write_var(Var v)
 {
     int i;
 
-    dbio_write_num((int) v.type & TYPE_DB_MASK);
+    dbio_write_intmax((intmax_t) v.type & TYPE_DB_MASK);
     switch ((int) v.type) {
     case TYPE_CLEAR:
     case TYPE_NONE:
@@ -348,17 +348,21 @@ dbio_write_var(Var v)
 	dbio_write_string(v.v.str);
 	break;
     case TYPE_OBJ:
+	dbio_write_objid(v.v.obj);
+	break;
     case TYPE_ERR:
+	dbio_write_intmax(v.v.err);
+	break;
     case TYPE_INT:
     case TYPE_CATCH:
     case TYPE_FINALLY:
-	dbio_write_num(v.v.num);
+	dbio_write_intmax(v.v.num);
 	break;
     case TYPE_FLOAT:
 	dbio_write_float(fl_unbox(v.v.fnum));
 	break;
     case TYPE_LIST:
-	dbio_write_num(v.v.list[0].v.num);
+	dbio_write_intmax(v.v.list[0].v.num);
 	for (i = 0; i < v.v.list[0].v.num; i++)
 	    dbio_write_var(v.v.list[i + 1]);
 	break;
