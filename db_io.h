@@ -79,7 +79,7 @@ extern Program *dbio_read_program(DB_Version version,
 
 extern void dbio_printf(const char *format,...) FORMAT(printf,1,2);
 
-extern void dbio_write_num(int);
+extern void dbio_write_intmax(intmax_t);
 extern void dbio_write_objid(Objid);
 extern void dbio_write_float(FlNum);
 
