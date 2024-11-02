@@ -40,82 +40,34 @@ const char *
 unparse_error(enum error e)
 {
     switch (e) {
-    case E_NONE:
-	return "No error";
-    case E_TYPE:
-	return "Type mismatch";
-    case E_DIV:
-	return "Division by zero";
-    case E_PERM:
-	return "Permission denied";
-    case E_PROPNF:
-	return "Property not found";
-    case E_VERBNF:
-	return "Verb not found";
-    case E_VARNF:
-	return "Variable not found";
-    case E_INVIND:
-	return "Invalid indirection";
-    case E_RECMOVE:
-	return "Recursive move";
-    case E_MAXREC:
-	return "Too many verb calls";
-    case E_RANGE:
-	return "Range error";
-    case E_ARGS:
-	return "Incorrect number of arguments";
-    case E_NACC:
-	return "Move refused by destination";
-    case E_INVARG:
-	return "Invalid argument";
-    case E_QUOTA:
-	return "Resource limit exceeded";
-    case E_FLOAT:
-	return "Floating-point arithmetic error";
-    }
+    default:
+	return "Unknown Error";
 
-    return "Unknown Error";
+#define ERR_DO_(E_NAME,DESC)			\
+    case E_NAME:				\
+	return DESC;				\
+
+	ERR_SPEC_LIST(ERR_DO_)
+
+#undef ERR_DO_
+    }
 }
 
 const char *
 error_name(enum error e)
 {
     switch (e) {
-    case E_NONE:
-	return "E_NONE";
-    case E_TYPE:
-	return "E_TYPE";
-    case E_DIV:
-	return "E_DIV";
-    case E_PERM:
-	return "E_PERM";
-    case E_PROPNF:
-	return "E_PROPNF";
-    case E_VERBNF:
-	return "E_VERBNF";
-    case E_VARNF:
-	return "E_VARNF";
-    case E_INVIND:
-	return "E_INVIND";
-    case E_RECMOVE:
-	return "E_RECMOVE";
-    case E_MAXREC:
-	return "E_MAXREC";
-    case E_RANGE:
-	return "E_RANGE";
-    case E_ARGS:
-	return "E_ARGS";
-    case E_NACC:
-	return "E_NACC";
-    case E_INVARG:
-	return "E_INVARG";
-    case E_QUOTA:
-	return "E_QUOTA";
-    case E_FLOAT:
-	return "E_FLOAT";
-    }
+    default:
+	return "E_?";
 
-    return "E_?";
+#define ERR_DO_(E_NAME,_2)			\
+    case E_NAME:				\
+	return #E_NAME;				\
+
+	ERR_SPEC_LIST(ERR_DO_)
+
+#undef ERR_DO_
+    }
 }
 
 
