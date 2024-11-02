@@ -37,10 +37,32 @@ typedef int32_t Objid;
  * values, and those equivalents are both DB-accessible knowledge and stored in
  * raw form in the DB.
  */
+#define ERR_SPEC_LIST(DEF)				\
+    DEF(E_NONE,    "No error")				\
+    DEF(E_TYPE,    "Type mismatch")			\
+    DEF(E_DIV,     "Division by zero")			\
+    DEF(E_PERM,    "Permission denied")			\
+    DEF(E_PROPNF,  "Property not found")		\
+    DEF(E_VERBNF,  "Verb not found")			\
+    DEF(E_VARNF,   "Variable not found")		\
+    DEF(E_INVIND,  "Invalid indirection")		\
+    DEF(E_RECMOVE, "Recursive move")			\
+    DEF(E_MAXREC,  "Too many verb calls")		\
+    DEF(E_RANGE,   "Range error")			\
+    DEF(E_ARGS,    "Incorrect number of arguments")	\
+    DEF(E_NACC,    "Move refused by destination")	\
+    DEF(E_INVARG,  "Invalid argument")			\
+    DEF(E_QUOTA,   "Resource limit exceeded")		\
+    DEF(E_FLOAT,   "Floating-point arithmetic error")	\
+
+#define ERROR_DO_(E_NAME,_2)  E_NAME,
 enum error {
-    E_NONE, E_TYPE, E_DIV, E_PERM, E_PROPNF, E_VERBNF, E_VARNF, E_INVIND,
-    E_RECMOVE, E_MAXREC, E_RANGE, E_ARGS, E_NACC, E_INVARG, E_QUOTA, E_FLOAT
+    ERR_SPEC_LIST(ERROR_DO_)
+    ERR_COUNT,
+    ERR_MAX = ERR_COUNT - 1,
+    ERR_MIN = E_NONE
 };
+#undef ERROR_DO_
 
 
 /* Types which have external data should be marked with the TYPE_COMPLEX_FLAG
