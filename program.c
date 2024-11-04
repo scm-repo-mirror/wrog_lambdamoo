@@ -64,7 +64,7 @@ program_ref(Program * p)
 int
 program_bytes(Program * p)
 {
-    int i, count;
+    unsigned i, count;
 
     count = sizeof(Program);
     count += p->main_vector.size;
