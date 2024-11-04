@@ -1721,7 +1721,7 @@ static int
 suspended_task_bytes(vm the_vm)
 {
     int total = sizeof(vmstruct);
-    int i;
+    unsigned i;
 
     for (i = 0; i <= the_vm->top_activ_stack; i++)
 	total += activation_bytes(the_vm->activ_stack + i);
