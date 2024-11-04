@@ -1458,7 +1458,9 @@ read_task_queue(void)
 	return 0;
     }
     for (; count > 0; count--) {
-	int first_lineno, id, old_size, st;
+	int first_lineno, id;
+	unsigned old_size;
+	int st;
 	char c;
 	time_t start_time;
 	Program *program;
@@ -1655,7 +1657,7 @@ activation_bytes(activation * ap)
 {
     int total = sizeof(activation);
     Var *v;
-    int i;
+    unsigned i;
 
     /* The MOO Way [tm] is double-billing to avoid the possibility
      * of not billing at all, so the size of the prog is counted here
