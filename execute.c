@@ -130,15 +130,14 @@ free_rt_stack(activation * a)
 void
 print_error_backtrace(const char *msg, void (*output) (const char *))
 {
-    int t;
+    unsigned t;
     Stream *str;
 
     if (!interpreter_is_running)
 	return;
     str = new_stream(100);
-    for (t = top_activ_stack; t >= 0; t--) {
-	if (t != top_activ_stack)
-	    stream_printf(str, "... called from ");
+    t = top_activ_stack;
+    for (;;) {
 	stream_printf(str, "#%d:%s", activ_stack[t].vloc,
 		      activ_stack[t].verbname);
 	if (activ_stack[t].vloc != activ_stack[t].this)
@@ -157,6 +156,9 @@ print_error_backtrace(const char *msg, void (*output) (const char *))
 			  name_func_by_num(activ_stack[t].bi_func_id));
 	    output(reset_stream(str));
 	}
+	if (!t--)
+	    break;
+	stream_add_string(str, "... called from ");
     }
     output("(End of traceback)");
     free_stream(str);
@@ -195,7 +197,7 @@ static enum error
 suspend_task(package p)
 {
     vm the_vm = new_vm(current_task_id, top_activ_stack + 1);
-    int i;
+    unsigned i;
     enum error e;
 
     the_vm->max_stack_size = max_stack_size;
@@ -2303,7 +2305,7 @@ do_task(Program * prog, int which_vector, Var * result, int is_fg, int do_db_tra
 enum outcome
 resume_from_previous_vm(vm the_vm, Var v)
 {
-    int i;
+    unsigned i;
 
     check_activ_stack_size(the_vm->max_stack_size);
     top_activ_stack = the_vm->top_activ_stack;
