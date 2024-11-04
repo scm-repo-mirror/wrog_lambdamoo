@@ -2722,7 +2722,7 @@ write_rt_env(const char **var_names, Var * rt_env, unsigned size)
 {
     unsigned i;
 
-    dbio_printf("%d variables\n", size);
+    dbio_printf("%u variables\n", size);
     for (i = 0; i < size; i++) {
 	dbio_write_string(var_names[i]);
 	dbio_write_var(rt_env[i]);
@@ -2730,11 +2730,11 @@ write_rt_env(const char **var_names, Var * rt_env, unsigned size)
 }
 
 int
-read_rt_env(const char ***old_names, Var ** rt_env, int *old_size)
+read_rt_env(const char ***old_names, Var ** rt_env, unsigned *old_size)
 {
     unsigned i;
 
-    if (dbio_scanf("%d variables\n", old_size) != 1) {
+    if (dbio_scanf("%u variables\n", old_size) != 1) {
 	errlog("READ_RT_ENV: Bad count.\n");
 	return 0;
     }
@@ -2751,7 +2751,7 @@ read_rt_env(const char ***old_names, Var ** rt_env, int *old_size)
 
 Var *
 reorder_rt_env(Var * old_rt_env, const char **old_names,
-	       int old_size, Program * prog)
+	       unsigned old_size, Program * prog)
 {
     /* reorder old_rt_env, which is aligned according to old_names,
        to align to prog->var_names -- return the new rt_env
@@ -2763,7 +2763,7 @@ reorder_rt_env(Var * old_rt_env, const char **old_names,
     unsigned i;
 
     for (i = 0; i < size; i++) {
-	int slot;
+	unsigned slot;
 
 	for (slot = 0; slot < old_size; slot++) {
 	    if (mystrcasecmp(old_names[slot], prog->var_names[i]) == 0)
@@ -2791,7 +2791,10 @@ write_activ(activation a)
     dbio_write_program(a.prog);
     write_rt_env(a.prog->var_names, a.rt_env, a.prog->num_var_names);
 
-    dbio_printf("%d rt_stack slots in use\n",
+    if (a.top_rt_stack < a.base_rt_stack)
+	panic("rt_stack smash");
+
+    dbio_printf("%tu rt_stack slots in use\n",
 		a.top_rt_stack - a.base_rt_stack);
 
     for (v = a.base_rt_stack; v != a.top_rt_stack; v++)
@@ -2829,7 +2832,7 @@ read_activ(activation * a, int which_vector)
     unsigned int v;
     Var *old_rt_env;
     const char **old_names;
-    int old_size, stack_in_use;
+    unsigned old_size, stack_in_use;
     unsigned i;
     const char *func_name;
     int max_stack;
@@ -2861,7 +2864,7 @@ read_activ(activation * a, int which_vector)
 		 : a->prog->fork_vectors[which_vector].max_stack);
     alloc_rt_stack(a, max_stack);
 
-    if (dbio_scanf("%d rt_stack slots in use\n", &stack_in_use) != 1) {
+    if (dbio_scanf("%u rt_stack slots in use\n", &stack_in_use) != 1) {
 	errlog("READ_ACTIV: Bad stack_in_use number\n");
 	return 0;
     }
@@ -2870,13 +2873,13 @@ read_activ(activation * a, int which_vector)
 	*(a->top_rt_stack++) = dbio_read_var();
 
     if (!read_activ_as_pi(a)) {
-	errlog("READ_ACTIV: Bad activ.  stack_in_use = %d\n", stack_in_use);
+	errlog("READ_ACTIV: Bad activ.  stack_in_use = %u\n", stack_in_use);
 	return 0;
     }
     a->temp = dbio_read_var();
 
     if (dbio_scanf("%u %u%c", &a->pc, &i, &c) != 3) {
-	errlog("READ_ACTIV: bad pc, next. stack_in_use = %d\n", stack_in_use);
+	errlog("READ_ACTIV: bad pc, next. stack_in_use = %u\n", stack_in_use);
 	return 0;
     }
     a->bi_func_pc = i;
