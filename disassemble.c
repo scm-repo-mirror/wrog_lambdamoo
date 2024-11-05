@@ -187,13 +187,12 @@ disassemble(Program * prog, Printer p, void *data)
 {
     Stream *s = new_stream(100);
     Stream *insn = new_stream(50);
-    int i, l;
     unsigned pc;
     Bytecodes bc;
     const char *ptr;
     const char **names = prog->var_names;
     unsigned tmp, num_names = prog->num_var_names;
-#   define NAMES(i)	(tmp = i,					\
+#   define NAMES(exp)	(tmp = (exp),					\
 			 tmp < num_names ? names[tmp]			\
 					 : "*** Unknown variable ***")
     Var *literals = prog->literals;
@@ -206,23 +205,23 @@ disassemble(Program * prog, Printer p, void *data)
     stream_printf(s, "First line number: %d", prog->first_lineno);
     output(s);
 
-    for (i = -1; i < 0 || i < prog->fork_vectors_size; i++) {
+    bc = prog->main_vector;
+    output(s);
+    stream_printf(s, "Main code vector:");
+    unsigned fk = (unsigned)-1;
+    goto start;
+
+    for ( ;fk < prog->fork_vectors_size; ++fk ) {
+	bc = prog->fork_vectors[fk];
 	output(s);
-	if (i == -1) {
-	    stream_printf(s, "Main code vector:");
-	    output(s);
-	    stream_printf(s, "=================");
-	    output(s);
-	    bc = prog->main_vector;
-	} else {
-	    stream_printf(s, "Forked code vector %d:", i);
-	    l = stream_length(s);
-	    output(s);
-	    while (l--)
-		stream_add_char(s, '=');
-	    output(s);
-	    bc = prog->fork_vectors[i];
-	}
+	stream_printf(s, "Forked code vector %d:", fk);
+
+    start: ;
+	int l = stream_length(s);
+	output(s);
+	while (l--)
+	    stream_add_char(s, '=');
+	output(s);
 
 	stream_printf(s, "[Bytes for labels = %d, literals = %d, ",
 		      bc.numbytes_label, bc.numbytes_literal);
