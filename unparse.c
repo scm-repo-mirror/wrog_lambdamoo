@@ -186,7 +186,7 @@ static int expr_tables_initialized = 0;
 static void
 init_expr_tables(void)
 {
-    int i;
+    unsigned i;
 
     int current_prec = 0;
     for (i = 0; i < Arraysize(prec_groups); ++i) {
