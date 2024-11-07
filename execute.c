@@ -1569,7 +1569,7 @@ do {    						    	\
 		    enum error e;
 
 		    e = enqueue_forked_task2(RUN_ACTIV, f_index, time.v.num,
-					op == OP_FORK_WITH_ID ? id : -1);
+					     op == OP_FORK_WITH_ID ? (int)id : -1);
 		    if (e != E_NONE)
 			RAISE_ERROR(e);
 		}
