@@ -170,6 +170,14 @@ stream_length(Stream * s)
     return s->current;
 }
 
+const char *
+str_dup_then_free_stream(Stream *s)
+{
+    const char *r = str_dup(stream_contents(s));
+    free_stream(s);
+    return r;
+}
+
 int32_t
 stream_last_byte(Stream *s)
 {
