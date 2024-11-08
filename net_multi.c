@@ -72,7 +72,7 @@ typedef struct nhandle {
     struct nhandle *next, **prev;
     server_handle shandle;
     int rfd, wfd;
-    char *name;
+    const char *name;
     Stream *input;
     int last_input_was_CR;
     int input_suspended;
@@ -297,10 +297,6 @@ new_nhandle(int rfd, int wfd, const char *local_name, const char *remote_name,
 	    int outbound)
 {
     nhandle *h;
-    static Stream *s = 0;
-
-    if (s == 0)
-	s = new_stream(100);
 
     if (!network_set_nonblocking(rfd)
 	|| (rfd != wfd && !network_set_nonblocking(wfd)))
@@ -329,9 +325,10 @@ new_nhandle(int rfd, int wfd, const char *local_name, const char *remote_name,
     h->client_echo = 1;
 #endif
 
+    Stream *s = new_stream(0);
     stream_printf(s, "%s %s %s",
 		  local_name, outbound ? "to" : "from", remote_name);
-    h->name = str_dup(reset_stream(s));
+    h->name = str_dup_then_free_stream(s);
 
     return h;
 }
