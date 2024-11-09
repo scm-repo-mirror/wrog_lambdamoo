@@ -95,20 +95,19 @@ register_common(const char *name, int minargs, int maxargs, bf_type func,
 {
     int va_index;
     int num_arg_types = maxargs == -1 ? minargs : maxargs;
-    static Stream *s = 0;
-
-    if (!s)
-	s = new_stream(30);
 
     if (top_bf_table == MAX_FUNC) {
 	errlog("too many functions.  %s cannot be registered.\n", name);
 	return 0;
     }
     bf_table[top_bf_table].name = str_dup(name);
+
+    Stream *s = new_stream(0);
     stream_printf(s, "protect_%s", name);
     bf_table[top_bf_table].protect_str = str_dup(reset_stream(s));
     stream_printf(s, "bf_%s", name);
-    bf_table[top_bf_table].verb_str = str_dup(reset_stream(s));
+    bf_table[top_bf_table].verb_str = str_dup_then_free_stream(s);
+
     bf_table[top_bf_table].minargs = minargs;
     bf_table[top_bf_table].maxargs = maxargs;
     bf_table[top_bf_table].func = func;
