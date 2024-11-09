@@ -43,6 +43,7 @@ extern void free_stream(Stream *);
 extern char *stream_contents(Stream *);
 extern char *reset_stream(Stream *);
 extern size_t stream_length(Stream *);
+extern const char *str_dup_then_free_stream(Stream *s);
 extern int32_t stream_last_byte(Stream *s);
 
 /*
