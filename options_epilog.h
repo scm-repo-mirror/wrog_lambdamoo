@@ -202,4 +202,35 @@
 #  endif
 #endif
 
+
+#define FT_FLOAT  2
+#define FT_DOUBLE 3
+#define FT_LONG   4
+
+#ifndef FLOATING_TYPE
+#  define FLOATING_TYPE  FT_DOUBLE
+#elif FLOATING_TYPE==1
+#  undef FLOATING_TYPE
+#  define FLOATING_TYPE  FT_DOUBLE
+#elif FLOATING_TYPE <= 0 || FT_LONG < FLOATING_TYPE
+#  error "unknown FLOATING_TYPE"
+#endif
+
+#if (( 0 * BOXED_FLOATS - 1 ) == 0)
+#  undef BOXED_FLOATS
+#  define BOXED_FLOATS 1
+#elif BOXED_FLOATS == OPTION_DEFAULT
+#  undef BOXED_FLOATS
+#  if FLOATING_TYPE > FT_DOUBLE
+#    define BOXED_FLOATS 1
+#  endif
+#endif
+
+#if BOXED_FLOATS
+#  define FLOATS_ARE_BOXED 1
+#elif defined(FLOATS_ARE_BOXED)
+#  error "do not do that."
+#endif
+/* Only FLOATS_ARE_BOXED should be referenced from here on. */
+
 #endif		/* !Options_Epilog_H */
