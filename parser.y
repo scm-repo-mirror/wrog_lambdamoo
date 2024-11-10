@@ -74,7 +74,7 @@ static void	check_loop_name(const char *, enum loop_exit_kind);
   int		chr;		/* Used to carry non-ASCII characters */
   Num		integer;
   Objid		object;
-  double        real;
+  FlBox         real;
   char	       *string;
   enum error	error;
   Arg_List     *args;
@@ -550,7 +550,7 @@ expr:
 			    $2->e.var.v.num = -$2->e.var.v.num;
 			    break;
 			  case TYPE_FLOAT:
-			    $2->e.var.v.fnum = -$2->e.var.v.fnum;
+			    flbox_negate_in_place(&($2->e.var.v.fnum));
 			    break;
 			  default:
 			    break;

@@ -41,7 +41,7 @@ extern int dbio_scanf(const char *format,...) FORMAT(scanf,1,2);
 
 extern int64_t dbio_read_num(void);
 extern Objid dbio_read_objid(void);
-extern double dbio_read_float(void);
+extern FlBox dbio_read_float(void);
 
 extern const char *dbio_read_string(void);
 				/* The returned string is in private storage of
@@ -87,7 +87,7 @@ extern void dbio_printf(const char *format,...) FORMAT(printf,1,2);
 
 extern void dbio_write_num(int64_t);
 extern void dbio_write_objid(Objid);
-extern void dbio_write_float(double);
+extern void dbio_write_float(FlNum);
 
 extern void dbio_write_string(const char *);
 				/* The given string should not contain any

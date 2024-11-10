@@ -86,19 +86,19 @@ dbio_read_num(void)
     return i;
 }
 
-double
+FlBox
 dbio_read_float(void)
 {
     char s[40];
     char *p;
-    double d;
+    FlNum d;
 
     fgets(s, 40, input);
-    d = strtod(s, &p);
+    d = strtoflnum(s, &p);
     if (isspace(*s) || *p != '\n')
 	errlog("DBIO_READ_FLOAT: Bad number: \"%s\" at file pos. %ld\n",
 	       s, ftell(input));
-    return d;
+    return box_fl(d);
 }
 
 Objid
@@ -176,6 +176,7 @@ dbio_read_var(void)
 	r.v.num = dbio_read_num();
 	break;
     case _TYPE_FLOAT:
+	r.type = TYPE_FLOAT;
 	r.v.fnum = dbio_read_float();
 	break;
     case _TYPE_LIST:
@@ -285,13 +286,13 @@ dbio_write_num(int64_t n)
 }
 
 void
-dbio_write_float(double d)
+dbio_write_float(FlNum d)
 {
     static const char *fmt = 0;
     static char buffer[10];
 
     if (!fmt) {
-	sprintf(buffer, "%%.%dg\n", DBL_DIG + 4);
+	sprintf(buffer, "%%.%d"PRIgR"\n", FLOAT_DIGITS + 4);
 	fmt = buffer;
     }
     dbio_printf(fmt, d);
@@ -330,7 +331,7 @@ dbio_write_var(Var v)
 	dbio_write_num(v.v.num);
 	break;
     case TYPE_FLOAT:
-	dbio_write_float(v.v.fnum);
+	dbio_write_float(fl_unbox(v.v.fnum));
 	break;
     case TYPE_LIST:
 	dbio_write_num(v.v.list[0].v.num);
