@@ -231,12 +231,12 @@ sublist(Var list, int lower, int upper)
  * yourself! */
 
 static const char *
-float2str(double n)
+float2str(FlNum n)
 {
     char *buffer;
 
     buffer = mymalloc(40, M_STREAM);
-    snprintf(buffer, 40, "%.*g", DBL_DIG, n);
+    snprintf(buffer, 40, "%.*"PRIgR, FLOAT_DIGITS, n);
     if (!strchr(buffer, '.') && !strchr(buffer, 'e'))
         strncat(buffer, ".0", 40);   /* make it look floating */
     return buffer;
@@ -267,7 +267,7 @@ list2str(Var * args)
 	    stream_add_string(str, unparse_error(args[i].v.err));
 	    break;
 	case TYPE_FLOAT:
-            s = float2str(args[i].v.fnum);
+            s = float2str(fl_unbox(args[i].v.fnum));
             stream_add_string(str, s);
             myfree(s, M_STREAM);
 	    break;
@@ -311,7 +311,7 @@ print_to_stream(Var v, Stream * s)
 	stream_add_string(s, error_name(v.v.err));
 	break;
     case TYPE_FLOAT:
-        tmp = float2str(v.v.fnum);
+        tmp = float2str(fl_unbox(v.v.fnum));
         stream_add_string(s, tmp);
         myfree(tmp, M_STREAM);
 	break;

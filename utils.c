@@ -157,6 +157,12 @@ complex_free_var(Var v)
 	    myfree(v.v.list, M_LIST);
 	}
 	break;
+#if FLOATS_ARE_BOXED
+    case TYPE_FLOAT:
+	if (delref(v.v.fnum) == 0)
+	    myfree(v.v.fnum, M_FLOAT);
+	break;
+#endif
     default:
 	break;
     }
@@ -172,6 +178,11 @@ complex_var_ref(Var v)
     case TYPE_LIST:
 	addref(v.v.list);
 	break;
+#if FLOATS_ARE_BOXED
+    case TYPE_FLOAT:
+	addref(v.v.fnum);
+	break;
+#endif
     default:
 	break;
     }
@@ -195,6 +206,11 @@ complex_var_dup(Var v)
 	}
 	v.v.list = newlist.v.list;
 	break;
+#if FLOATS_ARE_BOXED
+    case TYPE_FLOAT:
+	v.v.fnum = box_fl(fl_unbox(v.v.fnum));
+	break;
+#endif
     default:
 	break;
     }
@@ -212,6 +228,10 @@ var_refcount(Var v)
 	return refcount(v.v.str);
     case TYPE_LIST:
 	return refcount(v.v.list);
+#if FLOATS_ARE_BOXED
+    case TYPE_FLOAT:
+	return refcount(v.v.fnum);
+#endif
     default:
 	return 1;
     }
@@ -221,7 +241,7 @@ int
 is_true(Var v)
 {
     return ((v.type == TYPE_INT && v.v.num != 0)
-	    || (v.type == TYPE_FLOAT && v.v.fnum != 0.0)
+	    || (v.type == TYPE_FLOAT && fl_unbox(v.v.fnum) != 0.0)
 	    || (v.type == TYPE_STR && v.v.str && *v.v.str != '\0')
 	    || (v.type == TYPE_LIST && v.v.list[0].v.num != 0));
 }
@@ -376,7 +396,9 @@ value_bytes(Var v)
 	size += memo_strlen(v.v.str) + 1;
 	break;
     case TYPE_FLOAT:
-	size += sizeof(double);
+#if FLOATS_ARE_BOXED
+	size += sizeof(FlNum);
+#endif
 	break;
     case TYPE_LIST:
 	len = v.v.list[0].v.num;
