@@ -198,13 +198,14 @@
 #define FT_FLOAT  2
 #define FT_DOUBLE 3
 #define FT_LONG   4
+#define FT_QUAD   5
 
 #ifndef FLOATING_TYPE
 #  define FLOATING_TYPE  FT_DOUBLE
 #elif FLOATING_TYPE==1
 #  undef FLOATING_TYPE
 #  define FLOATING_TYPE  FT_DOUBLE
-#elif FLOATING_TYPE <= 0 || FT_LONG < FLOATING_TYPE
+#elif FLOATING_TYPE <= 0 || FT_QUAD < FLOATING_TYPE
 #  error "unknown FLOATING_TYPE"
 #endif
 

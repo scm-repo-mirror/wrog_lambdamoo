@@ -112,6 +112,24 @@ stream_delete_utf(Stream * s)
 	while (is_utf8_cont_byte(s->buffer[s->current]));
 }
 
+#if FLOATING_TYPE == FT_QUAD
+
+void
+stream_float_printf(Stream *s, const char *fmt, size_t prec, FlNum d)
+{
+    ssize_t len;
+    do {
+	len = quadmath_snprintf(s->buffer + s->current,
+				s->buflen - s->current, fmt, prec, d);
+	if (len < 0)
+	    panic("quadmath_snprintf returned negative");
+    }
+    while (grew(s, len));
+    s->current += len;
+}
+
+#endif  /* FLOATING_TYPE == FT_QUAD */
+
 void
 stream_unparse_float(Stream *s, FlNum n, int for_tostr)
 {
