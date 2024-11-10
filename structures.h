@@ -117,7 +117,18 @@ typedef Num     Objid;
  * Floats
  */
 
-#if FLOATING_TYPE == FT_LONG
+#if FLOATING_TYPE == FT_QUAD
+
+typedef  __float128  FlNum;
+#  define FLOAT_FN(name)  name##q
+#  define FLOAT_DEF(name) name##Q
+#  define FLOAT_DIGITS    FLT128_DIG
+#  define strtoflnum      strtoflt128
+#  define PRIeR "Qe"
+#  define PRIfR "Qf"
+#  define PRIgR "Qg"
+
+#elif FLOATING_TYPE == FT_LONG
 
 typedef  long double  FlNum;
 #  define FLOAT_FN(name)  name##l
@@ -128,7 +139,7 @@ typedef  long double  FlNum;
 #  define PRIfR "Lf"
 #  define PRIgR "Lg"
 
-#else  /* FLOATING_TYPE != FT_LONG */
+#else  /* FLOATING_TYPE not in (FT_QUAD, FT_LONG) */
 
 /* Elements common to FT_DOUBLE and FT_FLOAT
  * (thanks, default argument promotions).
@@ -157,7 +168,7 @@ typedef  double  FlNum;
 #    error "options_epilog.h was supposed to catch this."
 #  endif
 
-#endif  /* FLOATING_TYPE != FT_LONG */
+#endif	/* FLOATING_TYPE not in (FT_QUAD, FT_LONG) */
 
 #if !FLOATS_ARE_BOXED
 
