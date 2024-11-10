@@ -266,6 +266,12 @@
 #undef HAVE_INT128_T
 #undef HAVE___INT128
 
+/*
+ * __float128 is a GNU extension
+ */
+#undef HAVE___FLOAT128
+#undef HAVE_QUADMATH_H
+
 
 /* continue on to the part that ./configure should not be touching */
 #include "config_epilog.h"

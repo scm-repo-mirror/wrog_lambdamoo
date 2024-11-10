@@ -46,9 +46,18 @@ extern int32_t stream_last_byte(Stream *s);
 extern void stream_unparse_float(Stream *, FlNum, int);
 /* last argument is boolean:  true iff for tostr() */
 
+#if FLOATING_TYPE != FT_QUAD
+
 inline void
 stream_float_printf(Stream *s, const char *fmt, size_t prec, FlNum d)
 { stream_printf(s, fmt, prec, d); }
+
+#else   /* FLOATING_TYPE == FT_QUAD */
+
+extern void
+stream_float_printf(Stream *, const char *, size_t, FlNum);
+
+#endif  /* FLOATING_TYPE == FT_QUAD */
 
 /*
  * How to provide fixed-size buffers for others to fill:
