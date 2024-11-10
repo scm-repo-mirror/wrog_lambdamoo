@@ -117,18 +117,47 @@ typedef Num     Objid;
  * Floats
  */
 
-#define PRIeR "e"
-#define PRIfR "f"
-#define PRIgR "g"
+#if FLOATING_TYPE == FT_LONG
 
-/* for now */
-#define FLOATS_ARE_BOXED 1
+typedef  long double  FlNum;
+#  define FLOAT_FN(name)  name##l
+#  define FLOAT_DEF(name) name##L
+#  define FLOAT_DIGITS    LDBL_DIG
+#  define strtoflnum      strtold
+#  define PRIeR "Le"
+#  define PRIfR "Lf"
+#  define PRIgR "Lg"
+
+#else  /* FLOATING_TYPE != FT_LONG */
+
+/* Elements common to FT_DOUBLE and FT_FLOAT
+ * (thanks, default argument promotions).
+ */
+#  define PRIeR "e"
+#  define PRIfR "f"
+#  define PRIgR "g"
+
+#  if FLOATING_TYPE == FT_FLOAT
+
+typedef  float  FlNum;
+#    define FLOAT_FN(name)  name##f
+#    define FLOAT_DEF(name) name##F
+#    define FLOAT_DIGITS    FLT_DIG
+#    define strtoflnum      strtof
+
+#  elif FLOATING_TYPE  == FT_DOUBLE
 
 typedef  double  FlNum;
-#define FLOAT_FN(name)  name
-#define FLOAT_DEF(name) name
-#define FLOAT_DIGITS    DBL_DIG
-#define strtoflnum      strtod
+#    define FLOAT_FN(name)  name
+#    define FLOAT_DEF(name) name
+#    define FLOAT_DIGITS    DBL_DIG
+#    define strtoflnum      strtod
+
+#  else
+#    error "options_epilog.h was supposed to catch this."
+#  endif
+
+#endif  /* FLOATING_TYPE != FT_LONG */
 
 #if !FLOATS_ARE_BOXED
 
