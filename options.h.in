@@ -98,6 +98,65 @@ useful for anything other than quick experiments.)
 #undef INT_TYPE_BITSIZE
 
 /******************************************************************************
+ * The next two options govern the implementation of the floating
+ * point datatype  (typeof(n) == FLOAT in MOO code).
+ * --------------------------------------------------------
+ * FLOATING_TYPE specifies the underlying C type to be used.
+ * Note that C standards (at least as of C99) give platforms flexibility
+ * in the exact definitions of the floating types they use (e.g., mantissa
+ * sizes and exponent ranges may be different from what you expect).
+ *
+ * Settings currently allowed are:
+ *
+ *    FT_DOUBLE => 'double',
+ *       Typically this will be IEEE 754 double-precision (64 bits)
+ *       This is the default setting.
+ *
+ *    FT_LONG => 'long double',
+ *       This is often an 80-bit floating type.
+ *
+ *    FT_FLOAT  => 'float',
+ *       Typically this will be IEEE 754 single-precision (32 bits),
+ *       included for completeness but not highly recommended.
+ *
+ * !! WARNING:  Loading a database previously written by a server
+ * !!   with a larger floating type size will fail if there are
+ * !!   out-of-range values AND will result in SILENT LOSS OF
+ * !!   PRECISION for other values.
+ */
+
+#undef FLOATING_TYPE
+
+/* --------------------------------------------------------------
+ * BOXED_FLOATS is a detail likely best left to options_epilog.h.
+ * and thus starts out as OPTION_DEFAULT, but if, for whatever
+ * reason, you need to force this a particular way
+ *
+ *    (#define'd as 1) = floating values are "boxed", i.e., stored
+ *       separately with pointers being used everywhere they need to
+ *       be referenced.  This is the default for FT_LONG and FT_QUAD.
+ *
+ *    (#undef) - no float boxing: floating values are passed directly
+ *       to functions or included directly in larger structures in
+ *       exactly the same way that integers are.  This is the default
+ *       for FT_FLOAT and FT_DOUBLE.
+ *
+ * Unboxed is conceptually simpler but, for compiler authors, gets
+ * hairy for the wider floating types.  gcc warns about using 'long
+ * double' in unions (like Var) that get passed on the stack
+ * (read:  This is more likely to trigger obscure compiler bugs).
+ *
+ * Boxing avoids these problems, but may be slightly slower from the
+ * extra pointer accesses.  However, for the long double and quad
+ * cases, it *can* also reduce overall memory consumption because the
+ * Vars stay small, assuming you don't have so many floats that the
+ * extra pointers outweigh this savings (say, because 50% or more of
+ * your DB is floats).
+ */
+
+#undef BOXED_FLOATS
+
+/******************************************************************************
  * The server is prepared to keep a log of every command entered by players
  * since the last checkpoint.  The log is flushed whenever a checkpoint is
  * successfully begun and is dumped into the server log when and if the server
