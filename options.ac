@@ -122,6 +122,10 @@ m4_if(#
 #
 )[[INT_TYPE_BITSIZE],  [int],                         no,
   [bitsize of integer/object-id values]],
+ [[FLOATING_TYPE],     [FT_FLOAT FT_DOUBLE FT_LONG],  no,
+  [type to use for real numbers]],
+ [[BOXED_FLOATS],      [bool],                         ,
+  [float values are behind pointers?]],
 
 m4_if(#
 #
