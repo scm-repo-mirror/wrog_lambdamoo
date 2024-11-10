@@ -24,6 +24,12 @@
 #include <math.h>
 #include <limits.h>
 
+#if HAVE___FLOAT128
+#  if HAVE_QUADMATH_H
+#    include <quadmath.h>
+#  endif
+#endif
+
 #define IS_REAL(x)	(-FLOAT_DEF(HUGE_VAL) < (x) && (x) < FLOAT_DEF(HUGE_VAL))
 
 #endif		/* !My_Math_H */

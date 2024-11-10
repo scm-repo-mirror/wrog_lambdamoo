@@ -115,6 +115,10 @@ useful for anything other than quick experiments.)
  *    FT_LONG => 'long double',
  *       This is often an 80-bit floating type.
  *
+ *    FT_QUAD => '__float128',
+ *       This is IEEE 754 quad-precision (128 bits) as implemented
+ *       via GCC's libquadmath if this is available on your platform.
+ *
  *    FT_FLOAT  => 'float',
  *       Typically this will be IEEE 754 single-precision (32 bits),
  *       included for completeness but not highly recommended.
