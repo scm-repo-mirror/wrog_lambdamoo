@@ -685,6 +685,12 @@ call_verb2(Objid this, const char *vname, Var args, int do_pass)
     return E_NONE;
 }
 
+static inline int
+int_or_float(Var v)
+{
+    return v.type == TYPE_INT || v.type == TYPE_FLOAT;
+}
+
 static enum error
 rangeset_check(Var base, Var inst, int from, int to)
 {
@@ -1111,74 +1117,56 @@ do {								\
 	    }
 	    break;
 
-	case OP_GT:
-	case OP_LT:
-	case OP_GE:
 	case OP_LE:
+	case OP_GT:
 	    {
-		Var rhs, lhs, ans;
-		int comparison;
+		Var a, b;
+		int not;
 
-		rhs = POP();
-		lhs = POP();
-		if ((lhs.type == TYPE_INT || lhs.type == TYPE_FLOAT)
-		    && (rhs.type == TYPE_INT || rhs.type == TYPE_FLOAT)) {
-		    ans = compare_numbers(lhs, rhs);
-		    if (ans.type == TYPE_ERR) {
-			free_var(rhs);
-			free_var(lhs);
-			PUSH_ERROR(ans.v.err);
-		    } else {
-			comparison = ans.v.num;
-			goto finish_comparison;
-		    }
-		} else if (rhs.type != lhs.type || rhs.type == TYPE_LIST) {
-		    free_var(rhs);
-		    free_var(lhs);
-		    PUSH_ERROR(E_TYPE);
-		} else {
-		    switch (rhs.type) {
-		    case TYPE_INT:
-			comparison = compare_integers(lhs.v.num, rhs.v.num);
-			break;
+		b = POP();
+		a = POP();
+		not = op != OP_LE;
+		goto finish_comparison;
+
+	    case OP_LT:
+	    case OP_GE:
+		/* yes, these are supposed to be reversed */
+		a = POP();
+		b = POP();
+		not = op != OP_GE;
+
+	    finish_comparison: ;
+		Var ans;
+		if (int_or_float(a) && int_or_float(b))
+		    ans = numeric_lt_or_eq(not, a, b);
+		else if (a.type != b.type || b.type == TYPE_LIST) {
+		    ans.type = TYPE_ERR;
+		    ans.v.err = E_TYPE;
+		}
+		else {
+		    ans.type = TYPE_INT;
+		    switch (b.type) {
 		    case TYPE_OBJ:
-			comparison = compare_integers(lhs.v.obj, rhs.v.obj);
+			ans.v.num = a.v.obj <= b.v.obj;
 			break;
 		    case TYPE_ERR:
-			comparison = ((int) lhs.v.err) - ((int) rhs.v.err);
+			ans.v.num = a.v.err <= b.v.err;
 			break;
 		    case TYPE_STR:
-			comparison = mystrcasecmp(lhs.v.str, rhs.v.str);
+			ans.v.num = mystrcasecmp(a.v.str, b.v.str) <= 0;
 			break;
 		    default:
-			errlog("RUN: Impossible type in comparison: %d\n",
-			       rhs.type);
-			comparison = 0;
+			panic("RUN: Impossible type in comparison");
 		    }
-
-		  finish_comparison:
-		    ans.type = TYPE_INT;
-		    switch (op) {
-		    case OP_LT:
-			ans.v.num = (comparison < 0);
-			break;
-		    case OP_LE:
-			ans.v.num = (comparison <= 0);
-			break;
-		    case OP_GT:
-			ans.v.num = (comparison > 0);
-			break;
-		    case OP_GE:
-			ans.v.num = (comparison >= 0);
-			break;
-		    default:
-			errlog("RUN: Imposible opcode in comparison: %d\n", op);
-			break;
-		    }
-		    PUSH(ans);
-		    free_var(rhs);
-		    free_var(lhs);
+		    if (not)
+			ans.v.num = !ans.v.num;
 		}
+		if (ans.type == TYPE_ERR)
+		    PUSH_ERROR(ans.v.err);
+		else
+		    PUSH(ans);
+		free_var(a);
+		free_var(b);
 	    }
 	    break;
 

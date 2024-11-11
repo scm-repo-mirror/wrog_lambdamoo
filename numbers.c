@@ -210,11 +210,6 @@ matherr(struct exception *x)
 
 /**** opcode implementations ****/
 
-/*
- * All of the following implementations are strict, not performing any
- * coercions between integer and floating-point operands.
- */
-
 int
 do_equals(Var lhs, Var rhs)
 {				/* LHS == RHS */
@@ -226,42 +221,47 @@ do_equals(Var lhs, Var rhs)
 	return *lhs.v.fnum == *rhs.v.fnum;
 }
 
-int
-compare_integers(int a, int b)
-{
-    if (a < b)
-	return -1;
-    else if (a == b)
-	return 0;
-    else
-	return 1;
-}
-
+/*
+ * a and b are assumed TYPE_FLOAT or TYPE_INT
+ */
 Var
-compare_numbers(Var a, Var b)
+numeric_lt_or_eq(int not, Var a, Var b)
 {
     Var ans;
 
-    if (a.type != b.type) {
-	ans.type = TYPE_ERR;
-	ans.v.err = E_TYPE;
-    } else if (a.type == TYPE_INT) {
-	ans.type = TYPE_INT;
-	ans.v.num = compare_integers(a.v.num, b.v.num);
-    } else {
-	double aa = *a.v.fnum, bb = *b.v.fnum;
-
-	ans.type = TYPE_INT;
-	if (aa < bb)
-	    ans.v.num = -1;
-	else if (aa == bb)
-	    ans.v.num = 0;
-	else
-	    ans.v.num = 1;
+    ans.type = TYPE_INT;
+    if (a.type == b.type) {
+	ans.v.num =
+	    a.type == TYPE_INT
+	    ? a.v.num <= b.v.num
+	    : *a.v.fnum <= *b.v.fnum;
     }
-
+    /* PRAGMA_ALERT***: (?)
+     *  1.8.3lm int rel float => E_TYPE
+     */
+    else if (a.type == TYPE_FLOAT) {
+	double aceil = ceil(*a.v.fnum);
+	ans.v.num =
+	    (aceil <= (double)INT32_MIN)      /* a <= INT32_MIN  */
+	    || ((aceil < -(double)INT32_MIN)  /* a <= INT32_MAX  */
+		&& (int32_t)aceil <= b.v.num);
+    }
+    else { /* b.type == TYPE_FLOAT */
+	double bfloor = floor(*b.v.fnum);
+	ans.v.num =
+	    (-(double)INT32_MIN-1.0 <= bfloor)  /* INT32_MAX <= b */
+	    || ((double)INT32_MIN <= bfloor     /* INT32_MIN <= b */
+		&& a.v.num <= (int32_t)bfloor);
+    }
+    if (not)
+	ans.v.num = !ans.v.num;
     return ans;
 }
+
+/*
+ * All of the following implementations are strict, not performing any
+ * coercions between integer and floating-point operands.
+ */
 
 #define SIMPLE_BINARY(name, op)					\
 		Var						\
