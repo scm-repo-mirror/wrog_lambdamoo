@@ -20,11 +20,13 @@
 
 #include "config.h"
 
+#include "my-math.h"
 #include "my-stdio.h"
+#include "my-stdlib.h"
 
 
 /***********
- * Numbers
+ * Integers
  */
 
 /* This will move to options.h */
@@ -67,6 +69,38 @@ typedef Num     Objid;
 #define NOTHING		-1
 #define AMBIGUOUS	-2
 #define FAILED_MATCH	-3
+
+
+/***************
+ * Floats
+ */
+
+#define PRIeR "e"
+#define PRIfR "f"
+#define PRIgR "g"
+
+/* for now */
+#define FLOATS_ARE_BOXED 1
+
+typedef  double  FlNum;
+#define FLOAT_FN(name)  name
+#define FLOAT_DEF(name) name
+#define FLOAT_DIGITS    DBL_DIG
+#define strtoflnum      strtod
+
+#if !FLOATS_ARE_BOXED
+
+typedef FlNum  FlBox;
+inline  FlNum  fl_unbox(FlBox p) { return p; }
+inline  FlBox  box_fl(  FlNum f) { return f; }
+
+#else   /* FLOATS_ARE_BOXED */
+
+typedef FlNum *FlBox;
+inline  FlNum  fl_unbox(FlBox p) { return *p; }
+extern  FlBox  box_fl(  FlNum f);
+
+#endif	/* FLOATS_ARE_BOXED */
 
 
 /***********
@@ -180,8 +214,12 @@ typedef enum {
     /* add new elements here */
 
     TYPE_STR   = (_TYPE_STR   | TYPE_COMPLEX_FLAG),
-    TYPE_FLOAT = (_TYPE_FLOAT | TYPE_COMPLEX_FLAG),
     TYPE_LIST  = (_TYPE_LIST  | TYPE_COMPLEX_FLAG),
+    TYPE_FLOAT = (_TYPE_FLOAT
+#if FLOATS_ARE_BOXED
+		  | TYPE_COMPLEX_FLAG
+#endif
+		  ),
 
     TYPE_ANY     = -1,	/* wildcard for use in declaring built-ins */
     TYPE_NUMERIC = -2	/* wildcard for (integer or float) */
@@ -237,7 +275,7 @@ struct Var {
 	Objid obj;		/* OBJ */
 	enum error err;		/* ERR */
 	Var *list;		/* LIST */
-	double *fnum;		/* FLOAT */
+	FlBox fnum;		/* FLOAT */
     } v;
     var_type type;
 };

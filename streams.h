@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include "my-string.h"
+#include "structures.h"
 
 typedef struct {
     char *buffer;
@@ -41,6 +42,13 @@ extern char *reset_stream(Stream *);
 extern size_t stream_length(Stream *);
 extern const char *str_dup_then_free_stream(Stream *s);
 extern int32_t stream_last_byte(Stream *s);
+
+extern void stream_unparse_float(Stream *, FlNum, int);
+/* last argument is boolean:  true iff for tostr() */
+
+inline void
+stream_float_printf(Stream *s, const char *fmt, size_t prec, FlNum d)
+{ stream_printf(s, fmt, prec, d); }
 
 /*
  * How to provide fixed-size buffers for others to fill:
