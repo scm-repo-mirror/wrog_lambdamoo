@@ -18,15 +18,13 @@
 #ifndef My_Math_H
 #define My_Math_H 1
 
+#include "config.h"
+
 #include <float.h>
 #include <math.h>
 #include <limits.h>
 
-#define IS_REAL(x)	(-HUGE_VAL < (x) && (x) < HUGE_VAL)
-
-#ifndef DECIMAL_DIG
-# define DECIMAL_DIG (DBL_DIG+4)
-#endif
+#define IS_REAL(x)	(-FLOAT_DEF(HUGE_VAL) < (x) && (x) < FLOAT_DEF(HUGE_VAL))
 
 #endif		/* !My_Math_H */
 

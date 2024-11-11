@@ -249,7 +249,7 @@ stream_add_tostr(Stream * s, Var v)
 	stream_add_string(s, unparse_error(v.v.err));
 	break;
     case TYPE_FLOAT:
-	stream_printf(s, "%g", *v.v.fnum);
+	stream_unparse_float(s, fl_unbox(v.v.fnum), 1/*tostr*/);
 	break;
     case TYPE_LIST:
 	stream_add_string(s, "{list}");
@@ -285,7 +285,7 @@ unparse_value(Stream * s, Var v)
 	stream_add_string(s, error_name(v.v.err));
 	break;
     case TYPE_FLOAT:
-	stream_printf(s, "%g", *v.v.fnum);
+	stream_unparse_float(s, fl_unbox(v.v.fnum), 0/*toliteral*/);
 	break;
     case TYPE_STR:
 	{

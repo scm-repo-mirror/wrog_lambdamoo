@@ -541,6 +541,7 @@ write_db_file(const char *reason)
 	success = 0;
     ENDTRY;
 
+    dbpriv_dbio_output_finished();
     return success;
 }
 

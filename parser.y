@@ -71,7 +71,7 @@ static void	check_loop_name(const char *, enum loop_exit_kind);
   Expr	       *expr;
   Num		integer;
   Objid		object;
-  double       *real;
+  FlBox         real;
   char	       *string;
   enum error	error;
   Arg_List     *args;
@@ -546,7 +546,7 @@ expr:
 			    $2->e.var.v.num = -$2->e.var.v.num;
 			    break;
 			  case TYPE_FLOAT:
-			    *($2->e.var.v.fnum) = - (*($2->e.var.v.fnum));
+			    flbox_negate_in_place(&($2->e.var.v.fnum));
 			    break;
 			  default:
 			    break;
@@ -883,14 +883,12 @@ start_over:
 	if (type == tINTEGER)
 	    yylval.integer = n;
 	else {
-	    double	d;
-
-	    d = strtod(reset_stream(token_stream), 0);
+	    FlNum d = strtoflnum(reset_stream(token_stream), 0);
 	    if (!IS_REAL(d)) {
 		yyerror("Floating-point literal out of range");
 		d = 0.0;
 	    }
-	    yylval.real = alloc_float(d);
+	    yylval.real = astpool_recv_float(box_fl(d));
 	}
 	return type;
     }
