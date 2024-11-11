@@ -118,4 +118,11 @@
 #  error Illegal value for "MPLEX_STYLE"
 #endif
 
+/* For temporary fake implementation of pragmas that will go away: */
+#define PG_ALL             -1
+#define PG_FLOATINT_INEQ  0x1
+
+#define PRAGMA_ON(WHICH) ((PRAGMAS)&PG_##WHICH)
+#define PRAGMA_OFF(WHICH) ((~(PRAGMAS))&PG_##WHICH)
+
 #endif		/* !Options_Epilog_H */

@@ -24,8 +24,7 @@ extern Var new_float(double);
 extern enum error become_integer(Var, int *, int);
 
 extern int do_equals(Var, Var);
-extern int compare_integers(int, int);
-extern Var compare_numbers(Var, Var);
+extern Var numeric_lt_or_eq(int, Var, Var);
 
 extern Var do_add(Var, Var);
 extern Var do_subtract(Var, Var);

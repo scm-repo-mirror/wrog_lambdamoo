@@ -371,6 +371,18 @@ useful for anything other than quick experiments.)
 #undef MEMO_STRLEN
 
 /******************************************************************************
+ * Pragmas are a proposed future server feature that will *not* be
+ * implemented as an option (meaning this option WILL LIKELY BE REMOVED
+ * in a future release)..  Until then, this is here as a way of
+ * testing out certain alternate function and operator behaviors
+ * and can be set to a mask of flags indicating which are enabled.
+ *
+ * The current list of flags that matter is in options_epilog.h.
+ */
+
+#undef PRAGMAS
+
+/******************************************************************************
  * Continue on to the part that ./configure should not be touching ...
  */
 
