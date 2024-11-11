@@ -132,6 +132,12 @@ m4_if(#
  [[MIN_STRING_CONCAT_LIMIT],   [int], 1015,
   [minimum string length limit]],
 
+m4_if(#
+#
+#  Temporary / deprecated options
+#
+)[[PRAGMAS], [int], 0, [pragma flag mask]],
+
 )dnl
 dnl
 m4_if(# end of option declarations
