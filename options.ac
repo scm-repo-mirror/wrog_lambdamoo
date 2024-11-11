@@ -124,6 +124,12 @@ m4_if(#
  [[PATTERN_CACHE_SIZE],     [int], 20,
   [number of remembered match() patterns]],
 
+m4_if(#
+#
+#  Temporary / deprecated options
+#
+)[[PRAGMAS], [int], 0, [pragma flag mask]],
+
 )dnl
 dnl
 m4_if(# end of option declarations

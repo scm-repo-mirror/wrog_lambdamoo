@@ -199,11 +199,6 @@ matherr(struct exception *x)
 
 /**** opcode implementations ****/
 
-/*
- * All of the following implementations are strict, not performing any
- * coercions between integer and floating-point operands.
- */
-
 int
 do_equals(Var lhs, Var rhs)
 {				/* LHS == RHS */
@@ -215,45 +210,55 @@ do_equals(Var lhs, Var rhs)
 	return lhs.v.fnum == rhs.v.fnum;
 }
 
-int
-compare_integers(Num a, Num b)
-{
-    if (a < b)
-	return -1;
-    else if (a > b)
-	return 1;
-    else
-	return 0;
-}
-
+/*
+ * a and b are assumed TYPE_FLOAT or TYPE_INT
+ */
 Var
-compare_numbers(Var a, Var b)
+numeric_lt_or_eq(int not, Var a, Var b)
 {
     Var ans;
 
-    if (a.type != b.type) {
-	ans.type = TYPE_ERR;
-	ans.v.err = E_TYPE;
-    } else if (a.type == TYPE_INT) {
-	ans.type = TYPE_INT;
-	if (a.v.num < b.v.num)
-	    ans.v.num = -1;
-	else if (a.v.num > b.v.num)
-	    ans.v.num = 1;
-	else
-	    ans.v.num = 0;
-    } else {
-	ans.type = TYPE_INT;
-	if (a.v.fnum < b.v.fnum)
-	    ans.v.num = -1;
-	else if (a.v.fnum > b.v.fnum)
-	    ans.v.num = 1;
-	else
-	    ans.v.num = 0;
+    ans.type = TYPE_INT;
+    if (a.type == b.type) {
+	ans.v.num =
+	    a.type == TYPE_INT
+	    ? a.v.num <= b.v.num
+	    : a.v.fnum <= b.v.fnum;
     }
 
+#if !PRAGMA_ON(FLOATINT_INEQ)
+    else {
+	ans.type = TYPE_ERR;
+	ans.v.err = E_TYPE;
+	return ans;
+    }
+#else  /* PRAGMA_ON(FLOATINT_INEQ) */
+
+    else if (a.type == TYPE_FLOAT) {
+	double aceil = ceil(a.v.fnum);
+	ans.v.num =
+	    (aceil <= (double)NUM_MIN)      /* aceil <= NUM_MIN  */
+	    || ((aceil < -(double)NUM_MIN)  /* aceil <= NUM_MAX  */
+		&& (Num)aceil <= b.v.num);
+    }
+    else { /* b.type == TYPE_FLOAT */
+	double bfloor = floor(b.v.fnum);
+	ans.v.num =
+	    (-(double)NUM_MIN <= bfloor)      /* NUM_MAX <  bfloor */
+	    || ((double)NUM_MIN <= bfloor     /* NUM_MIN <= bfloor */
+		&& a.v.num <= (Num)bfloor);
+    }
+#endif  /* PRAGMA_ON(FLOATINT_INEQ) */
+
+    if (not)
+	ans.v.num = !ans.v.num;
     return ans;
 }
+
+/*
+ * All of the following implementations are strict, not performing any
+ * coercions between integer and floating-point operands.
+ */
 
 #define SIMPLE_BINARY(name, op)					\
 		Var						\
