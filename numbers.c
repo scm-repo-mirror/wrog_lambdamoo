@@ -915,68 +915,72 @@ bf_ftime(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED
 static package
 bf_ctime(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    Var r;
-    time_t c;
-    char buffer[128];
     int has_time     = (arglist.v.list[0].v.num >= 1);
     int has_timezone = (arglist.v.list[0].v.num >= 2);
-    char *current_timezone = NULL;
-    struct tm *t;
 
-    c = has_time ? (time_t)arglist.v.list[1].v.num : time(0);
+    time_t c = has_time ? (time_t)arglist.v.list[1].v.num : time(0);
 
+    const char *current_timezone = NULL;
     if (has_timezone) {
 	current_timezone = getenv("TZ");
-	if ( current_timezone )
+	if (current_timezone)
 	    current_timezone = str_dup(current_timezone);
 	setenv("TZ", arglist.v.list[2].v.str, 1);
 	tzset();
     }
+    free_var(arglist);
 
-    t = localtime(&c);
-    if (t == 0)
-	*buffer = 0;
-    else {			/* Format the time, including a timezone name */
+    Stream *s = new_stream(0);
+    struct tm *t = localtime(&c);
+    if (t) {
+	/* Format the time, including a timezone name */
 #if HAVE_STRFTIME
-	if (strftime(buffer, sizeof(buffer), "%a %b %d %H:%M:%S %Y %Z", t) == 0)
-	    *buffer = 0;
+	char *buffer;
+	size_t buflen = 28;
+	size_t tlen;
+	do
+	    stream_beginfill(s, buflen+1, &buffer, &buflen);
+	while
+	    (!(tlen=strftime(buffer, buflen+1, "%a %b %e %H:%M:%S %Y %Z", t))
+	     && (buflen < 100));
+	stream_endfill(s, buflen - tlen);
 #else
 #  if HAVE_TM_ZONE
-	char *tzname = t->tm_zone;
+	const char *tzname = t->tm_zone;
 #  else
 #    if !HAVE_TZNAME
 	const char *tzname = "XXX";
 #    endif
 #  endif
-
-	strcpy(buffer, ctime(&c));
-	buffer[24] = ' ';
-	strncpy(buffer + 25, tzname, 3);
-	buffer[28] = '\0';
+	const char *cts = asctime(t);
+	if (cts) {
+	    stream_add_string(s, cts);
+	    if (stream_last_byte(s) == '\n')
+		stream_delete_char(s);
+	    stream_add_char(s, ' ');
+	    stream_add_string(s, tzname);
+	    if (stream_contents(s)[8] == '0')
+	       stream_contents(s)[8] = ' ';
+	}
 #endif
     }
 
     if (has_timezone) {
-	if (current_timezone) {
+	if (!current_timezone)
+	    unsetenv("TZ");
+	else {
 	    setenv("TZ", current_timezone, 1);
 	    free_str(current_timezone);
-	} else {
-	    unsetenv("TZ");
 	}
 	tzset();
     }
 
-    free_var(arglist);
-
-    if (*buffer == 0)
+    if (!stream_length(s)) {
+	free_stream(s);
 	return make_error_pack(E_INVARG);
+    }
 
-    if (buffer[8] == '0')
-	buffer[8] = ' ';
-    r.type = TYPE_STR;
-    r.v.str = str_dup(buffer);
-
-    return make_var_pack(r);
+    return make_string_pack(str_dup_then_free_stream(s));
 }
 
 
