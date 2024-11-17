@@ -15,6 +15,8 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "tasks.h"
+
 #include "my-string.h"
 #include "my-time.h"
 
@@ -39,7 +41,6 @@
 #include "storage.h"
 #include "streams.h"
 #include "structures.h"
-#include "tasks.h"
 #include "utils.h"
 #include "verbs.h"
 #include "version.h"

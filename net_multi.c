@@ -15,6 +15,8 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "net_multi.h"
+
 #include "my-ctype.h"
 #include <errno.h>
 #include "my-fcntl.h"
@@ -26,8 +28,6 @@
 #include "my-unistd.h"
 
 #include "config.h"
-
-#include "net_multi.h"
 
 #include "exceptions.h"
 #include "list.h"

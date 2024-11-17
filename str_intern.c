@@ -1,9 +1,12 @@
+/* String intern table implementation.  */
+
+#include "str_intern.h"
+
 #include "my-stdlib.h"
 #include "my-string.h"
 
 #include "log.h"
 #include "storage.h"
-#include "str_intern.h"
 #include "utils.h"
 
 #ifdef STRING_INTERNING
