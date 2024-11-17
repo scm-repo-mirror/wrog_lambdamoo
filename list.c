@@ -15,15 +15,16 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "list.h"
+#include "bf_register.h"
+
 #include "my-ctype.h"
 #include "my-string.h"
 #include "my-math.h"
 
-#include "bf_register.h"
 #include "config.h"
 #include "exceptions.h"
 #include "functions.h"
-#include "list.h"
 #include "log.h"
 #include "md5.h"
 #include "options.h"

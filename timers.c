@@ -15,6 +15,8 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "timers.h"
+
 #include "my-signal.h"
 #include "my-stdlib.h"
 #include "my-sys-time.h"
@@ -22,7 +24,6 @@
 #include "my-unistd.h"
 
 #include "config.h"
-#include "timers.h"
 
 #if (defined(MACH) && defined(CMU)) || !defined(SIGVTALRM)
 /* Virtual interval timers are broken on Mach 3.0 */

@@ -15,6 +15,9 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "numbers.h"
+#include "bf_register.h"
+
 #include <limits.h>
 #include <errno.h>
 #include "my-math.h"
@@ -24,8 +27,6 @@
 
 #include "config.h"
 
-#include "numbers.h"
-
 #include "functions.h"
 #include "log.h"
 #include "random.h"
@@ -33,7 +34,6 @@
 #include "structures.h"
 #include "utils.h"
 
-#include "bf_register.h"
 
 static int
 parse_number(const char *str, Num *result, int try_floating_point)
