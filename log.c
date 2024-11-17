@@ -15,16 +15,17 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "log.h"
+#include "bf_register.h"
+
 #include <errno.h>
 #include "my-stdarg.h"
 #include "my-stdio.h"
 #include "my-string.h"
 #include "my-time.h"
 
-#include "bf_register.h"
 #include "config.h"
 #include "functions.h"
-#include "log.h"
 #include "options.h"
 #include "storage.h"
 #include "streams.h"

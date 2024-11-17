@@ -15,9 +15,10 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "bf_register.h"
+
 #include "my-string.h"
 
-#include "bf_register.h"
 #include "config.h"
 #include "db.h"
 #include "exceptions.h"

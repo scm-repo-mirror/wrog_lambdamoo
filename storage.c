@@ -15,6 +15,8 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "storage.h"
+
 #include "my-stdlib.h"
 #include "my-string.h"
 
@@ -23,7 +25,6 @@
 #include "list.h"
 #include "options.h"
 #include "ref_count.h"
-#include "storage.h"
 #include "structures.h"
 #include "utils.h"
 

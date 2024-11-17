@@ -15,6 +15,8 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "unparse.h"
+
 #include "my-ctype.h"
 #include "my-stdio.h"
 
@@ -28,7 +30,6 @@
 #include "log.h"
 #include "opcode.h"
 #include "program.h"
-#include "unparse.h"
 #include "storage.h"
 #include "streams.h"
 #include "utils.h"
