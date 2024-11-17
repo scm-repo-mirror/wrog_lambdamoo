@@ -15,9 +15,11 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "execute.h"
+#include "bf_register.h"
+
 #include "my-string.h"
 
-#include "bf_register.h"
 #include "config.h"
 #include "db.h"
 #include "db_io.h"
@@ -25,7 +27,6 @@
 #include "eval_env.h"
 #include "eval_vm.h"
 #include "exceptions.h"
-#include "execute.h"
 #include "functions.h"
 #include "list.h"
 #include "log.h"

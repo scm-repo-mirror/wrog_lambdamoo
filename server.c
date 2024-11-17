@@ -24,7 +24,9 @@
 #include "my-unistd.h"
 #include "my-wait.h"
 
+#include "server.h"
 #include "bf_register.h"
+
 #include "config.h"
 #include "db.h"
 #include "db_io.h"
@@ -38,7 +40,6 @@
 #include "options.h"
 #include "parser.h"
 #include "random.h"
-#include "server.h"
 #include "storage.h"
 #include "streams.h"
 #include "structures.h"

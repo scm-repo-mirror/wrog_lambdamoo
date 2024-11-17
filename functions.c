@@ -15,13 +15,14 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
+#include "functions.h"
+#include "bf_register.h"
+
 #include "my-stdarg.h"
 
-#include "bf_register.h"
 #include "config.h"
 #include "db_io.h"
 #include "execute.h"
-#include "functions.h"
 #include "list.h"
 #include "log.h"
 #include "server.h"
