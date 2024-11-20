@@ -129,6 +129,10 @@ m4_if(#
   [type to use for real numbers]],
  [[BOXED_FLOATS],      [bool],                         ,
   [float values are behind pointers?]],
+ [[BYTE_QUOTA_MODEL],  [BQM_HW BQM_64 BQM_64B BQM_32], no,
+  [memory model for value/object_bytes()]],
+ [[BQM_BOXED_FLOATS],  [bool],                         ,
+  [memory model treats floats as boxed]],
 
 m4_if(#
 #

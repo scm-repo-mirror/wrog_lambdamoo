@@ -55,6 +55,7 @@ typedef struct {
     const char *verbname;
     int debug;
 } activation;
+#define BQM_DESCRIBE_activation(B,F,V,X)   ((4 * F) + (14 * V))
 
 extern void free_activation(activation *, char data_too);
 
@@ -68,6 +69,7 @@ typedef struct {
        means root activation is main_vector */
     unsigned func_id;
 } vmstruct;
+#define BQM_DESCRIBE_vmstruct(B,F,V,X)   ((4 * F) + (2 * V))
 
 typedef vmstruct *vm;
 
