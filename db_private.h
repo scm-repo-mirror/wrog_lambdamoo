@@ -38,6 +38,7 @@ struct Verbdef {
     int16_t  prep;
     Verbdef *next;
 };
+#define BQM_DESCRIBE_Verbdef(B,F,V,X)   (5 * V)
 
 typedef struct Proplist Proplist;
 typedef struct Propdef Propdef;
@@ -46,6 +47,7 @@ struct Propdef {
     const char *name;
     int hash;
 };
+#define BQM_DESCRIBE_Propdef(B,F,V,X)   (2 * V)
 
 struct Proplist {
     int max_length;
@@ -58,6 +60,7 @@ typedef struct Pval {
     Objid owner;
     uint16_t perms;
 } Pval;
+#define BQM_DESCRIBE_Pval(B,F,V,X)   (4 * V)
 
 typedef struct Object {
     Objid id;
@@ -70,7 +73,6 @@ typedef struct Object {
     Objid child;
     Objid sibling;
 
-
     const char *name;
     uint16_t flags;
 
@@ -78,6 +80,7 @@ typedef struct Object {
     Proplist propdefs;
     Pval *propval;
 } Object;
+#define BQM_DESCRIBE_Object(B,F,V,X)   ((2 * F) + (13 * V))
 
 /*********** Verb cache support ***********/
 

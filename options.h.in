@@ -161,6 +161,77 @@ useful for anything other than quick experiments.)
 #undef BOXED_FLOATS
 
 /******************************************************************************
+ * BYTE_QUOTA_MODEL selects the memory model that value_bytes() and
+ * object_bytes() use to calculate memory consumption.
+ *
+ * Background:  The original implementations of these functions always
+ * used the acual datatype sizes as reported by sizeof().  This then
+ * meant that moving to a new hardware platform or recompiling the
+ * server with options that changed the struct/union layouts could
+ * change those numbers, which, if one *also* happens to have
+ * pre-existing quotas for users based on these measures to regulate
+ * their building -- the whole reason these functions were provided in
+ * the first place -- one may need to revise those quotas.
+ *
+ * With the newer fixed-size models, values returned by value_bytes()
+ * and object_bytes() are platform-independent and also unaffected by
+ * the settings like INT_TYPE_BITSIZE, FLOATING_TYPE, BOXED_FLOATS,
+ * etc.  Values returned according to a particular model are intended
+ * to remain the same for all future server versions on all platforms,
+ * while server extensions that change structure layouts/sizes should
+ * provide their own BQM_* options to amend the model as needed to
+ * account for them or not as the user chooses.
+ *
+ * Clearly, the numbers produced by the fixed-size models will be
+ * completely arbitrary, but if they get too far out of synch with
+ * actual hardware for your taste, new closer-to-reality models can
+ * always be implemented as needed and enacted at a time of your own
+ * choosing (rather than your being forced to do it the moment you do
+ * a server upgrade).
+ *
+ * The current choices for BYTE_QUOTA_MODEL are:
+ *
+ *  - BQM_HW = use actual hardware sizes (original implementation)
+ *
+ *  - BQM_64 is the 64-bit fixed-size model that assumes 64-bit
+ *          pointers/integers and unboxed doubles.  This is the
+ *          current default and best for new servers using the default
+ *          INT_TYPE_BITSIZE, FLOATING_TYPE and BOXED_FLOATS settings
+ *          and, for those settings, happens to match BQM_HW on
+ *          typical 2020s hardware.
+ *
+ *  - BQM_32 uses the 32-bit fixed-size "LambdaMOO" model
+ *          (assumes 32-bit pointers/ints and boxed doubles)
+ *
+ *  - BQM_64B uses the 64-bit fixed-size "CodePoint" model
+ *          (assumes 64-bit pointers/ints and boxed doubles)
+ */
+
+#undef BYTE_QUOTA_MODEL
+
+/* The following options adjust individual aspects of the fixed-size
+ * models.  (These options should **not** be used with the actual
+ * hardware model (BQM_HW), i.e., not if you want actual sizes.
+ * And since there is no other point to using BQM_HW, it's not clear
+ * how/why adjustment options should do anything meaningful in this
+ * case, so don't expect them to.)
+ *
+ *  - BQM_BOXED_FLOATS
+ *          governs how the fixed-size models count FLOAT values:
+ *          #defined 1 forces counting them as boxed,
+ *          #undef forces counting them as unboxed, and
+ *          OPTION_DEFAULT leaves in place whatever the chosen model does.
+ *
+ * which means, among other things, that BQM_64B is equivalent using
+ * BQM_64 and #defining BQM_BOXED_FLOATS to 1
+ *
+ * Authors of extensions that affect structure sizes are expected to
+ * provide their own adjustment options to amend the fixed-size models.
+ */
+
+#undef BQM_BOXED_FLOATS
+
+/******************************************************************************
  * The server is prepared to keep a log of every command entered by players
  * since the last checkpoint.  The log is flushed whenever a checkpoint is
  * successfully begun and is dumped into the server log when and if the server

@@ -67,17 +67,17 @@ program_bytes(Program * p)
 {
     unsigned i, count;
 
-    count = sizeof(Program);
+    count = BQM_SIZEOF(Program);
     count += p->main_vector.size;
 
     for (i = 0; i < p->num_literals; i++)
 	count += value_bytes(p->literals[i]);
 
-    count += sizeof(Bytecodes) * p->fork_vectors_size;
+    count += BQM_SIZEOF(Bytecodes) * p->fork_vectors_size;
     for (i = 0; i < p->fork_vectors_size; i++)
 	count += p->fork_vectors[i].size;
 
-    count += sizeof(const char *) * p->num_var_names;
+    count += BQM_SIZEOF_PTR_TO_CONST(char) * p->num_var_names;
     for (i = 0; i < p->num_var_names; i++)
 	count += memo_strlen(p->var_names[i]) + 1;
 

@@ -193,6 +193,8 @@ extern  FlBox  box_fl(  FlNum f);
 
 #endif	/* FLOATS_ARE_BOXED */
 
+#define BQM_DESCRIBE_FlNum(B,F,V,X)     (2 * F)
+
 
 /***********
  * Errors
@@ -372,6 +374,7 @@ struct Var {
     } v;
     var_type type;
 };
+#define BQM_DESCRIBE_Var(B,F,V,X)       (2 * V)
 
 extern Var zero;		/* useful constant */
 
@@ -405,7 +408,152 @@ extern Var zero;		/* useful constant */
  :  end of DEC ALPHA experiment  :
  :...............................:*/
 
+
+/*********
+ * Byte Quota Model
+ *
+ *   For use by value_bytes(), object_bytes(), and supporting routines.
+ */
+
+#if BYTE_QUOTA_MODEL == BQM_HW
+
+/* Use actual-hardware numbers */
+#  define BQM_SIZEOF(type)			sizeof(type)
+#  define BQM_SIZEOF_PTR_TO(type)		sizeof(type *)
+#  define BQM_SIZEOF_PTR_TO_CONST(type)		sizeof(const type *)
+
+#else  /* BQM_64, BQM_64B, BQM_32 */
+/*
+ * Use one of the fixed-size legacy models, for which we need
+ * each of the <type>s involved to have a correponding
+ *
+ *   #define BQM_DESCRIBE_<type>(B,F,V,X)  <expression>
+ *
+ * where <expression> is an integer expression to compute a size in bytes
+ * that may include any of the following:
+ *
+ *    B(<base>)  size of type <base> (for when <type> bodily includes <base>)
+ *    F          size of something that is always 4 bytes (like int32_t)
+ *    V          size of something (e.g., a pointer) that is
+ *        4 bytes in the BQM_32 world and
+ *        8 bytes in the BQM_64(B) world
+ *    X(<ext>,<expression>)
+ *        where <ext> = cpp #define name for an extension and
+ *        <expression> is another integer expression, possibly
+ *        with B,F,V,X terms.  Evaluates to <expression> if
+ *        the extension is considered active for the purposes
+ *        of this byte quota model and otherwise 0.
+ *        (see struct activation or struct Object for examples).
+ *
+ * See below for implementation details if you want to add a new
+ * datatype, a new extension, or a new byte quota model.
+ */
+
+#  define BQM_SIZEOF_PTR_TO(type)        (BQM_VAR_)
+#  define BQM_SIZEOF_PTR_TO_CONST(type)  (BQM_SIZEOF_PTR_TO(type))
+
+/*  Want, but cannot have because the C preprocessor disables recursion (details below)
+ *    #define BQM_SIZEOF(type)      BQM_DESCRIBE_##type(BQM_SIZEOF,     BQM_FOUR_,BQM_VAR_,BQM_EXT_)
+ */
+#  define BQM_SIZEOF(type)          BQM_DESCRIBE_##type(BQM_BASE_,      BQM_FOUR_,BQM_VAR_,BQM_EXT_)
+#  define BQM_BASE_(type)           BQM_DESCRIBE_##type(BQM_BASE_##type,BQM_FOUR_,BQM_VAR_,BQM_EXT_)
+#  define BQM_BASE_activation(type) BQM_DESCRIBE_##type(BQM_BASE_##type,BQM_FOUR_,BQM_VAR_,BQM_EXT_)
+
+#  define BQM_FOUR_			((size_t)4)
+
+#  if BYTE_QUOTA_MODEL == BQM_32
+#    define BQM_VAR_		  	(BQM_FOUR_)
+
+#  else /* BYTE_QUOTA_MODEL != BQM_32 */
+#    define BQM_VAR_			(BQM_FOUR_ * 2)
+
+#  endif
+
+#  define BQM_EXT_(ext,adjust) 	BQM_##ext##_IFELSE((adjust),0)
+
+#endif	 /* BYTE_QUOTA_MODEL != BQM_HW */
+
 #endif		/* !Structures_H */
+
+
+/* More on BYTE_QUOTA_MODEL:
+ *
+ * (1) If you are needing to add a new model,
+ *     please make sure that, whatever you do, the prior models
+ *     continue to produce the same numbers as before:
+ *
+ *       ./configure --enable-sz=bq32 (... whatever model you want)
+ *       rm -f byte_quota_test
+ *       make byte_quota_test && ./byte_quota_test
+ *
+ * (2) If you are adding a new type, it perhaps does not truly matter
+ *     how big you declare it to be, since, presumably, none of the
+ *     legacy dbs will have instances of it, but best practice would
+ *     be to guess how big it *would* have been on typical early-2000s
+ *     32- and 64- bit hardware, respectively.
+ *
+ * extensions that mess with structure sizes should
+ * create a boolean option in options.ac and options.h.in
+ *   BQM_<ext>
+ *     (where <ext> is the #define name for when the the extension is
+ *     active), which indicates whether the extension is active for
+ *     the purposes of the byte quota model (regardless of whether the
+ *     extension itself is indeed active),
+ *
+ * then make it default to the setting of <ext> (in options_epilog.h)
+ *
+ * and then add
+ *
+ *   #if BQM_<ext>
+ *   # define BQM_<ext>_IFELSE(then,else)   then
+ *   #else
+ *   # define BQM_<ext>_IFELSE(then,else)   else
+ *   #endif
+ *
+ * ------------------------------------
+ * Re: wtf is going on with BQM_SIZEOF?
+ * ------------------------------------
+ * In case you were wondering, the problem here is that the C
+ * preprocessor goes out of its way to disable recursion.
+ * What we **want** is
+ *
+ *    #define BQM_SIZEOF(type)     \
+ *       BQM_DESCRIBE_##type(BQM_SIZEOF, BQM_FOUR_,BQM_VAR_,BQM_EXT_)
+ *
+ * which does not work because, in any expansion of BQM_SIZEOF,
+ * 'BQM_SIZEOF' will be on the list of identifiers not to be further
+ * expanded, so that symbol comes out as itself, unexpanded, and
+ * simply left there for the compiler to trip over.
+ *
+ * To make this work we need to give BQM_SIZEOF a different name
+ * ('BQM_BASE_') in the expansion and then give that identifier the
+ * *same* definition with yet another name in *its* expansion
+ * ('BQM_BASE_##type'), and so on... As it happens, using
+ * BQM_BASE_##type for the 2nd..nth time around gives us a wide
+ * variety of names, and, furthermore, C forbids cycles of structs
+ * including each other (you can have cycles of *pointers* but that's
+ * different), so once we have definitions of BQM_BASE_<type> for all
+ * types that this encounters, we're done.  But we don't even have to
+ * do that since most types don't use B().  The only cases we have to
+ * worry about are the length>=2 chains, the following being the only
+ * one we have at the moment:
+ *
+ *     forked_task  uses B(activation)
+ *     activation   uses B(Var)         (if #defined(WAIF_CORE))
+ *     Var          does not use B()
+ *
+ * so this ends.  So, since activation is both referred to and
+ * uses B() itself, we need a definition for BQM_BASE_activation()
+ *
+ * You can see this in action by commenting out the
+ * BQM_BASE_activation #define and attempting a compile.
+ * The error will be something like
+ *
+ *    "expected ‘)’ before ‘BQM_BASE_activation’",
+ *
+ * which tells you what needs to be #defined.  So if you should manage
+ * to create more of these situations, now you know what to do.
+ */
 
 
 /*

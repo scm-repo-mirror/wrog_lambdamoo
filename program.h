@@ -30,6 +30,7 @@ typedef struct {
     unsigned size;
     unsigned max_stack;
 } Bytecodes;
+#define BQM_DESCRIBE_Bytecodes(B,F,V,X)   ((4 * F) + V)
 
 typedef struct {
     DB_Version version;
@@ -51,6 +52,7 @@ typedef struct {
     unsigned cached_lineno_pc;
     int cached_lineno_vec;
 } Program;
+#define BQM_DESCRIBE_Program(B,F,V,X)   ((8 * F) + (9 * V))
 
 #define MAIN_VECTOR 	-1	/* As opposed to an index into fork_vectors */
 
