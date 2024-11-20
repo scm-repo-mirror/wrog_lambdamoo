@@ -32,6 +32,16 @@
 
 #define OPTION_DEFAULT -1
 
+#define BQM_HW  2
+#define BQM_32  3
+#define BQM_64B 4
+#define BQM_64  5
+#ifndef BYTE_QUOTA_MODEL
+#  define BYTE_QUOTA_MODEL BQM_64
+#elif !(BQM_HW <= BYTE_QUOTA_MODEL && BYTE_QUOTA_MODEL <= BQM_64)
+#  error "unknown BYTE_QUOTA_MODEL"
+#endif
+
 #if UNICODE_NUMBERS && !UNICODE_STRINGS
 #  error "UNICODE_NUMBERS requires UNICODE_STRINGS"
 #endif
@@ -240,5 +250,17 @@
 #  error "do not do that."
 #endif
 /* Only FLOATS_ARE_BOXED should be referenced from here on. */
+
+#if (( 0 * BQM_BOXED_FLOATS - 1 ) == 0)
+#  undef    BQM_BOXED_FLOATS
+#  define   BQM_BOXED_FLOATS   1
+#elif BQM_BOXED_FLOATS == OPTION_DEFAULT
+#  undef    BQM_BOXED_FLOATS
+#  if BYTE_QUOTA_MODEL == BQM_64
+     /* the only abstract model without boxed floats */
+#  elif BYTE_QUOTA_MODEL != BQM_HW || FLOATS_ARE_BOXED
+#    define BQM_BOXED_FLOATS   1
+#  endif
+#endif
 
 #endif		/* !Options_Epilog_H */

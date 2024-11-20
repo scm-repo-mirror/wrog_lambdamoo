@@ -289,22 +289,22 @@ db_object_bytes(Objid oid)
     int i, len, count;
     Verbdef *v;
 
-    count = sizeof(Object) + sizeof(Object *);
+    count = BQM_SIZEOF(Object) + BQM_SIZEOF_PTR_TO(Object);
     count += memo_strlen(o->name) + 1;
 
     for (v = o->verbdefs; v; v = v->next) {
-	count += sizeof(Verbdef);
+	count += BQM_SIZEOF(Verbdef);
 	count += memo_strlen(v->name) + 1;
 	if (v->program)
 	    count += program_bytes(v->program);
     }
 
-    count += sizeof(Propdef) * o->propdefs.cur_length;
+    count += BQM_SIZEOF(Propdef) * o->propdefs.cur_length;
     for (i = 0; i < o->propdefs.cur_length; i++)
 	count += memo_strlen(o->propdefs.l[i].name) + 1;
 
     len = dbpriv_count_properties(oid);
-    count += (sizeof(Pval) - sizeof(Var)) * len;
+    count += (BQM_SIZEOF(Pval) - BQM_SIZEOF(Var)) * len;
     for (i = 0; i < len; i++)
 	count += value_bytes(o->propval[i].var);
 

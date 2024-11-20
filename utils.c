@@ -372,20 +372,20 @@ get_system_object(const char *name)
 int
 value_bytes(Var v)
 {
-    int i, len, size = sizeof(Var);
+    int i, len, size = BQM_SIZEOF(Var);
 
     switch (v.type) {
     case TYPE_STR:
 	size += memo_strlen(v.v.str) + 1;
 	break;
+#if BQM_BOXED_FLOATS
     case TYPE_FLOAT:
-#if FLOATS_ARE_BOXED
-	size += sizeof(FlNum);
-#endif
+	size += BQM_SIZEOF(FlNum);
 	break;
+#endif
     case TYPE_LIST:
 	len = v.v.list[0].v.num;
-	size += sizeof(Var);	/* for the `length' element */
+	size += BQM_SIZEOF(Var);   /* for the `length' element */
 	for (i = 1; i <= len; i++)
 	    size += value_bytes(v.v.list[i]);
 	break;

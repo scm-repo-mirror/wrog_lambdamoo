@@ -65,6 +65,7 @@ typedef struct forked_task {
     int f_index;
     time_t start_time;
 } forked_task;
+#define BQM_DESCRIBE_forked_task(B,F,V,X)   (B(activation) + (5 * V))
 
 typedef struct suspended_task {
     vm the_vm;
@@ -1657,7 +1658,7 @@ bf_task_id(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUS
 static int
 activation_bytes(activation * ap)
 {
-    int total = sizeof(activation);
+    int total = BQM_SIZEOF(activation);
     Var *v;
     unsigned i;
 
@@ -1673,7 +1674,7 @@ activation_bytes(activation * ap)
 	    total += value_bytes(*v);
     }
     /* XXX ignore bi_func_data, it's an opaque type. */
-    total += value_bytes(ap->temp) - sizeof(Var);
+    total += value_bytes(ap->temp) - BQM_SIZEOF(Var);
     total += memo_strlen(ap->verb) + 1;
     total += memo_strlen(ap->verbname) + 1;
     return total;
@@ -1682,10 +1683,10 @@ activation_bytes(activation * ap)
 static int
 forked_task_bytes(forked_task ft)
 {
-    int total = sizeof(forked_task);
+    int total = BQM_SIZEOF(forked_task);
 
     /* ft.program is duplicated in ft.a */
-    total += activation_bytes(&ft.a) - sizeof(activation);
+    total += activation_bytes(&ft.a) - BQM_SIZEOF(activation);
     /* ft.rt_env is properly inside ft.a now */
 
     return total;
@@ -1724,7 +1725,7 @@ list_for_forked_task(forked_task ft)
 static int
 suspended_task_bytes(vm the_vm)
 {
-    int total = sizeof(vmstruct);
+    int total = BQM_SIZEOF(vmstruct);
     unsigned i;
 
     for (i = 0; i <= the_vm->top_activ_stack; i++)
