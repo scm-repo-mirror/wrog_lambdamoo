@@ -17,6 +17,9 @@ AC_DEFUN([MOO_ALL_ARGUMENTS],
 # --(enable|disable)-net
 MOO_NET_ARG_ENABLE([net])
 
+# --enable-sz
+MOO_DATATYPESIZE_ARG_ENABLE([sz])
+
 # --(enable|disable)-{extensions}
 MOO_XT_EXTENSION_ARGS()
 
@@ -24,7 +27,7 @@ MOO_XT_EXTENSION_ARGS()
 #   a less insane way of dealing with IGNORE_PROP_PROTECTED
 dnl
 dnl This is here as an example of how to do optional features
-dnl that are less complicated than --enable-net
+dnl that are less complicated than --enable-net|sz|...
 dnl
 AC_ARG_ENABLE([prop-protect],[
 AS_HELP_STRING([--disable-prop-protect],[disable])
@@ -69,3 +72,38 @@ m4_define([moo_put_help_counter],
 m4_format([[%03d]],m4_defn([_$0]))])
 
 m4_define([_moo_put_help_counter],[0])
+
+# ------------------------------------------------------------------
+#  MOO_DATATYPESIZE_ARG_ENABLE([<data_type_size>])
+#    creates the --enable-<data_type_size>=kwds... ./configure argument
+#
+AC_DEFUN([MOO_DATATYPESIZE_ARG_ENABLE],
+[AC_ARG_ENABLE([$1],[[
+ Datatype options:]
+AS_HELP_STRING([[--enable-$1=KWD[,KWD]]],
+[set all datatype size options])
+[               i64, i32, i16:  INT_TYPE_BITSIZE=*]
+[     flt, fdbl, flong, fquad:  FLOATING_TYPE=FT_*]
+[                  box, unbox:  BOXED_FLOATS=yes,no]],
+[[ac_save_IFS=$IFS
+IFS=,
+for moo_kwd in ,x $enableval ; do
+  IFS=$ac_save_IFS]
+  AS_CASE([$moo_kwd],[[
+    ,x]],    [[continue]],                              [[
+    i64]],   [[moo_d=INT_TYPE_BITSIZE; moo_v=64]],      [[
+    i32]],   [[moo_d=INT_TYPE_BITSIZE; moo_v=32]],      [[
+    i16]],   [[moo_d=INT_TYPE_BITSIZE; moo_v=16]],      [[
+    flt]],   [[moo_d=FLOATING_TYPE; moo_v=FT_FLOAT]],   [[
+    fdbl]],  [[moo_d=FLOATING_TYPE; moo_v=FT_DOUBLE]],  [[
+    flong]], [[moo_d=FLOATING_TYPE; moo_v=FT_LONG]],    [[
+    fquad]], [[moo_d=FLOATING_TYPE; moo_v=FT_QUAD]],    [[
+    box]],   [[moo_d=BOXED_FLOATS; moo_v=yes]],         [[
+    unbox]], [[moo_d=BOXED_FLOATS; moo_v=no]],
+    [AC_MSG_ERROR([unknown --enable-$1 keyword: $moo_kwd])])
+  AS_VAR_SET_IF([moo_d_$moo_d],
+    [AS_VAR_COPY([moo_v],[moo_d_$moo_d])
+     AC_MSG_ERROR([[--enable-$1=...,$moo_kwd: $moo_d already set to $moo_v]])])
+  AS_VAR_SET([moo_d_$moo_d],[[$moo_v]])
+  AC_MSG_NOTICE([(--enable-$1:) $moo_d = $moo_v])[
+done]])])
