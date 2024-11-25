@@ -84,13 +84,18 @@ AS_HELP_STRING([[--enable-$1=KWD[,KWD]]],
 [set all datatype size options])
 [               i64, i32, i16:  INT_TYPE_BITSIZE=*]
 [     flt, fdbl, flong, fquad:  FLOATING_TYPE=FT_*]
-[                  box, unbox:  BOXED_FLOATS=yes,no]],
+[                  box, unbox:  BOXED_FLOATS=yes,no]
+[         bqhw, bq32, bq64[b]:  BYTE_QUOTA_MODEL=BQM_*]],
 [[ac_save_IFS=$IFS
 IFS=,
 for moo_kwd in ,x $enableval ; do
   IFS=$ac_save_IFS]
   AS_CASE([$moo_kwd],[[
     ,x]],    [[continue]],                              [[
+    bqhw]],  [[moo_d=BYTE_QUOTA_MODEL; moo_v=BQM_HW]],  [[
+    bq32]],  [[moo_d=BYTE_QUOTA_MODEL; moo_v=BQM_32]],  [[
+    bq64]],  [[moo_d=BYTE_QUOTA_MODEL; moo_v=BQM_64]],  [[
+    bq64b]], [[moo_d=BYTE_QUOTA_MODEL; moo_v=BQM_64B]], [[
     i64]],   [[moo_d=INT_TYPE_BITSIZE; moo_v=64]],      [[
     i32]],   [[moo_d=INT_TYPE_BITSIZE; moo_v=32]],      [[
     i16]],   [[moo_d=INT_TYPE_BITSIZE; moo_v=16]],      [[
