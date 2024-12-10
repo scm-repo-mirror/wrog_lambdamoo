@@ -18,6 +18,8 @@
 #ifndef BF_Register_H
 #define BF_Register_H 1
 
+#include "config.h"
+
 extern void register_db_tune(void);
 extern void register_disassemble(void);
 extern void register_execute(void);
@@ -30,6 +32,10 @@ extern void register_property(void);
 extern void register_server(void);
 extern void register_tasks(void);
 extern void register_verbs(void);
+
+#ifdef EXPAT_XML
+extern void register_xml(void);
+#endif
 
 extern void register_experiments(void);
 
