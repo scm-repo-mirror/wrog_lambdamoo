@@ -90,6 +90,45 @@ MOO_LIB_PCRE1([%USE%],
    We need at least version 8."]])
 END
 
+##==============
+%%extension xml
+##==============
+  %disabled
+  %? XML:
+
+  --enable- xml
+    %? add xml parsing builtins
+
+  XT_CSRCS = ext-xml.c
+
+  %require xmllib
+#    --with- xmllib = LIB,..
+#      %? xml parser library
+
+#    %lib xml2 XML_LIBXML
+#      %ac AC_SEARCH_LIBS([[xmlParseDocument]], [[xml2]], [%USE%])
+
+    %lib expat EXPAT_XML
+      %ac AC_SEARCH_LIBS([[XML_Parse]], [[expat]], [%USE%])
+      %build
+        --with- expatpath = DIR
+          %?  use this expat build
+
+        %dirvar expat_dir
+        %ac <<END
+AS_SET_CATFILE([[moo_h_]], [%DIR%], [[expat.h]])
+AS_IF([[test -r "$moo_h_"]],[],
+  AC_DEFINE([EXPAT_XML_1_2_OR_BEFORE]))
+END
+        CPPFLAGS = -I$(expat_dir)
+        XT_LOBJS = $(expat_dir)/xmlparse/libexpat.a
+
+        %make <<END
+$(expat_dir)/xmlparse/libexpat.a:
+	$(MAKE) -C $(expat_dir) xmlparse/libexpat.a
+END
+
+
 ### Next line is boilerplate; do not edit.
 ],,,,,,,,[ end of extension declarations ],,,,,,,,
 

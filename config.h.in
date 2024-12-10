@@ -292,6 +292,14 @@
  */
 #undef UNICODE_DATA
 
+/*
+ * are we using the Expat XML library?
+ */
+#undef EXPAT_XML
+/* ... the ancient expat 1.2 build the
+ *  extension was originally built with
+ */
+#undef EXPAT_XML_1_2_OR_BEFORE
 
 /* continue on to the part that ./configure should not be touching */
 #include "config_epilog.h"
