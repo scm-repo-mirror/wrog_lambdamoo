@@ -117,51 +117,39 @@ error_name(enum error e)
     return "E_?";
 }
 
-struct prec {
-    enum Expr_Kind kind;
-    int precedence;
-};
 
-static struct prec prec_table[] =
+#define expr__NEXT_GROUP SizeOf_Expr_Kind
+static enum Expr_Kind prec_groups[] =
 {
-    {EXPR_ASGN, 1},
+    expr__NEXT_GROUP,
+    EXPR_ASGN,
 
-    {EXPR_COND, 2},		/* the unparser for this depends on only ASGN having
-				   lower precedence.  Fix that if this changes. */
-    {EXPR_OR, 3},
-    {EXPR_AND, 3},
+    expr__NEXT_GROUP,
+    EXPR_COND,		/* the unparser for this depends on only ASGN having
+			   lower precedence.  Fix that if this changes. */
+    expr__NEXT_GROUP,
+    EXPR_OR, EXPR_AND,
 
-    {EXPR_EQ, 4},
-    {EXPR_NE, 4},
-    {EXPR_LT, 4},
-    {EXPR_LE, 4},
-    {EXPR_GT, 4},
-    {EXPR_GE, 4},
-    {EXPR_IN, 4},
+    expr__NEXT_GROUP,
+    EXPR_EQ, EXPR_NE, EXPR_LT, EXPR_LE, EXPR_GT, EXPR_GE, EXPR_IN,
 
-    {EXPR_PLUS, 5},
-    {EXPR_MINUS, 5},
+    expr__NEXT_GROUP,
+    EXPR_PLUS, EXPR_MINUS,
 
-    {EXPR_TIMES, 6},
-    {EXPR_DIVIDE, 6},
-    {EXPR_MOD, 6},
+    expr__NEXT_GROUP,
+    EXPR_TIMES, EXPR_DIVIDE, EXPR_MOD,
 
-    {EXPR_EXP, 7},
+    expr__NEXT_GROUP,
+    EXPR_EXP,
 
-    {EXPR_NEGATE, 8},
-    {EXPR_NOT, 8},
+    expr__NEXT_GROUP,
+    EXPR_NEGATE, EXPR_NOT,
 
-    {EXPR_PROP, 9},
-    {EXPR_VERB, 9},
-    {EXPR_INDEX, 9},
-    {EXPR_RANGE, 9},
+    expr__NEXT_GROUP,
+    EXPR_PROP, EXPR_VERB, EXPR_INDEX, EXPR_RANGE,
 
-    {EXPR_VAR, 10},
-    {EXPR_ID, 10},
-    {EXPR_LIST, 10},
-    {EXPR_CALL, 10},
-    {EXPR_LENGTH, 10},
-    {EXPR_CATCH, 10}
+    expr__NEXT_GROUP,
+    EXPR_VAR, EXPR_ID, EXPR_LIST, EXPR_CALL, EXPR_LENGTH, EXPR_CATCH,
 };
 
 static int expr_prec[SizeOf_Expr_Kind];
@@ -199,10 +187,16 @@ init_expr_tables(void)
 {
     int i;
 
-    for (i = 0; i < Arraysize(prec_table); i++)
-	expr_prec[prec_table[i].kind] = prec_table[i].precedence;
+    int current_prec = 0;
+    for (i = 0; i < Arraysize(prec_groups); ++i) {
+	enum Expr_Kind ek = prec_groups[i];
+	if (ek == expr__NEXT_GROUP)
+	    ++current_prec;
+	else
+	    expr_prec[ek] = current_prec;
+    }
 
-    for (i = 0; i < Arraysize(binop_table); i++)
+    for (i = 0; i < Arraysize(binop_table); ++i)
 	binop_string[binop_table[i].kind] = binop_table[i].string;
 
     expr_tables_initialized = 1;
