@@ -71,6 +71,7 @@ MOO_DECLARE_OPTIONS(m4_if(#
  [[UNICODE_STRINGS],      [bool], yes, [allow Unicode in string constants]],
  [[UNICODE_IDENTIFIERS],  [bool], no,  [allow Unicode in identifiers]],
  [[UNICODE_NUMBERS],      [bool], no,  [allow Unicode in numeric constants]],
+ [[BITWISE_OPERATORS],    [bool], no,  [recognize bitwise operators]],
 
 m4_if(#
 #
