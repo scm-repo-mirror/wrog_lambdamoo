@@ -134,23 +134,24 @@ parse_number(unsigned flags, int32_t c_first,
 		    /* we have a decimal point */
 		    break;
 
-		    /* This enacts the behavior of the original
-		     * implementation of this extension.
-		     */
-
 		case '.':		/* .. */
-		case '|': case '&': 	/* .|  or .& */
 		    /* the maximally "greedy" case */
 		    goto dot_starts_new_token;
 
-		case -2:		/* nothing yet */
+		    /* This enacts the Break the Fewest Things algorithm
+		     * that (1) agrees with the non-bitop server's
+		     * successful parses and (2) throws the fewest
+		     * syntax errors.
+		     * 2.|.5 and p ? 2.|.5 are the only real screw cases
+		     */
+		case '&':	 	/* .& */
 		    /* the intermediately "greedy" case */
 		    GET();
 		    if (cc[1] == '.')
 			goto dot_starts_new_token;
 		    break;
 
-		case '^':		/* .^ */
+		case '^': case '|':	/* .^ or .|. */
 		    /* the minimally "greedy" case.
 		     * For ^, this allows 9.^.5 to be
 		     * interpreted as sqrt(9) so as to get 3.0
