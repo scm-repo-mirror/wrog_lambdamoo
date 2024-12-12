@@ -664,6 +664,43 @@ And now for the options:
 #undef UNICODE_NUMBERS
 
 /******************************************************************************
+ * BITWISE_OPERATORS enables the server to recognize the following
+ * operator syntax in verbcode
+ *
+ *   ~X        bitwise complement
+ *   X .&. Y   bitwise AND
+ *   X .|. Y   bitwise inclusive OR
+ *   X .^. Y   bitwise exclusive OR
+ *   X << N    left shift
+ *   X >> N    arithmetic (sign-extending) right shift
+ *   X >>> N   logical (non-sign-extending) right shift
+ *
+ * (THE DOT SYNTAX FOR BITWISE AND/OR/XOR IS EXPERIMENTAL
+ *  AND MAY CHANGE IN A FUTURE SERVER RELEASE.)
+ *
+ * As with the other expression operators, whitespace is not required
+ * between operator and operands.  However, in the case of the
+ * operators that have periods ('.') as part of their syntax being
+ * applied to integer constant operands, you will likely need to insert
+ * space to prevent unexpected interpretations or syntax errors due to
+ * periods taken to be decimal points that are part of the operands,
+ * hence making them floating constants and the operator no longer
+ * bitwise, e.g.,
+ *
+ *   2.^.5 is actually exponentiation
+ *     (parses as (2.0)^(0.5) => sqrt(2))
+ *
+ *   2.|.5 is a syntax error
+ *     (parses as (2.0)|(0.5) which then dies for lack of a preceding
+ *     '?' -- the parser would otherwise need, in some cases,
+ *     unlimited lookahead to be able to resolve whether the .|. is
+ *     indeed a bitwise inclusive OR rather than being part of a
+ *     conditional expression)
+ */
+
+#undef BITWISE_OPERATORS
+
+/******************************************************************************
  * Continue on to the part that ./configure should not be touching ...
  */
 
