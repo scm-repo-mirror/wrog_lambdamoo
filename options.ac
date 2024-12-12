@@ -65,6 +65,7 @@ MOO_DECLARE_OPTIONS(m4_if(#
  [[BYTECODE_REDUCE_REF],  [bool], no,  [do bytecode refcount optimization]],
  [[STRING_INTERNING],     [bool], yes, [do interning of identical strings]],
  [[MEMO_STRLEN],          [bool], no,  [memoize string lengths]],
+ [[BITWISE_OPERATORS],    [bool], no,  [recognize bitwise operators]],
 
 m4_if(#
 #

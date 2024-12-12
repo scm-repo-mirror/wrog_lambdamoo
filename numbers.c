@@ -138,6 +138,7 @@ parse_number(unsigned flags, int32_t c_first,
 		    /* the maximally "greedy" case */
 		    goto dot_starts_new_token;
 
+#if BITWISE_OPERATORS
 		    /* This enacts the Break the Fewest Things algorithm
 		     * that (1) agrees with the non-bitop server's
 		     * successful parses and (2) throws the fewest
@@ -164,6 +165,8 @@ parse_number(unsigned flags, int32_t c_first,
 			    goto dot_starts_new_token;
 		    }
 		    break;
+
+#endif  /* BITWISE_OPERATORS */
 
 		dot_starts_new_token:
 		    UNGET_ALL();

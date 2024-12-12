@@ -810,6 +810,11 @@ follow(int32_t expect, int32_t ifyes, int32_t ifno)     /* look ahead for >=, et
     return ifno;
 }
 
+#if !BITWISE_OPERATORS
+static inline int checkbitwise(void) { return 0; }
+
+#else /* BITWISE_OPERATORS */
+
 /* look ahead for bit-wise operators */
 static int
 checkbitwise(void)
@@ -850,6 +855,8 @@ checkrightshift(int iftwo, int ifone, int ifnone)
     }
     return iftwo;
 }
+
+#endif /* BITWISE_OPERATORS */
 
 static Stream  *token_stream = 0;
 
@@ -985,6 +992,8 @@ start_over:
     }
 
     switch(c) {
+
+#if BITWISE_OPERATORS
     case '>':
 	return ((c = follow('=', tGE, 0))
 		? c
@@ -993,6 +1002,15 @@ start_over:
 	return ((c = follow('=', tLE, 0))
 		? c
 		: follow('<', tSHL, '<'));
+
+#else /* !BITWISE_OPERATORS */
+    case '>':
+	return follow('=', tGE, '>');
+    case '<':
+	return follow('=', tLE, '<');
+
+#endif	 /* !BITWISE_OPERATORS */
+
     case '=':
 	return ((c = follow('=', tEQ, 0))
 		? c
@@ -1008,6 +1026,14 @@ start_over:
 	return ((c = checkbitwise())
 		? c
 		: follow('.', tTO, '.'));
+
+#if !BITWISE_OPERATORS
+	/* Hide attempted bitwise complement */
+    case '~':
+	yylval.chr = c;
+	return tCHR;
+#endif
+
     default:
 	if (c < 127) {
 	    return c;
