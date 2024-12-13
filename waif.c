@@ -30,6 +30,7 @@
 #include "db_io.h"
 #include "exceptions.h"
 #include "functions.h"
+#include "log.h"
 #include "storage.h"
 #include "streams.h"
 #include "structures.h"
@@ -858,7 +859,7 @@ waif_after_saving(int success UNUSED_)
 {
     myfree(saved_waifs, M_WAIF_XTRA);
     if (n_saved_waifs != waif_count)
-	fprintf(stderr, "WARN: waif_count != n_saved_waifs!\n");
+	errlog("WARN: waif_count != n_saved_waifs!\n");
 }
 
 static void
