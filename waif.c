@@ -215,20 +215,59 @@ alloc_waif_propvals(Waif *w, int clear)
     return p;
 }
 
-int
+
+/*  ***FIX***
+ *  Apparently, the only caller to refers_to(target, key) is waif_put_prop(),
+ *  and the point is to prevent self-reference, 'key' is always a waif
+ *  and refers_to() traverses 'target', a value being assigned
+ *  to some slot of 'key' to make sure we can't get to 'key'.
+ *
+ *  Which means key.v.list is always going to be garbage (key is a
+ *  waif, not a list) -- except we're probably being lucky in that the
+ *  Var union is putting the .v.waif and .v.list pointers on top of
+ *  each other so that a real comparison is happening even though it's
+ *  pointless (list and waif pointers are allocated in different
+ *  spaces so they're always not equal) -- and there will never be any
+ *  point to traversing target.v.fnum or target.v.str (since if target
+ *  is a float or a string, we're already done; it can't contain 'key').
+ *
+ *  Also guessing this did not get updated when HPA unboxed the floats
+ *  (making .fnum Not A Pointer Anymore.  Except now it might be again
+ *  now that I've reboxed them in some cases), so even if there WAS
+ *  some point to traversing floats there won't be anymore.
+ *
+ *  So I'm going to edit and see what breaks.
+ *  I'm also making this static since there are no external refs
+ *  and the compiler is unhappy...
+ *            --wrog.
+ */
+static int
 refers_to(Var target, Var key)
 {
     int i;
     Var *p;
 
-    switch((int) target.type) {
+#ifndef NO_WE_DO_NOT_WANT_TO_SEE_WHAT_BREAKS
+    if (key.type != TYPE_WAIF)
+	panic("ok, wRog is an idiot");
+#endif
+
+    switch (target.type) {
+    default:
+	break;
+
     case TYPE_LIST:
+
+#ifdef YES_LETS_DO_THIS_EVEN_THOUGH_WE_KNOW_key_IS_A_WAIF
 	if (target.v.list == key.v.list)
 	    return 1;
+#endif
+
 	for (i = 1; i <= target.v.list[0].v.num; ++i)
 	    if (refers_to(target.v.list[i], key))
 		return 1;
 	return 0;
+
     case TYPE_WAIF:
 	if (target.v.waif == key.v.waif)
 	    return 1;
@@ -238,10 +277,15 @@ refers_to(Var target, Var key)
 	    if (refers_to(*p++, key))
 		return 1;
 	return 0;
+
+#ifdef YES_LETS_POINTLESSLY_TRAVERSE_FLOATS_AND_STRINGS
+	/* remember, key is a waif */
     case TYPE_FLOAT:
 	return target.v.fnum == key.v.fnum;
     case TYPE_STR:
 	return target.v.str == key.v.str;
+#endif
+
     }
     return 0;
 }
