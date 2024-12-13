@@ -67,8 +67,9 @@ enum error {
     E_RECMOVE, E_MAXREC, E_RANGE, E_ARGS, E_NACC, E_INVARG, E_QUOTA, E_FLOAT
 };
 
-/*************************
- * General Types and Vars
+
+/****************
+ * General Types
  */
 
 /* Do not reorder or otherwise modify this list, except to add new elements at
@@ -102,23 +103,48 @@ typedef enum {
 #define TYPE_ANY ((var_type) -1)	/* wildcard for use in declaring built-ins */
 #define TYPE_NUMERIC ((var_type) -2)	/* wildcard for (integer or float) */
 
-typedef struct Var Var;
 
-/* Experimental.  On the Alpha, DEC cc allows us to specify certain
+/***********
+ * Experimental.  On the Alpha, DEC cc allows us to specify certain
  * pointers to be 32 bits, but only if we compile and link with "-taso
  * -xtaso" in CFLAGS, which limits us to a 31-bit address space.  This
  * could be a win if your server is thrashing.  Running JHM's db, SIZE
  * went from 50M to 42M.  No doubt these pragmas could be applied
  * elsewhere as well, but I know this at least manages to load and run
  * a non-trivial db.
- */
-
-/* #define SHORT_ALPHA_VAR_POINTERS 1 */
-
+ *
+ * ( History update:  Previous appears to be from Jay, circa 1997.
+ *
+ *   In the early 2000s, DEC Alpha was killed off.  It also seems the
+ *   pointer_size pragma never caught on outside of DEC.  However,
+ *   OpenVMS is evidently A Thing now, or at least as recently as
+ *   2019, and its gcc/clang seems to know about pointer_size, so
+ *   there remains a remote possibility that this still works
+ *   (or, at least, can be made to work) somewhere.
+ *
+ *   pragmas were originally placed immediately surrounding struct
+ *   Var, but they also included struct Waif on the waif branch,
+ *   presumably deliberately.  To get this out of the way, I have
+ *   moved it backwards into its own section... presumably safe
+ *   since it should only affect struct/pointer declarations.
+ *        --wrog      )
+ *
+  ................................
+  :  begin DEC ALPHA experiment  :
+  :
+  :   #define SHORT_ALPHA_VAR_POINTERS 1
+  */
 #ifdef SHORT_ALPHA_VAR_POINTERS
 #pragma pointer_size save
 #pragma pointer_size short
 #endif
+
+
+/*********
+ * Vars
+ */
+
+typedef struct Var Var;
 
 struct Var {
     union {
@@ -132,13 +158,18 @@ struct Var {
     var_type type;
 };
 
+extern Var zero;		/* useful constant */
+
+
 #ifdef SHORT_ALPHA_VAR_POINTERS
 #pragma pointer_size restore
 #endif
-
-extern Var zero;		/* useful constant */
+/*
+ :  end of DEC ALPHA experiment  :
+ :...............................:*/
 
 #endif				/* !Structures_h */
+
 
 /*
  * $Log$
