@@ -45,6 +45,7 @@ enum error {
     E_RECMOVE, E_MAXREC, E_RANGE, E_ARGS, E_NACC, E_INVARG, E_QUOTA, E_FLOAT
 };
 
+
 /* Types which have external data should be marked with the TYPE_COMPLEX_FLAG
  * so that free_var/var_ref/var_dup can recognize them easily.  This flag is
  * only set in memory.  The original _TYPE values are used in the database
@@ -78,23 +79,43 @@ typedef enum {
 } var_type;
 
 
-typedef struct Var Var;
-
-/* Experimental.  On the Alpha, DEC cc allows us to specify certain
+/***********
+ * Experimental.  On the Alpha, DEC cc allows us to specify certain
  * pointers to be 32 bits, but only if we compile and link with "-taso
  * -xtaso" in CFLAGS, which limits us to a 31-bit address space.  This
  * could be a win if your server is thrashing.  Running JHM's db, SIZE
  * went from 50M to 42M.  No doubt these pragmas could be applied
  * elsewhere as well, but I know this at least manages to load and run
  * a non-trivial db.
- */
-
-/* #define SHORT_ALPHA_VAR_POINTERS 1 */
-
+ *
+ * ( History update:  Previous appears to be from Jay, circa 1997.
+ *
+ *   In the early 2000s, DEC Alpha was killed off.  It also seems the
+ *   pointer_size pragma never caught on outside of DEC.  However,
+ *   OpenVMS is evidently A Thing now, or at least as recently as
+ *   2019, and its gcc/clang seems to know about pointer_size, so
+ *   there remains a remote possibility that this still works
+ *   (or, at least, can be made to work) somewhere.
+ *
+ *   pragmas were originally placed immediately surrounding struct
+ *   Var, but they also included struct Waif on the waif branch,
+ *   presumably deliberately.  To get this out of the way, I have
+ *   expanded its range... presumably safe since it should only
+ *   affect struct/pointer declarations.
+ *        --wrog      )
+ *
+  ................................
+  :  begin DEC ALPHA experiment  :
+  :
+  :   #define SHORT_ALPHA_VAR_POINTERS 1
+  */
 #ifdef SHORT_ALPHA_VAR_POINTERS
 #pragma pointer_size save
 #pragma pointer_size short
 #endif
+
+
+typedef struct Var Var;
 
 struct Var {
     union {
@@ -107,10 +128,6 @@ struct Var {
     } v;
     var_type type;
 };
-
-#ifdef SHORT_ALPHA_VAR_POINTERS
-#pragma pointer_size restore
-#endif
 
 extern Var zero;		/* useful constant */
 
@@ -126,6 +143,13 @@ extern Var zero;		/* useful constant */
 #define MAX_LIST   (INT32_MAX/sizeof(Var) - 2)
 #define MAX_STRING (INT32_MAX - 9)
 
+
+#ifdef SHORT_ALPHA_VAR_POINTERS
+#pragma pointer_size restore
+#endif
+/*
+ :  end of DEC ALPHA experiment  :
+ :...............................:*/
 
 #endif		/* !Structures_H */
 
