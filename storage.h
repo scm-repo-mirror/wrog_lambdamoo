@@ -37,6 +37,8 @@ typedef enum Memory_Type {
     M_INTERN_POINTER, M_INTERN_ENTRY, M_INTERN_HUNK,
     M_XML_DATA,
 
+    M_WAIF, M_WAIF_XTRA,
+
     Sizeof_Memory_Type
 
 } Memory_Type;

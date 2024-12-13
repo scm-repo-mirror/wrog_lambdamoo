@@ -42,6 +42,7 @@
 #include "tasks.h"
 #include "timers.h"
 #include "version.h"
+#include "waif.h"
 
 static char *input_db_name, *dump_db_name;
 static int dump_generation = 0;
@@ -549,6 +550,8 @@ read_db_file(void)
     db_verb_handle h;
     Program *program;
 
+    waif_before_loading();
+
     /* Evidently, prehistory DBs had no header line, they would just
      * go straight to the object count.  Therefore, a prehistory DB
      * will not start with '*'.  Since stdio allows us to put back
@@ -632,6 +635,9 @@ read_db_file(void)
 	errlog("DB_READ: Can't read active connections.\n");
 	return 0;
     }
+
+    waif_after_loading();
+
     dbpriv_dbio_input_finished();
     return 1;
 }
@@ -651,6 +657,7 @@ write_db_file(const char *reason)
     volatile int success = 1;
 
     db_run_before_save_hooks();
+    waif_before_saving();
 
     for (oid = 0; oid <= max_oid; oid++) {
 	if (valid(oid))
@@ -698,6 +705,7 @@ write_db_file(const char *reason)
 	success = 0;
     ENDTRY;
 
+    waif_after_saving();
     db_run_after_save_hooks(success);
 
     dbpriv_dbio_output_finished();

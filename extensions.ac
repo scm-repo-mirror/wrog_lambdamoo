@@ -136,6 +136,8 @@ MOO_DECLARE_OPTIONS(
 
  [[UNICODE_IDENTIFIERS],  [bool], no,  [allow Unicode in identifiers]],
  [[UNICODE_NUMBERS],      [bool], no,  [allow Unicode in numeric constants]],
+
+ [[WAIF_DICT],            [bool], no,  [array syntax for WAIFs]],
 )
 
 

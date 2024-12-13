@@ -46,6 +46,10 @@ typedef struct {
     void *bi_func_data;
     Var temp;			/* VM's temp register */
 
+    /* waifs mean there can be other values for THIS, and we need a secure
+     * way to store it so the verb can't spoof
+     */
+    Var THIS;
     /* verb information */
     Objid this;
     Objid player;
@@ -82,8 +86,9 @@ extern enum error call_verb(Objid obj, const char *vname, Var args,
 			    int do_pass);
 /* if your vname is already a moo str (via str_dup) then you can
    use this interface instead */
-extern enum error call_verb2(Objid obj, const char *vname, Var args,
-			     int do_pass);
+extern enum error call_verb2(Objid obj, const char *vname,
+			     Var THIS,
+			     Var args, int do_pass);
 
 extern int setup_activ_for_eval(Program * prog);
 

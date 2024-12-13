@@ -42,6 +42,7 @@
 #include "unparse.h"
 #include "utils.h"
 #include "version.h"
+#include "waif.h"
 
 
 /*********** Input ***********/
@@ -321,6 +322,9 @@ dbio_read_var_value(intmax_t vtype, Var *vp)
 		free_var(*vp);
 		goto bad_value;
 	    }
+	break;
+    case _TYPE_WAIF:
+	r = read_waif();
 	break;
     default:
 	dbio_last_error = "Unknown Var type";
@@ -681,6 +685,9 @@ dbio_write_var(Var v)
 	dbio_write_intmax(v.v.list[0].v.num);
 	for (i = 0; i < v.v.list[0].v.num; i++)
 	    dbio_write_var(v.v.list[i + 1]);
+	break;
+    case TYPE_WAIF:
+	write_waif(v);
 	break;
     }
 }

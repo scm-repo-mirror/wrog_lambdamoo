@@ -51,6 +51,9 @@ refcount_overhead(Memory_Type type)
     case M_LIST:
 	/* for systems with picky pointer alignment */
 	return MAX(sizeof(int), sizeof(Var *));
+    case M_WAIF:
+	/* for systems with picky pointer alignment */
+	return MAX(sizeof(int), sizeof(void *));
     default:
 	return 0;
     }

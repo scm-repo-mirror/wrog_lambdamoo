@@ -79,6 +79,8 @@ typedef struct Object {
     Verbdef *verbdefs;
     Proplist propdefs;
     Pval *propval;
+
+    void *waif_propdefs;
 } Object;
 #define BQM_DESCRIBE_Object(B,F,V,X)   ((2 * F) + (13 * V))
 

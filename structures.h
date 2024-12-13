@@ -306,10 +306,12 @@ typedef enum {
     TYPE_CATCH,			/* on-stack marker for an exception handler */
     TYPE_FINALLY,		/* on-stack marker for a TRY-FINALLY clause */
     _TYPE_FLOAT,		/* floating-point number; user-visible */
+    _TYPE_WAIF,			/* lightweight object; user-visible */
     /* add new elements here */
 
     TYPE_STR   = (_TYPE_STR   | TYPE_COMPLEX_FLAG),
     TYPE_LIST  = (_TYPE_LIST  | TYPE_COMPLEX_FLAG),
+    TYPE_WAIF  = (_TYPE_WAIF  | TYPE_COMPLEX_FLAG),
     TYPE_FLOAT = (_TYPE_FLOAT
 #if FLOATS_ARE_BOXED
 		  | TYPE_COMPLEX_FLAG
@@ -363,6 +365,33 @@ typedef enum {
 
 typedef struct Var Var;
 
+struct WaifPropdefs;
+
+/* Try to make struct Waif fit into 32 bytes with this mapsz.  These bytes
+ * are probably "free" (from a powers-of-two allocator) and we can use them
+ * to save lots of space.  With 64bit addresses I think the right value is 8.
+ * If checkpoints are unforked, save space for an index used while saving.
+ * Otherwise we can alias propdefs and clobber it in the child.
+ */
+#ifdef UNFORKED_CHECKPOINTS
+#define WAIF_MAPSZ	2
+#else
+#define WAIF_MAPSZ	3
+#endif
+
+typedef struct Waif {
+	Objid			class;
+	Objid			owner;
+	struct WaifPropdefs	*propdefs;
+	Var			*propvals;
+	unsigned long		map[WAIF_MAPSZ];
+#ifdef UNFORKED_CHECKPOINTS
+	unsigned long		waif_save_index;
+#else
+#define waif_save_index		map[0]
+#endif
+} Waif;
+
 struct Var {
     union {
 	const char *str;	/* STR */
@@ -371,6 +400,7 @@ struct Var {
 	enum error err;		/* ERR */
 	Var *list;		/* LIST */
 	FlBox fnum;		/* FLOAT */
+	Waif *waif;		/* WAIF */
     } v;
     var_type type;
 };
