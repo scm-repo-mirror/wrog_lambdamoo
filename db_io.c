@@ -324,7 +324,8 @@ dbio_read_var_value(intmax_t vtype, Var *vp)
 	    }
 	break;
     case _TYPE_WAIF:
-	r = read_waif();
+	if (!dbio_read_waif(vp))
+	    goto bad_value;
 	break;
     default:
 	dbio_last_error = "Unknown Var type";
@@ -687,7 +688,7 @@ dbio_write_var(Var v)
 	    dbio_write_var(v.v.list[i + 1]);
 	break;
     case TYPE_WAIF:
-	write_waif(v);
+	dbio_write_waif(v);
 	break;
     }
 }

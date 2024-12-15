@@ -114,8 +114,8 @@ extern void waif_before_saving(void);
 extern void waif_after_saving(void);
 extern void waif_before_loading(void);
 extern void waif_after_loading(void);
-extern void write_waif(Var);
-extern  Var read_waif(void);
+extern void dbio_write_waif(Var);
+extern  int dbio_read_waif(Var *);
 extern void free_waif_propdefs(WaifPropdefs *);
 extern void waif_rename_propdef(Object *, const char *, const char *);
 

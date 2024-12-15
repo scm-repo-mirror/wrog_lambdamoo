@@ -790,7 +790,7 @@ waif_before_saving(void)
 }
 
 void
-write_waif(Var v)
+dbio_write_waif(Var v)
 {
     Waif *w = v.v.waif;
     int index;
@@ -833,12 +833,12 @@ write_waif(Var v)
      * without ill effects.
      */
     len = w->propdefs ? w->propdefs->length : 0;
-    dbio_write_num(len);
+    dbio_write_intmax(len);
     val = w->propvals;
     for (i = 0; i < len; ++i) {
 	if ((i < N_MAPPABLE_PROPS) ? PROP_MAPPED(map, i) :
 	    val->type != TYPE_CLEAR) {
-	    dbio_printf("%d\n", i);
+	    dbio_write_intmax(i);
 	    /* Look out!  This could recurse someday.  That's
 	     * why the saved_waifs table has to be up-to-date
 	     * at this point so if we come back here we write
@@ -850,7 +850,7 @@ write_waif(Var v)
 	if (i >= N_MAPPABLE_PROPS || PROP_MAPPED(map, i))
 	    ++val;
     }
-    dbio_write_num(-1);	/* our terminator */
+    dbio_write_intmax(-1);	/* our terminator */
     dbio_printf(".\n");	/* XXX 1.9 terminator? */
 }
 
@@ -874,8 +874,8 @@ waif_before_loading(void)
     memset(saved_waifs, 0, size);
 }
 
-Var
-read_waif(void)
+int
+dbio_read_waif(Var *vp)
 {
     Var res;
     char ref;
@@ -887,17 +887,27 @@ read_waif(void)
     /* WAIFs are saved as _r_eferences or _c_reations.  The first
      * occurance in a db should be a C, subsequent ones R.
      */
-    dbio_scanf("%c %u\n", &ref, &index);
+    if (!dbio_scxnf("%c %u", &ref, &index)) {
+	errlog("READ_WAIF: Bad first line\n");
+	return 0;
+    }
     if (ref == 'r') {
-	(void) dbio_read_string();	/* XXX 1.9 terminator */
+	if (!dbio_scxnf(".")) {
+	    /* XXX 1.9 terminator */
+	    errlog("READ_WAIF: '.' expected on waif reference\n");
+	    return 0;
+	}
 	w = saved_waifs[index];
 	if (!w)
 	    panic("waif ref to unsaved waif!");
 
 	res.type = TYPE_WAIF;
 	res.v.waif = w;
-	return var_ref(res);
+	*vp = var_ref(res);
+	return 1;
     }
+    if (ref != 'c')
+	return 0;
 
     /* Extend the table by doubling its size if we've filled it.
      */
@@ -925,11 +935,13 @@ read_waif(void)
     res.v.waif = (Waif *) mymalloc(sizeof(Waif), M_WAIF);
     saved_waifs[waif_count++] = w = res.v.waif;
     res.v.waif->propdefs = NULL;
-    res.v.waif->class = dbio_read_objid();
-    res.v.waif->owner = dbio_read_objid();
     for (i = 0; i < WAIF_MAPSZ; ++i)
 	res.v.waif->map[i] = 0;
-    propdefs_length = dbio_read_num();
+
+    if (!(dbio_read_objid(&res.v.waif->class) &&
+	  dbio_read_objid(&res.v.waif->owner) &&
+	  dbio_read_int(&propdefs_length)))
+	return 0;
 
     /* Read propvals into the `packable' array until we run out of
      * mappable props, then allocate the finished value array and
@@ -937,8 +949,13 @@ read_waif(void)
      */
     cnt = 0;
     p = packable;
-    while ((cur = dbio_read_num()) < N_MAPPABLE_PROPS && cur > -1) {
-	*p++ = dbio_read_var();
+    for (;;) {
+	if (!dbio_read_int(&cur))
+	    return 0;
+	if (!(0 <= cur && cur < N_MAPPABLE_PROPS))
+	    break;
+	if (!dbio_read_var(p++))
+	    return 0;
 	MAP_PROP(w->map, cur);
 	cnt++;
     }
@@ -956,20 +973,26 @@ read_waif(void)
      */
     i = N_MAPPABLE_PROPS;
     /* q from above */
-    if (cur >= 0) do {
-	    /* clear out ones we didn't save */
-	    for (; i < cur; ++i, ++q)
-		q->type = TYPE_CLEAR;
-	    *q++ = dbio_read_var();
-	    ++i;
-	} while ((cur = dbio_read_num()) >= 0);
+    while (cur >= 0) {
+	/* clear out ones we didn't save */
+	for (; i < cur; ++i, ++q)
+	    q->type = TYPE_CLEAR;
+	if (!(dbio_read_var(q++) &&
+	      dbio_read_int(&cur)))
+	    return 0;
+	++i;
+    }
     /* clear out ones we didn't save */
     for (; i < propdefs_length; ++i, ++q)
 	q->type = TYPE_CLEAR;
 
-    (void) dbio_read_string();	/* XXX 1.9 terminator */
-
-    return res;
+    if (!dbio_scxnf(".")) {
+	/* XXX 1.9 terminator */
+	errlog("READ_WAIF: '.' expected on waif definition\n");
+	return 0;
+    }
+    *vp = res;
+    return 1;
 }
 
 void
