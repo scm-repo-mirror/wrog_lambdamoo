@@ -105,7 +105,7 @@ gen_waif_propdefs(Object *o)
 		++cnt;
 
     wpd = (WaifPropdefs *) mymalloc(sizeof(WaifPropdefs) +
-				    (cnt-1) * sizeof(Propdef), M_WAIF_XTRA);
+				    cnt * sizeof(Propdef), M_WAIF_XTRA);
     /* must free this after to avoid getting the same pointer! */
     free_waif_propdefs(o->waif_propdefs);
 

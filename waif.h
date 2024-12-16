@@ -181,7 +181,7 @@ struct Waif {
 struct WaifPropdefs {
     int		    refcount;
     int		    length;
-    struct Propdef  defs[1];
+    struct Propdef  defs[];
 };
 
 
