@@ -25,6 +25,8 @@
 #include "parse_cmd.h"
 #include "program.h"
 #include "structures.h"
+#include "waif.h"
+
 
 typedef struct {
     Program *prog;
@@ -46,11 +48,13 @@ typedef struct {
     void *bi_func_data;
     Var temp;			/* VM's temp register */
 
+    /* verb information */
+#ifdef WAIF_CORE
     /* waifs mean there can be other values for THIS, and we need a secure
      * way to store it so the verb can't spoof
      */
     Var THIS;
-    /* verb information */
+#endif
     Objid this;
     Objid player;
     Objid progr;
@@ -86,8 +90,8 @@ extern enum error call_verb(Objid obj, const char *vname, Var args,
 			    int do_pass);
 /* if your vname is already a moo str (via str_dup) then you can
    use this interface instead */
-extern enum error call_verb2(Objid obj, const char *vname,
-			     Var THIS,
+extern enum error call_verb2(Objid obj, const char *vname
+			     WAIF_COMMA_ARG(Var THIS),
 			     Var args, int do_pass);
 
 extern int setup_activ_for_eval(Program * prog);

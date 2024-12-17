@@ -24,6 +24,19 @@
 #include "config.h"
 #include "options.h"
 
+/* Stubs available regardless of WAIF support: */
+
+/* for call_verb2() */
+#ifdef WAIF_CORE
+#  define WAIF_COMMA_ARG(arg) ,arg
+#else
+#  define WAIF_COMMA_ARG(arg)
+#endif
+
+/* Begin actual WAIF support: */
+
+#ifdef WAIF_CORE
+
 #include "db_private.h"
 #include "structures.h"
 
@@ -194,5 +207,7 @@ extern void dbio_write_waif(Var);
 extern  int dbio_read_waif(Var *);
 extern void free_waif_propdefs(WaifPropdefs *);
 extern void waif_rename_propdef(Object *, const char *, const char *);
+
+#endif		/* WAIF_CORE */
 
 #endif		/* Waif_H */

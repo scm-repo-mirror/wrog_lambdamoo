@@ -44,8 +44,9 @@
 #include "timers.h"
 #include "utf.h"
 #include "utils.h"
-#include "waif.h"
 #include "version.h"
+#include "waif.h"
+
 
 /* the following globals are the guts of the virtual machine: */
 static activation *activ_stack = 0;
@@ -443,7 +444,12 @@ make_stack_list(activation * stack, int start, int end, int include_end,
 
 	if (include_end || i != end) {
 	    v = r.v.list[j++] = new_list(line_numbers_too ? 6 : 5);
+#ifdef WAIF_CORE
 	    v.v.list[1] = var_ref(stack[i].THIS);
+#else
+	    v.v.list[1].type = TYPE_OBJ;
+	    v.v.list[1].v.obj = stack[i].this;
+#endif
 	    v.v.list[2].type = TYPE_STR;
 	    v.v.list[2].v.str = str_ref(stack[i].verb);
 	    v.v.list[3].type = TYPE_OBJ;
@@ -579,7 +585,9 @@ free_activation(activation * ap, char data_too)
     for (i = ap->base_rt_stack; i < ap->top_rt_stack; i++)
 	free_var(*i);
     free_rt_stack(ap);
+#ifdef WAIF_CORE
     free_var(ap->THIS);
+#endif
     free_var(ap->temp);
     free_str(ap->verb);
     free_str(ap->verbname);
@@ -595,7 +603,9 @@ free_activation(activation * ap, char data_too)
 /** Set up another activation for calling a verb
   does not change the vm in case of any error **/
 
-enum error call_verb2(Objid this, const char *vname, Var THIS, Var args, int do_pass);
+enum error call_verb2(Objid this, const char *vname
+		      WAIF_COMMA_ARG(Var THIS),
+		      Var args, int do_pass);
 
 /*
  * Historical interface for things which want to call with vname not
@@ -606,8 +616,9 @@ call_verb(Objid this, const char *vname_in, Var args, int do_pass)
 {
     const char *vname = str_dup(vname_in);
     enum error result =
-	call_verb2(this, vname,
-		   (Var){ .type = TYPE_OBJ, .v.obj = this },
+	call_verb2(this, vname
+		   WAIF_COMMA_ARG(((Var){ .type = TYPE_OBJ,
+					  .v.obj = this })),
 		   args, do_pass);
 
     /* call_verb2 got any refs it wanted */
@@ -616,7 +627,9 @@ call_verb(Objid this, const char *vname_in, Var args, int do_pass)
 }
 
 enum error
-call_verb2(Objid this, const char *vname, Var THIS, Var args, int do_pass)
+call_verb2(Objid this, const char *vname
+	   WAIF_COMMA_ARG(Var THIS),
+	   Var args, int do_pass)
 {
     /* if call succeeds, args will be consumed.  If call fails, args
        will NOT be consumed  -- it must therefore be freed by caller */
@@ -654,7 +667,9 @@ call_verb2(Objid this, const char *vname, Var THIS, Var args, int do_pass)
     program = db_verb_program(h);
     RUN_ACTIV.prog = program_ref(program);
     RUN_ACTIV.this = this;
+#ifdef WAIF_CORE
     RUN_ACTIV.THIS = var_ref(THIS);
+#endif
     RUN_ACTIV.progr = db_verb_owner(h);
     RUN_ACTIV.vloc = db_verb_definer(h);
     RUN_ACTIV.verb = str_ref(vname);
@@ -671,8 +686,13 @@ call_verb2(Objid this, const char *vname, Var THIS, Var args, int do_pass)
 
     fill_in_rt_consts(env, program->version);
 
+#ifdef WAIF_CORE
     set_rt_env_var(env, SLOT_THIS, var_ref(THIS));
     set_rt_env_var(env, SLOT_CALLER, var_ref(CALLER_ACTIV.THIS));
+#else
+    set_rt_env_obj(env, SLOT_THIS, this);
+    set_rt_env_obj(env, SLOT_CALLER, CALLER_ACTIV.this);
+#endif
 
 #define ENV_COPY(slot) \
     set_rt_env_var(env, slot, var_ref(CALLER_ACTIV.rt_env[slot]))
@@ -694,10 +714,14 @@ call_verb2(Objid this, const char *vname, Var THIS, Var args, int do_pass)
 #undef ENV_COPY
 
     v.type = TYPE_STR;
+
+#ifdef WAIF_CORE
     if (vname[0] == WAIF_VERB_PREFIX)
 	v.v.str = str_dup(vname + 1);
     else
+#endif
 	v.v.str = str_ref(vname);
+
     set_rt_env_var(env, SLOT_VERB, v);	/* no var_dup */
     set_rt_env_var(env, SLOT_ARGS, args);	/* no var_dup */
 
@@ -1506,6 +1530,7 @@ do {								\
 
 		propname = POP();	/* should be string */
 		obj = POP();	/* should be objid */
+#ifdef WAIF_CORE
 		if (obj.type == TYPE_WAIF && propname.type == TYPE_STR) {
 		    enum error err;
 
@@ -1517,7 +1542,10 @@ do {								\
 			PUSH(prop);
 		    else
 			PUSH_ERROR(err);
-		} else if (propname.type != TYPE_STR || obj.type != TYPE_OBJ) {
+		}
+		else
+#endif  /* WAIF_CORE */
+		if (propname.type != TYPE_STR || obj.type != TYPE_OBJ) {
 		    free_var(propname);
 		    free_var(obj);
 		    PUSH_ERROR(E_TYPE);
@@ -1551,7 +1579,7 @@ do {								\
 
 		propname = TOP_RT_VALUE;
 		obj = NEXT_TOP_RT_VALUE;
-
+#ifdef WAIF_CORE
 		if (obj.type == TYPE_WAIF && propname.type == TYPE_STR) {
 		    enum error err;
 
@@ -1561,7 +1589,10 @@ do {								\
 			PUSH(prop);
 		    else
 			PUSH_ERROR(err);
-		} else if (propname.type != TYPE_STR || obj.type != TYPE_OBJ)
+		}
+		else
+#endif  /* WAIF_CORE */
+		if (propname.type != TYPE_STR || obj.type != TYPE_OBJ)
 		    PUSH_ERROR(E_TYPE);
 		else if (!valid(obj.v.obj))
 		    PUSH_ERROR(E_INVIND);
@@ -1590,7 +1621,7 @@ do {								\
 		rhs = POP();	/* any type */
 		propname = POP();	/* should be string */
 		obj = POP();	/* should be objid */
-
+#ifdef WAIF_CORE
 		if (obj.type == TYPE_WAIF && propname.type == TYPE_STR) {
 		    enum error err;
 
@@ -1604,7 +1635,10 @@ do {								\
 			free_var(rhs);
 			PUSH_ERROR(err);
 		    }
-		} else if (obj.type != TYPE_OBJ || propname.type != TYPE_STR) {
+		}
+		else
+#endif  /* WAIF_CORE */
+		if (obj.type != TYPE_OBJ || propname.type != TYPE_STR) {
 		    free_var(rhs);
 		    free_var(propname);
 		    free_var(obj);
@@ -1730,6 +1764,7 @@ do {								\
 
 		if (args.type != TYPE_LIST || verb.type != TYPE_STR)
 		    err = E_TYPE;
+#ifdef WAIF_CORE
 		else if (obj.type == TYPE_WAIF) {
 		    if (!valid(class = obj.v.waif->class))
 			goto op_call_verb_invalid_class;
@@ -1741,19 +1776,23 @@ do {								\
 		    verb.v.str = str;
 		    goto op_call_verb_do_call;
 		}
+#endif
 		else if (obj.type != TYPE_OBJ)
 		    err = E_TYPE;
+#ifdef WAIF_CORE
 		else if (verb.v.str[0] == WAIF_VERB_PREFIX)
 		    err = E_VERBNF;
-
-		else if (!valid(class = obj.v.obj))
-		op_call_verb_invalid_class:
+#endif
+		else if (!valid(class = obj.v.obj)) {
+		op_call_verb_invalid_class:  UNUSED_;
 		    err = E_INVIND;
+		}
 
 		else {
-		op_call_verb_do_call:
+		op_call_verb_do_call:  UNUSED_;
 		    STORE_STATE_VARIABLES();
-		    err = call_verb2(class, verb.v.str, obj,
+		    err = call_verb2(class, verb.v.str
+				     WAIF_COMMA_ARG(obj),
 				     args, 0/* not pass */);
 		    /* args is consumed iff err==E_NONE */
 		    LOAD_STATE_VARIABLES();
@@ -2574,8 +2613,10 @@ do_server_program_task(Objid this, const char *verb, Var args, Objid vloc,
 
     RUN_ACTIV.rt_env = env = new_rt_env(program->num_var_names);
     RUN_ACTIV.this = this;
+#ifdef WAIF_CORE
     RUN_ACTIV.THIS.type = TYPE_OBJ;
     RUN_ACTIV.THIS.v.obj = this;
+#endif
     RUN_ACTIV.player = player;
     RUN_ACTIV.progr = progr;
     RUN_ACTIV.vloc = vloc;
@@ -2609,8 +2650,10 @@ do_input_task(Objid user, Parsed_Command * pc, Objid this, db_verb_handle vh)
 
     RUN_ACTIV.rt_env = env = new_rt_env(prog->num_var_names);
     RUN_ACTIV.this = this;
+#ifdef WAIF_CORE
     RUN_ACTIV.THIS.type = TYPE_OBJ;
     RUN_ACTIV.THIS.v.obj = this;
+#endif
     RUN_ACTIV.player = user;
     RUN_ACTIV.progr = db_verb_owner(vh);
     RUN_ACTIV.vloc = db_verb_definer(vh);
@@ -2671,8 +2714,10 @@ setup_activ_for_eval(Program * prog)
     set_rt_env_var(env, SLOT_ARGS, new_list(0));
 
     RUN_ACTIV.this = NOTHING;
+#ifdef WAIF_CORE
     RUN_ACTIV.THIS.type = TYPE_OBJ;
     RUN_ACTIV.THIS.v.obj = NOTHING;
+#endif
     RUN_ACTIV.player = CALLER_ACTIV.player;
     RUN_ACTIV.progr = CALLER_ACTIV.progr;
     RUN_ACTIV.vloc = NOTHING;
@@ -2861,9 +2906,10 @@ bf_ticks_left(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr U
 static package
 bf_pass(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
-    enum error e = call_verb2(RUN_ACTIV.this, RUN_ACTIV.verb,
-			      RUN_ACTIV.THIS,
+    enum error e = call_verb2(RUN_ACTIV.this, RUN_ACTIV.verb
+			      WAIF_COMMA_ARG(RUN_ACTIV.THIS),
 			      arglist, 1/* pass */);
+
     if (e == E_NONE)
 	return tail_call_pack();
 
@@ -2964,7 +3010,11 @@ register_execute(void)
 void
 write_activ_as_pi(activation a)
 {
+#ifdef WAIF_CORE
     dbio_write_var(a.THIS);
+#else
+    dbio_write_var((Var){ .type=TYPE_INT, .v.num=-111 }/*dummy*/);
+#endif
 
     dbio_printf("%"PRIdN" -7 -8 %"PRIdN" -9 %"PRIdN" %"PRIdN" -10 %d\n",
 		a.this, a.player, a.progr, a.vloc, a.debug);
@@ -2980,7 +3030,6 @@ int
 read_activ_as_pi(activation * a)
 {
     Var T;
-
     if (!dbio_read_var(&T))
 	return 0;
 
@@ -2990,6 +3039,7 @@ read_activ_as_pi(activation * a)
 	return 0;
     }
 
+#ifdef WAIF_CORE
     switch (T.type) {
     case TYPE_WAIF:
     case TYPE_OBJ:
@@ -3000,6 +3050,9 @@ read_activ_as_pi(activation * a)
 	break;
     }
     a->THIS = T;
+#else
+    free_var(T);
+#endif
 
     return
 	dbio_skip_lines(4, "READ_A") &&

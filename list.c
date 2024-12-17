@@ -42,6 +42,7 @@
 #include "utils.h"
 #include "waif.h"
 
+
 Var
 new_list(int size)
 {
@@ -258,9 +259,13 @@ stream_add_tostr(Stream * s, Var v)
     case TYPE_LIST:
 	stream_add_string(s, "{list}");
 	break;
+
+#ifdef WAIF_CORE
     case TYPE_WAIF:
 	stream_add_string(s, "{waif}");
 	break;
+#endif
+
     default:
 	panic("STREAM_ADD_TOSTR: Unknown Var type");
     }
@@ -327,10 +332,14 @@ unparse_value(Stream * s, Var v)
 	    stream_add_char(s, '}');
 	}
 	break;
+
+#ifdef WAIF_CORE
     case TYPE_WAIF:
 	stream_printf(s, "[[class = #%"PRIdN", owner = #%"PRIdN"]]",
 		v.v.waif->class, v.v.waif->owner);
 	break;
+#endif
+
     default:
 	errlog("UNPARSE_VALUE: Unknown Var type = %d\n", v.type);
 	stream_add_string(s, ">>Unknown value<<");

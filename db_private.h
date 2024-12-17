@@ -80,7 +80,10 @@ typedef struct Object {
     Proplist propdefs;
     Pval *propval;
 
+#ifdef WAIF_CORE
     struct WaifPropdefs *waif_propdefs;
+#endif
+
 } Object;
 #define BQM_DESCRIBE_Object(B,F,V,X)   ((2 * F) + (13 * V))
 
