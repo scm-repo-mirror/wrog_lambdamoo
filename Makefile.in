@@ -26,7 +26,7 @@ COMPILE.c = $(CC) $(CFLAGS) $(CPPFLAGS) -c
 
 CSRCS = ast.c code_gen.c db_file.c db_io.c db_objects.c db_properties.c \
 	db_tune.c db_verbs.c decompile.c disassemble.c eval_env.c \
-	eval_vm.c exceptions.c execute.c extensions.c functions.c keywords.c \
+	eval_vm.c exceptions.c execute.c experiments.c functions.c keywords.c \
 	list.c log.c malloc.c match.c md5.c name_lookup.c network.c net_mplex.c \
 	net_proto.c numbers.c objects.c parse_cmd.c pattern.c program.c \
 	property.c quota.c ref_count.c server.c storage.c \
@@ -385,7 +385,7 @@ execute.o: execute.c my-string.h config.h db.h program.h structures.h \
   exceptions.h functions.h list.h log.h numbers.h server.h network.h \
   storage.h ref_count.h streams.h tasks.h timers.h my-time.h utf.h \
   utils.h
-extensions.o: extensions.c bf_register.h functions.h my-stdio.h config.h \
+experiments.o: experiments.c bf_register.h functions.h my-stdio.h config.h \
   execute.h db.h program.h structures.h version.h opcode.h options.h \
   parse_cmd.h db_tune.h utils.h
 functions.o: functions.c my-stdarg.h config.h bf_register.h db_io.h \
