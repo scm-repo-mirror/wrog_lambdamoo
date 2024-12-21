@@ -31,7 +31,7 @@ COMPILE.c = $(CC) $(CFLAGS) $(CPPFLAGS) -c
 
 CSRCS = ast.c code_gen.c db_file.c db_io.c db_objects.c db_properties.c \
 	db_tune.c db_verbs.c decompile.c disassemble.c eval_env.c \
-	eval_vm.c exceptions.c execute.c extensions.c functions.c keywords.c \
+	eval_vm.c exceptions.c execute.c experiments.c functions.c keywords.c \
 	list.c log.c malloc.c match.c md5.c name_lookup.c network.c net_mplex.c \
 	net_proto.c numbers.c objects.c parse_cmd.c pattern.c program.c \
 	property.c quota.c ref_count.c regexpr.c server.c storage.c \
@@ -335,13 +335,14 @@ eval_vm.o: eval_vm.c config.h db_io.h program.h structures.h \
  ref_count.h tasks.h
 exceptions.o: exceptions.c exceptions.h config.h
 execute.o: execute.c my-string.h config.h db.h program.h structures.h \
- my-stdio.h version.h db_io.h decompile.h ast.h parser.h sym_table.h \
- eval_env.h eval_vm.h execute.h opcode.h options.h parse_cmd.h \
- exceptions.h functions.h list.h log.h numbers.h server.h network.h \
- storage.h ref_count.h streams.h tasks.h timers.h my-time.h utils.h
-extensions.o: extensions.c bf_register.h functions.h my-stdio.h \
- config.h execute.h db.h program.h structures.h version.h opcode.h \
- options.h parse_cmd.h db_tune.h utils.h
+  my-stdio.h version.h db_io.h decompile.h ast.h parser.h sym_table.h \
+  eval_env.h eval_vm.h execute.h opcode.h options.h parse_cmd.h \
+  exceptions.h functions.h list.h log.h numbers.h server.h network.h \
+  storage.h ref_count.h streams.h tasks.h timers.h my-time.h utf.h \
+  utils.h
+experiments.o: experiments.c bf_register.h functions.h my-stdio.h config.h \
+  execute.h db.h program.h structures.h version.h opcode.h options.h \
+  parse_cmd.h db_tune.h utils.h
 functions.o: functions.c my-stdarg.h config.h bf_register.h db_io.h \
  program.h structures.h my-stdio.h version.h functions.h execute.h \
  db.h opcode.h options.h parse_cmd.h list.h log.h server.h network.h \

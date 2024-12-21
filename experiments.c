@@ -15,19 +15,33 @@
     Pavel@Xerox.Com
  *****************************************************************************/
 
-/* Extensions to the MOO server
+/* Experimenting
 
- * This module contains some examples of how to extend the MOO server using
- * some of the interfaces exported by various other modules.  The examples are
- * all commented out, since they're really not all that useful in general; they
- * were written primarily to test out the interfaces they use.
+ * This module contains an example of how to add functionality to the
+ * MOO server using interfaces exported by various other modules.  The
+ * example itself is commented out, since it's really not all that
+ * useful in general; it was written primarily to test out the
+ * interfaces it uses.
  *
- * The uncommented parts of this module provide a skeleton for any module that
- * implements new MOO built-in functions.  Feel free to replace the
- * commented-out bits with your own extensions; in future releases, you can
- * just replace the distributed version of this file (which will never contain
- * any actually useful code) with your own edited version as a simple way to
- * link in your extensions.
+ * The uncommented parts of this module provide one possible skeleton
+ * for a module that implements new MOO built-in functions.  Replacing
+ * the commented-out parts is a quick way to try out your own function
+ * definitions.  In future releases, this file will be kept as a
+ * convenient place to experiment with new server functionality; it
+ * will not contain any live code that the server actually depends on,
+ * or, rather, nothing beyond the register_experiments() function with
+ * its #ifdef-ed out body that *does*, in fact, get called on every
+ * server startup even though it does nothing by default (i.e.,
+ * assuming you leave it unmodified).
+ *
+ * (note: This file *was* originally named extensions.c, but has since
+ *  been renamed to better reflect its role as a playground now that
+ *  (25 years later) there is a somewhat more developed extension
+ *  framework and with more thought put into how extensions should be
+ *  defined, behave, and interact with each other in the server
+ *  context.  See extensions.txt for what you need to know once you
+ *  are ready to migrate code *out* of this file and into an actual
+ *  extension.)
  */
 
 #define EXAMPLE 0
@@ -139,7 +153,7 @@ bf_read_stdin(Var arglist, Byte next, void *vdata, Objid progr)
 #endif				/* EXAMPLE */
 
 void
-register_extensions()
+register_experiments(void)
 {
 #if EXAMPLE
     register_task_queue(stdin_enumerator);
