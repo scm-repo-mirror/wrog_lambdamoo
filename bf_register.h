@@ -17,7 +17,6 @@
 
 extern void register_db_tune(void);
 extern void register_disassemble(void);
-extern void register_extensions(void);
 extern void register_execute(void);
 extern void register_functions(void);
 extern void register_list(void);
@@ -28,6 +27,8 @@ extern void register_property(void);
 extern void register_server(void);
 extern void register_tasks(void);
 extern void register_verbs(void);
+
+extern void register_experiments(void);
 
 /*
  * $Log$
