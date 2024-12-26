@@ -307,9 +307,9 @@
 /* #define USE_GNU_MALLOC */
 
 /******************************************************************************
- * DEFAULT_MAX_LIST_CONCAT,   if set to a postive value, is the length
+ * DEFAULT_MAX_LIST_CONCAT,   if set to a positive value, is the length
  *                            of the largest constructible list.
- * DEFAULT_MAX_STRING_CONCAT, if set to a postive value, is the length
+ * DEFAULT_MAX_STRING_CONCAT, if set to a positive value, is the length
  *                            of the largest constructible string.
  * Limits on "constructible" values apply to values built by concatenation,
  * splicing, subrange assignment and various builtin functions.
