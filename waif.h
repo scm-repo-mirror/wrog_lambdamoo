@@ -177,6 +177,7 @@ struct Waif {
 	waif_count_type save_index;
     } u;
 };
+#define BQM_DESCRIBE_Waif(B,F,V,X)     (7 * V)
 
 
 #ifdef SHORT_ALPHA_VAR_POINTERS

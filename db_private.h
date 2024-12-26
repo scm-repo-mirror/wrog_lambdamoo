@@ -85,7 +85,7 @@ typedef struct Object {
 #endif
 
 } Object;
-#define BQM_DESCRIBE_Object(B,F,V,X)   ((2 * F) + (13 * V))
+#define BQM_DESCRIBE_Object(B,F,V,X)   ((2 * F) + (13 * V) + X(WAIF_CORE,V))
 
 /*********** Verb cache support ***********/
 

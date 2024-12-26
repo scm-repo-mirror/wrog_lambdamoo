@@ -63,7 +63,7 @@ typedef struct {
     const char *verbname;
     int debug;
 } activation;
-#define BQM_DESCRIBE_activation(B,F,V,X)   ((4 * F) + (14 * V))
+#define BQM_DESCRIBE_activation(B,F,V,X)   ((4 * F) + (14 * V) + X(WAIF_CORE, B(Var)))
 
 extern void free_activation(activation *, char data_too);
 

@@ -227,9 +227,18 @@ useful for anything other than quick experiments.)
  *
  * Authors of extensions that affect structure sizes are expected to
  * provide their own adjustment options to amend the fixed-size models.
+ * Hence, the waifs extension gives us
+ *
+ *  - BQM_INCLUDES_WAIFS
+ *          governs how the fixed-size models count waif-related slots:
+ *          #defined 1 forces including them (even on a non-waif server),
+ *          #undef forces ignoring them (even on a waif server), and
+ *          OPTION_DEFAULT includes them when and only when the waif
+ *          extension is enabled.
  */
 
 #undef BQM_BOXED_FLOATS
+#undef BQM_INCLUDES_WAIFS
 
 /******************************************************************************
  * The server is prepared to keep a log of every command entered by players
