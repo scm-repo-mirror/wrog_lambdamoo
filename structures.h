@@ -298,6 +298,11 @@ inline Num num_from_task_id(TaskID t) { return (Num)(uintmax_t)(void *)t; }
  * (up to "add new elements here"), since the order here defines the
  * numeric equivalents of the type values, and those equivalents are both
  * DB-accessible knowledge and stored in raw form in the DB.
+ *
+ * Extension types not used in the base server/language should remain
+ * visible here as placeholders in order that extensions can agree
+ * on who uses which type numbers and thus can play well together
+ * (in case you're wondering why TYPE_WAIF is not #ifdef'ed out).
  */
 typedef enum {
     TYPE_INT, TYPE_OBJ, _TYPE_STR, TYPE_ERR, _TYPE_LIST, /* user-visible */

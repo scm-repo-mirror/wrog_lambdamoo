@@ -35,16 +35,16 @@
 #include "structures.h"
 #include "utils.h"
 
-static unsigned long waif_count = 0;
+static waif_count_type waif_count = 0;
 
 #define PROP_MAPPED(Mmap, Mbit)	((Mmap)[(Mbit) / 32] & (1 << ((Mbit) % 32)))
 #define MAP_PROP(Mmap, Mbit) (Mmap)[(Mbit) / 32] |= 1 << ((Mbit) % 32)
 #define N_MAPPABLE_PROPS (WAIF_MAPSZ * 32)
 
 static int
-count_set_bits(unsigned long x)
+count_set_bits(uint32_t x)
 {
-    register unsigned long i = x;	/* take no chances! */
+    register uint32_t i = x;	/* take no chances! */
 
     /* clever trick for adding bits together in parallel to count them */
     i = ((i & 0xAAAAAAAA) >> 1) + (i & ~0xAAAAAAAA);
@@ -192,7 +192,7 @@ count_waif_propvals(Waif *w)
     if (i < 0)
 	i = 0;
     for (j = 0; j < WAIF_MAPSZ; ++j)
-	i += count_set_bits(w->map[j]);
+	i += count_set_bits(w->u.pmap[j]);
     return i;
 }
 
@@ -264,7 +264,7 @@ new_waif(Objid class, Objid owner)
 	gen_waif_propdefs(classp);
     res.v.waif->propdefs = ref_waif_propdefs(classp->waif_propdefs);
     for (i = 0; i < WAIF_MAPSZ; ++i)
-	res.v.waif->map[i] = 0;
+	res.v.waif->u.pmap[i] = 0;
     res.v.waif->propvals = alloc_waif_propvals(res.v.waif, 1);
     ++waif_count;
 
@@ -298,16 +298,16 @@ find_propval_offset(Waif *w, const char *name, int *pidx)
      * is of limited size, if there are more properties than will fit in
      * the map, the rest are always represented, even if they are clear.
      * If you make a WAIF class with more than N_MAPPABLE_PROPS (currently
-     * 96) properties then empty waifs will just be bigger.
+     * at least 160) properties then empty waifs will just be bigger.
      */
     if (i >= N_MAPPABLE_PROPS) {
 	/* count all of the map words to find the start of the
 	 * unmappable propvals which are always allocated.
 	 */
 	for (idx = j = 0; j < WAIF_MAPSZ; ++j)
-	    idx += count_set_bits(w->map[j]);
+	    idx += count_set_bits(w->u.pmap[j]);
 	return i - N_MAPPABLE_PROPS + idx;
-    } else if (!PROP_MAPPED(w->map, i)) {
+    } else if (!PROP_MAPPED(w->u.pmap, i)) {
 	/* property unmapped, so it's clear */
 	return -1;
     } else {
@@ -315,11 +315,11 @@ find_propval_offset(Waif *w, const char *name, int *pidx)
 	 * word to the right of the bit we found
 	 */
 	for (idx = j = 0; j < i / 32; ++j)
-	    idx += count_set_bits(w->map[j]);
+	    idx += count_set_bits(w->u.pmap[j]);
 	if (i % 32 != 0) {
-	    unsigned long mask = ~0U;
+	    uint32_t mask = -1;
 	    mask >>= 32 - i % 32;
-	    idx += count_set_bits(w->map[j] & mask);
+	    idx += count_set_bits(w->u.pmap[j] & mask);
 	}
 	return idx;
     }
@@ -336,16 +336,16 @@ alloc_propval_offset(Waif *w, int idx)
     int i;
 
     /* assert(idx < N_MAPPABLE_PROPS) */
-    if (PROP_MAPPED(w->map, idx))
+    if (PROP_MAPPED(w->u.pmap, idx))
 	panic("alloc_propval_offset for already allocated idx");
-    MAP_PROP(w->map, idx);
+    MAP_PROP(w->u.pmap, idx);
 
     newpv = alloc_waif_propvals(w, 0);
 
     old = w->propvals;
     new = newpv;
     for (i = 0; i < N_MAPPABLE_PROPS; ++i)
-	if (PROP_MAPPED(w->map, i)) {
+	if (PROP_MAPPED(w->u.pmap, i)) {
 	    if (i == idx) {
 		new->type = TYPE_CLEAR;
 		result = new - newpv;
@@ -469,7 +469,7 @@ update_waif_propdefs(Waif *waif)
 	    int idx = a - old->defs;
 
 	    if (idx >= N_MAPPABLE_PROPS ||
-		PROP_MAPPED(waif->map, idx))
+		PROP_MAPPED(waif->u.pmap, idx))
 		*xp = *ov++;
 	    ++xp; ++a; ++b;
 	    continue;
@@ -490,7 +490,7 @@ update_waif_propdefs(Waif *waif)
 	     */
 	    for (i = a - old->defs; a < tmp; ++a, ++i) {
 		if (i >= N_MAPPABLE_PROPS ||
-		    PROP_MAPPED(waif->map, i))
+		    PROP_MAPPED(waif->u.pmap, i))
 		    free_var(*ov++);
 	    }
 	    /* now a and b match.  continue and let the next
@@ -510,7 +510,7 @@ update_waif_propdefs(Waif *waif)
 	 * free those values, if any.
 	 */
 	if (i >= N_MAPPABLE_PROPS ||
-	    PROP_MAPPED(waif->map, i))
+	    PROP_MAPPED(waif->u.pmap, i))
 	    free_var(*ov++);
     }
 
@@ -519,10 +519,10 @@ update_waif_propdefs(Waif *waif)
      * propvals, allocate the new space and pack them down.
      */
     for (i = 0; i < WAIF_MAPSZ; ++i)
-	waif->map[i] = 0U;
+	waif->u.pmap[i] = 0U;
     for (i = 0; i < cnt && i < N_MAPPABLE_PROPS; ++i)
 	if (xfer[i].type != TYPE_CLEAR)
-	    MAP_PROP(waif->map, i);
+	    MAP_PROP(waif->u.pmap, i);
 
     if (waif->propvals)
 	myfree(waif->propvals, M_WAIF_XTRA);
@@ -777,14 +777,12 @@ waif_bytes(Waif *w)
 }
 
 static Waif **saved_waifs;
-static unsigned long n_saved_waifs;
+static waif_count_type n_saved_waifs;
 
 static void
 waif_before_saving(void)
 {
-    int size;
-
-    size = sizeof(Waif *) * waif_count;
+    size_t size = sizeof(Waif *) * waif_count;
     saved_waifs = (Waif **) mymalloc(size, M_WAIF_XTRA);
     memset(saved_waifs, 0, size);
     n_saved_waifs = 0;
@@ -794,18 +792,18 @@ void
 dbio_write_waif(Var v)
 {
     Waif *w = v.v.waif;
-    int index;
+    waif_count_type index;
     int i, len;
-    unsigned long map[WAIF_MAPSZ];
+    uint32_t map[WAIF_MAPSZ];
     Var *val;
 
     /* doesn't matter if it's a random number, because then the reverse
      * mapping will be wrong and we'll just ignore the index.
      */
-    index = w->waif_save_index;
+    index = w->u.save_index;
     if (index < waif_count && saved_waifs[index] == w) {
 	/* just refer to an old one */
-	dbio_printf("r %d\n.\n", index);	/* XXX 1.9 terminator*/
+	dbio_printf("r %"PRIuWCT"\n.\n", index);	/* XXX 1.9 terminator*/
 	return;
     }
 
@@ -819,13 +817,13 @@ dbio_write_waif(Var v)
      * clobber it before saving to stash the index).  Then allocate a
      * table index for this waif and record it.
      */
-    memcpy(map, w->map, sizeof(map));
-    w->waif_save_index = index = n_saved_waifs++;
+    memcpy(map, w->u.pmap, sizeof(map));
+    w->u.save_index = index = n_saved_waifs++;
     saved_waifs[index] = w;
 
     /* actually write this one!
      */
-    dbio_printf("c %d\n", index);
+    dbio_printf("c %"PRIuWCT"\n", index);
     dbio_write_objid(w->class);
     dbio_write_objid(w->owner);
 
@@ -880,15 +878,15 @@ dbio_read_waif(Var *vp)
 {
     Var res;
     char ref;
-    unsigned int index;
+    waif_count_type index;
     Waif *w;
     Var packable[N_MAPPABLE_PROPS], *p, *q;
-    int i, cnt, size, cur, propdefs_length;
+    int i, cnt, cur, propdefs_length;
 
     /* WAIFs are saved as _r_eferences or _c_reations.  The first
      * occurance in a db should be a C, subsequent ones R.
      */
-    if (!dbio_scxnf("%c %u", &ref, &index)) {
+    if (!dbio_scxnf("%c %"SCNuWCT, &ref, &index)) {
 	errlog("READ_WAIF: Bad first line\n");
 	return 0;
     }
@@ -913,7 +911,7 @@ dbio_read_waif(Var *vp)
     /* Extend the table by doubling its size if we've filled it.
      */
     if (waif_count == n_saved_waifs) {
-	int size;
+	size_t size;
 
 	n_saved_waifs *= 2;
 	size = sizeof(Waif *) * n_saved_waifs;
@@ -937,7 +935,7 @@ dbio_read_waif(Var *vp)
     saved_waifs[waif_count++] = w = res.v.waif;
     res.v.waif->propdefs = NULL;
     for (i = 0; i < WAIF_MAPSZ; ++i)
-	res.v.waif->map[i] = 0;
+	res.v.waif->u.pmap[i] = 0;
 
     if (!(dbio_read_objid(&res.v.waif->class) &&
 	  dbio_read_objid(&res.v.waif->owner) &&
@@ -957,10 +955,10 @@ dbio_read_waif(Var *vp)
 	    break;
 	if (!dbio_read_var(p++))
 	    return 0;
-	MAP_PROP(w->map, cur);
+	MAP_PROP(w->u.pmap, cur);
 	cnt++;
     }
-    size = cnt;
+    size_t size = cnt;
     if (propdefs_length > N_MAPPABLE_PROPS)
 	size += propdefs_length - N_MAPPABLE_PROPS;
     w->propvals = (Var *)mymalloc(size * sizeof(Var), M_WAIF_XTRA);
@@ -999,7 +997,7 @@ dbio_read_waif(Var *vp)
 static void
 waif_after_loading(int success)
 {
-    int i;
+    waif_count_type i;
 
     if (!success)
 	goto cleanup;

@@ -40,6 +40,7 @@
 #include "utf.h"
 #include "utf-ctype.h"
 #include "utils.h"
+#include "waif.h"
 
 Var
 new_list(int size)
