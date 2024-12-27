@@ -1050,47 +1050,33 @@ do {								\
 		/** list[index] = value **/
 #ifdef WAIF_DICT
 		if (list.type == TYPE_WAIF) {
-		    Objid class;
-		    Var args;
-		    enum error err = E_NONE;
-
-		    args = new_list(2);
+		    Var args = new_list(2);
 		    args.v.list[1] = var_ref(index);
 		    args.v.list[2] = var_ref(value);
 
-		    class = list.v.waif->class;
-		    if (!valid(class)) {
-			err = E_INVIND;
-		    } else if (!is_wizard(db_object_owner(class))) {
-			err = E_TYPE;
-		    } else {
+		    Objid class = list.v.waif->class;
+		    if (!valid(class))
+			e = E_INVIND;
+		    else if (!is_wizard(db_object_owner(class)))
+			e = E_TYPE;
+		    else {
 			STORE_STATE_VARIABLES();
-			err = call_verb2(class, waif_indexset_verb, list, args, 0);
-			if (err == E_VERBNF) {
-			    err = E_TYPE;
+			e = call_verb2(class, waif_indexset_verb,
+				       list, args, 0/* not pass */);
+			if (e == E_VERBNF) {
+			    e = E_TYPE;
 			}
 			LOAD_STATE_VARIABLES();
 		    }
-		    free_var(index);
-		    free_var(value);
-		    free_var(list);
-		    if (err != E_NONE) {
+		    if (e != E_NONE)
 			free_var(args);
-			PUSH_ERROR(err);
+		    else {
+			free_var(value);
+			free_var(list);
 		    }
-/*** undo what context now does that it did not in the prior universe ***/
-/*** BEGIN time-reversed code ***/
-		    e = err;
-		    {
-			UNDO_PUSH_ERROR(e);
-			undo_free_var(list);
-			undo_free_var(value);
-		    } if (e != E_NONE)
-		    undo_free_var(index);
-/*** END time-reversed code ***/
 		}
 		else
-#endif				/* WAIF_DICT */
+#endif  /* WAIF_DICT */
 		if (index.type != TYPE_INT || !list_or_string(list))
 		    e = E_TYPE;
 		else if (index.v.num < 1)
@@ -1387,44 +1373,29 @@ do {								\
 		/** list[index] **/
 #ifdef WAIF_DICT
 		if (list.type == TYPE_WAIF) {
-		    Objid class;
-		    Var args;
-		    enum error err = E_NONE;
-
-		    args = new_list(1);
+		    Var args = new_list(1);
 		    args.v.list[1] = var_ref(index);
 
-		    class = list.v.waif->class;
-		    if (!valid(class)) {
-			err = E_INVIND;
-		    } else if (!is_wizard(db_object_owner(class))) {
-			err = E_TYPE;
-		    } else {
+		    Objid class = list.v.waif->class;
+		    if (!valid(class))
+			e = E_INVIND;
+		    else if (!is_wizard(db_object_owner(class)))
+			e = E_TYPE;
+		    else {
 			STORE_STATE_VARIABLES();
-			err = call_verb2(class, waif_index_verb, list, args, 0);
-			if (err == E_VERBNF) {
-			    err = E_TYPE;
-			}
+			e = call_verb2(class, waif_index_verb,
+				       list, args, 0/* not pass */);
+			if (e == E_VERBNF)
+			    e = E_TYPE;
 			LOAD_STATE_VARIABLES();
 		    }
-		    free_var(index);
-		    free_var(list);
-		    if (err != E_NONE) {
+		    if (e != E_NONE)
 			free_var(args);
-			PUSH_ERROR(err);
-		    }
-/*** undo what context now does that it did not in the prior universe ***/
-/*** BEGIN time-reversed code ***/
-		    e = err;
-		    {
-			UNDO_PUSH_ERROR(e);
-			undo_free_var(list);
-		    } if (e != E_NONE)
-		    undo_free_var(index);
-/*** END time-reversed code ***/
+		    else
+			free_var(list);
 		}
 		else
-#endif				/* WAIF_DICT */
+#endif  /* WAIF_DICT */
 		if (index.type != TYPE_INT || !list_or_string(list))
 		    e = E_TYPE;
 		else if (index.v.num < 1)
@@ -1752,50 +1723,45 @@ do {								\
 	case OP_CALL_VERB:
 	    {
 		enum error err = E_NONE;
-		Var args, verb, obj;
+		Var args = POP();	/* args, should be list */
+		Var verb = POP();	/* verbname, should be string */
+		Var obj  = POP();	/* objid, should be obj */
 		Objid class;
 
-		args = POP();	/* args, should be list */
-		verb = POP();	/* verbname, should be string */
-		obj = POP();	/* objid, should be obj */
-
-		if (verb.type != TYPE_STR || args.type != TYPE_LIST) {
+		if (args.type != TYPE_LIST || verb.type != TYPE_STR)
 		    err = E_TYPE;
-		    class = NOTHING;	/* shut up gcc */
-		} else if (obj.type == TYPE_WAIF) {
-		    char *str = mymalloc(strlen(verb.v.str) + 2, M_STRING);
+		else if (obj.type == TYPE_WAIF) {
+		    if (!valid(class = obj.v.waif->class))
+			goto op_call_verb_invalid_class;
 
-		    class = obj.v.waif->class;
+		    char *str = mymalloc(strlen(verb.v.str) + 2, M_STRING);
 		    str[0] = WAIF_VERB_PREFIX;
 		    strcpy(str + 1, verb.v.str);
 		    free_str(verb.v.str);
 		    verb.v.str = str;
-		} else if (obj.type == TYPE_OBJ) {
-		    class = obj.v.obj;
-		    if (verb.v.str[0] == WAIF_VERB_PREFIX)
-			err = E_VERBNF;
-		} else {
-		    err = E_TYPE;
-		    class = NOTHING;	/* shut up gcc */
+		    goto op_call_verb_do_call;
 		}
+		else if (obj.type != TYPE_OBJ)
+		    err = E_TYPE;
+		else if (verb.v.str[0] == WAIF_VERB_PREFIX)
+		    err = E_VERBNF;
 
-		if (err == E_NONE && !valid(class))
+		else if (!valid(class = obj.v.obj))
+		op_call_verb_invalid_class:
 		    err = E_INVIND;
 
-		if (err == E_NONE) {
+		else {
+		op_call_verb_do_call:
 		    STORE_STATE_VARIABLES();
-		    err = call_verb2(class, verb.v.str, obj, args, 0);
-		    /* if there is no error, RUN_ACTIV is now the CALLEE's.
-		       args will be consumed in the new rt_env */
-		    /* if there is an error, then RUN_ACTIV is unchanged, and
-		       args is not consumed in this case */
+		    err = call_verb2(class, verb.v.str, obj,
+				     args, 0/* not pass */);
+		    /* args is consumed iff err==E_NONE */
 		    LOAD_STATE_VARIABLES();
 		}
 		free_var(obj);
 		free_var(verb);
 
-		if (err != E_NONE) {	/* there is an error, RUN_ACTIV unchanged,
-					   args must be freed */
+		if (err != E_NONE) {
 		    free_var(args);
 		    PUSH_ERROR(err);
 		}

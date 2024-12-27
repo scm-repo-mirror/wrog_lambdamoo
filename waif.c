@@ -17,18 +17,22 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "structures.h"
+
+#include "waif.h"
 #include "bf_register.h"
+
 #include "config.h"
+
+#include "my-string.h"
+
+#include "db_private.h"
+#include "db_io.h"
 #include "exceptions.h"
 #include "functions.h"
 #include "storage.h"
 #include "streams.h"
+#include "structures.h"
 #include "utils.h"
-#include "db_private.h"
-#include "db_io.h"
-#include "waif.h"
-#include "my-string.h"
 
 static unsigned long waif_count = 0;
 
@@ -240,7 +244,7 @@ refers_to(Var target, Var key)
     return 0;
 }
 
-Var
+static Var
 new_waif(Objid class, Objid owner)
 {
     Object *classp;
@@ -562,19 +566,13 @@ dup_waif(Waif *waif)
 }
 
 static package
-bf_new_waif(Var arglist, Byte next, void *vdata, Objid progr)
+bf_new_waif(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr)
 {
     free_var(arglist);
 
     if (!valid(caller()))
 	return make_error_pack(E_INVIND);
     return make_var_pack(new_waif(caller(), progr));
-}
-
-void
-register_waif()
-{
-    register_function("new_waif", 0, 0, bf_new_waif);
 }
 
 /* Waif proprety permissions are derived from the class object's property
@@ -781,7 +779,7 @@ static Waif **saved_waifs;
 static unsigned long n_saved_waifs;
 
 void
-waif_before_saving()
+waif_before_saving(void)
 {
     int size;
 
@@ -857,7 +855,7 @@ write_waif(Var v)
 }
 
 void
-waif_after_saving()
+waif_after_saving(void)
 {
     myfree(saved_waifs, M_WAIF_XTRA);
     if (n_saved_waifs != waif_count)
@@ -865,7 +863,7 @@ waif_after_saving()
 }
 
 void
-waif_before_loading()
+waif_before_loading(void)
 {
     int size;
 
@@ -877,7 +875,7 @@ waif_before_loading()
 }
 
 Var
-read_waif()
+read_waif(void)
 {
     Var res;
     char ref;
@@ -975,7 +973,7 @@ read_waif()
 }
 
 void
-waif_after_loading()
+waif_after_loading(void)
 {
     int i;
 
@@ -1000,4 +998,10 @@ waif_after_loading()
 	w->propdefs = ref_waif_propdefs(o->waif_propdefs);
     }
     myfree(saved_waifs, M_WAIF_XTRA);
+}
+
+void
+register_waif(void)
+{
+    register_function("new_waif", 0, 0, bf_new_waif);
 }
