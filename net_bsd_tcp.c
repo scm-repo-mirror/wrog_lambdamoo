@@ -293,28 +293,9 @@ proto_open_connection(Var arglist, int *read_fd, int *write_fd,
 }
 #endif				/* OUTBOUND_NETWORK */
 
-char rcsid_net_bsd_tcp[] = "$Id$";
 
 /*
  * $Log$
- * Revision 1.5  2007/11/12 11:00:18  wrog
- * fix unsigned-ness compiler warning
- *
- * Revision 1.4  2004/05/22 01:25:43  wrog
- * merging in WROGUE changes (W_SRCIP, W_STARTUP, W_OOB)
- *
- * Revision 1.3.10.1  2003/06/01 12:42:30  wrog
- * added cmdline options -a (source address) +O/-O (enable/disable outbound network)
- *
- * Revision 1.3  1998/12/14 13:18:27  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:19:02  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:02  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.5  1996/03/10  01:13:48  pavel
  * Moved definition of DEFAULT_PORT to options.h.  Release 1.8.0.
  *

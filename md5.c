@@ -324,15 +324,6 @@ md5_Final(md5ctx_t * context, uint8_t digest[16])
 
 /*
  * $Log$
- * Revision 1.3  1998/12/14 13:18:04  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:18:51  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:00  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 1.1  1996/02/18  23:19:18  pavel
  * Initial revision
  *

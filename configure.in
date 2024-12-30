@@ -560,16 +560,8 @@ echo "----------------------------------------------------------------------"
 
 AC_OUTPUT(Makefile)
 
+
 # $Log$
-# Revision 1.2  2004/05/22 01:25:43  wrog
-# merging in WROGUE changes (W_SRCIP, W_STARTUP, W_OOB)
-#
-# Revision 1.1.1.1.12.1  2003/06/01 12:39:27  wrog
-# ensure definitions for in_addr_t, INADDR_NONE
-#
-# Revision 1.1.1.1  1997/03/03 03:45:05  nop
-# LambdaMOO 1.8.0p5
-#
 # Revision 2.8  1996/03/19  07:16:46  pavel
 # Added one more option for trying to enable ANSI C compilation.
 # Release 1.8.0p2.

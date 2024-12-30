@@ -97,27 +97,6 @@ extern void load_server_options(void);
 
 /*
  * $Log$
- * Revision 1.6  2010/03/31 18:02:05  wrog
- * differentiate kinds of BI_KILL; replace make_kill_pack() with make_abort_pack(abort_reason)
- *
- * Revision 1.5  2001/03/12 03:25:16  bjj
- * Added new package type BI_KILL which kills the task calling the builtin.
- * Removed the static int task_killed in execute.c which wa tested on every
- * loop through the interpreter to see if the task had been killed.
- *
- * Revision 1.4  1998/12/14 13:17:54  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.3  1997/03/03 05:03:51  nop
- * steak2: move protectedness into builtin struct, load_server_options()
- * now required for $server_options updates.
- *
- * Revision 1.2  1997/03/03 04:18:42  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:03  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.2  1996/04/19  01:22:04  pavel
  * Added tail_call_pack() declaration and patches to allow generation of the
  * new warning in read_bi_func_data().  Release 1.8.0p4.

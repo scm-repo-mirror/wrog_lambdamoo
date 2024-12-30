@@ -551,36 +551,9 @@ dbpriv_set_all_users(Var v)
     all_users = v;
 }
 
-char rcsid_db_objects[] = "$Id$";
 
 /*
  * $Log$
- * Revision 1.5  2006/09/07 00:55:02  bjj
- * Add new MEMO_STRLEN option which uses the refcounting mechanism to
- * store strlen with strings.  This is basically free, since most string
- * allocations are rounded up by malloc anyway.  This saves lots of cycles
- * computing strlen.  (The change is originally from jitmoo, where I wanted
- * inline range checks for string ops).
- *
- * Revision 1.4  1998/12/14 13:17:36  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.3  1997/07/07 03:24:53  nop
- * Merge UNSAFE_OPTS (r5) after extensive testing.
- *
- * Revision 1.2.2.2  1997/07/07 01:40:20  nop
- * Because we use first-parent-with-verbs as a verb cache key, we can skip
- * a generation bump if the target of a chparent has no kids and no verbs.
- *
- * Revision 1.2.2.1  1997/03/20 07:26:01  nop
- * First pass at the new verb cache.  Some ugly code inside.
- *
- * Revision 1.2  1997/03/03 04:18:29  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:44:59  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.5  1996/04/08  00:42:11  pavel
  * Adjusted computation in `db_object_bytes()' to account for change in the
  * definition of `value_bytes()'.  Release 1.8.0p3.

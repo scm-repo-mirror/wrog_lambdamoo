@@ -225,31 +225,9 @@ network_process_io(int timeout)
     return got_some;
 }
 
-char rcsid_net_single[] = "$Id$";
 
 /*
  * $Log$
- * Revision 1.5  2010/03/30 23:16:49  wrog
- * raw_bytes_to_binary() replaced by stream_add_raw_bytes_to_binary()
- *
- * Revision 1.4  2006/12/06 23:57:51  wrog
- * New INPUT_APPLY_BACKSPACE option to process backspace/delete characters on nonbinary connections (patch 1571939)
- *
- * Revision 1.3  2004/05/22 01:25:44  wrog
- * merging in WROGUE changes (W_SRCIP, W_STARTUP, W_OOB)
- *
- * Revision 1.2.12.2  2003/06/07 13:03:55  wrog
- * deslashed log entries
- *
- * Revision 1.2.12.1  2003/06/07 12:59:04  wrog
- * introduced connection_option macros
- *
- * Revision 1.2  1997/03/03 04:19:07  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:02  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.4  1996/03/10  01:23:12  pavel
  * Added support for `connection_option()'.  Added missing include of
  * "utils.h".  Release 1.8.0.

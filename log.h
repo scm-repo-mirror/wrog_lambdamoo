@@ -38,21 +38,6 @@ extern int log_report_progress_cktime(void);
 
 /*
  * $Log$
- * Revision 1.4  2004/05/22 01:25:43  wrog
- * merging in WROGUE changes (W_SRCIP, W_STARTUP, W_OOB)
- *
- * Revision 1.3.10.1  2003/06/03 12:19:27  wrog
- * added log_report_progress()
- *
- * Revision 1.3  1998/12/14 13:18:00  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:18:48  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:03  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.2  1996/04/08  01:05:28  pavel
  * Added `set_log_file()' entry point.  Release 1.8.0p3.
  *

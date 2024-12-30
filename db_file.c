@@ -737,38 +737,9 @@ db_shutdown()
     free_str(dump_db_name);
 }
 
-char rcsid_db_file[] = "$Id$";
 
 /*
  * $Log$
- * Revision 1.7  2010/04/22 21:29:18  wrog
- * Free database name strings on shutdown (rob@mars.org)
- * current_version -> current_db_version
- *
- * Revision 1.6  2007/11/12 11:17:03  wrog
- * sync so that checkpoint is physically written before prior checkpoint is unlinked
- *
- * Revision 1.5  2004/05/22 01:25:43  wrog
- * merging in WROGUE changes (W_SRCIP, W_STARTUP, W_OOB)
- *
- * Revision 1.4.8.2  2003/06/03 12:21:17  wrog
- * new validation algorithms for cycle-detection and hierarchy checking
- *
- * Revision 1.4.8.1  2003/06/01 12:27:35  wrog
- * added braces and fixed indentation on TRY
- *
- * Revision 1.4  1998/12/14 13:17:33  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.3  1998/02/19 07:36:16  nop
- * Initial string interning during db load.
- *
- * Revision 1.2  1997/03/03 04:18:27  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:44:59  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.5  1996/04/08  01:07:21  pavel
  * Changed a boot-time error message to go directly to stderr, instead of
  * through the logging package.  Release 1.8.0p3.

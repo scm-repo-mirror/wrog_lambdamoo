@@ -124,26 +124,6 @@ typedef enum Extended_Opcode Extended_Opcode;
 
 /*
  * $Log$
- * Revision 1.4  2002/09/15 23:21:01  xplat
- * GNU indent normalization.
- *
- * Revision 1.3  1998/12/14 13:18:40  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2.2.1  1997/09/09 07:01:17  bjj
- * Change bytecode generation so that x=f(x) calls f() without holding a ref
- * to the value of x in the variable slot.  See the options.h comment for
- * BYTECODE_REDUCE_REF for more details.
- *
- * This checkin also makes x[y]=z (OP_INDEXSET) take advantage of that (that
- * new code is not conditional and still works either way).
- *
- * Revision 1.2  1997/03/03 04:19:13  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:04  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.3  1996/02/08  06:18:03  pavel
  * Removed unused NUM_BUILTIN_NAMES constant.  Rearranged EOPs to support tick
  * counting and added COUNT_EOP_TICK().  Added EOP_EXP, EOP_WHILE_ID,

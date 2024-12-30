@@ -677,25 +677,9 @@ dbpriv_fix_properties_after_chparent(Objid oid, Objid old_parent)
     fix_props(oid, 0, old_props, new_props, common_props);
 }
 
-char rcsid_db_properties[] = "$Id$";
 
 /*
  * $Log$
- * Revision 1.5  2010/04/23 04:46:18  wrog
- * whitespace
- *
- * Revision 1.4  2010/03/26 23:46:47  wrog
- * Moved builtin properties into a macro\nFixed compiler warning about unassigned field
- *
- * Revision 1.3  1998/12/14 13:17:38  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:18:31  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:44:59  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.6  1996/04/08  01:08:32  pavel
  * Fixed `db_rename_propdef()' to allow case-only changes.  Release 1.8.0p3.
  *
