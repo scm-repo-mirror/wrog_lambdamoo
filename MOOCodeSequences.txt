@@ -327,9 +327,6 @@ ne_arglist:
 
 
 # $Log$
-# Revision 1.1  1997/03/03 03:45:06  nop
-# Initial revision
-#
 # Revision 2.3  1996/03/10  01:25:45  pavel
 # Fixed a grammar problem.  Release 1.8.0.
 #

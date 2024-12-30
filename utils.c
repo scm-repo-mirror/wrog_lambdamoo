@@ -427,52 +427,9 @@ binary_to_raw_bytes(const char *binary, int *buflen)
     return reset_stream(s);
 }
 
-char rcsid_utils[] = "$Id$";
 
-/* 
+/*
  * $Log$
- * Revision 1.9  2010/03/30 23:15:52  wrog
- * strsub() replaced by stream_add_strsub()
- * raw_bytes_to_binary() replaced by stream_add_raw_bytes_to_binary()
- *
- * Revision 1.8  2006/09/07 00:55:02  bjj
- * Add new MEMO_STRLEN option which uses the refcounting mechanism to
- * store strlen with strings.  This is basically free, since most string
- * allocations are rounded up by malloc anyway.  This saves lots of cycles
- * computing strlen.  (The change is originally from jitmoo, where I wanted
- * inline range checks for string ops).
- *
- * Revision 1.7  2002/08/18 09:47:26  bjj
- * Finally made free_activation() take a pointer after noticing how !$%^&
- * much time it was taking in a particular profiling run.
- *
- * Revision 1.5  1999/08/09 02:36:33  nop
- * Shortcut various equality tests if we have pointer equality.
- *
- * Revision 1.4  1998/12/14 13:19:14  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.3  1997/07/07 03:24:55  nop
- * Merge UNSAFE_OPTS (r5) after extensive testing.
- * 
- * Revision 1.2.2.3  1997/03/21 15:11:22  bjj
- * add var_refcount interface
- *
- * Revision 1.2.2.2  1997/03/21 14:29:03  bjj
- * Some code bumming in complex_free_var (3rd most expensive function!)
- *
- * Revision 1.2.2.1  1997/03/20 18:07:48  bjj
- * Add a flag to the in-memory type identifier so that inlines can cheaply
- * identify Vars that need actual work done to ref/free/dup them.  Add the
- * appropriate inlines to utils.h and replace old functions in utils.c with
- * complex_* functions which only handle the types with external storage.
- *
- * Revision 1.2  1997/03/03 04:19:36  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:01  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.8  1996/04/08  00:43:09  pavel
  * Changed definition of `value_bytes()' to add in `sizeof(Var)'.
  * Release 1.8.0p3.

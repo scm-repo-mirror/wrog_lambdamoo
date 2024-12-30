@@ -70,19 +70,6 @@ extern int check_db_version(DB_Version);
 
 /* 
  * $Log$
- * Revision 1.4  2010/04/22 21:39:52  wrog
- * support for server_version(argument)
- * current_version -> current_db_version
- *
- * Revision 1.3  1998/12/14 13:19:19  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:19:39  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:04  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.3  1996/04/19  01:25:21  pavel
  * Added somewhat bogus DBV_BFBugFixed version.  Release 1.8.0p4.
  *

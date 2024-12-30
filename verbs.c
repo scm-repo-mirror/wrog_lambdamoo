@@ -580,34 +580,9 @@ register_verbs(void)
     register_function("eval", 1, 1, bf_eval, TYPE_STR);
 }
 
-char rcsid_verbs[] = "$Id$";
 
 /* 
  * $Log$
- * Revision 1.7  2010/04/22 21:25:14  wrog
- * Fix assignment/equality typos (rob@mars.org)
- *
- * Revision 1.6  2010/03/30 23:26:36  wrog
- * server_flag_option() now takes a default value
- *
- * Revision 1.5  2008/08/20 04:25:23  bjj
- * Fix iffy usage of str_dup in verb_info() and property_info() which could
- * cause poor behavior with MEMO_STRLEN (and other future string optimizations)
- *
- * Revision 1.4  2001/01/29 08:38:44  bjj
- * Fix Sourceforge Bug #127620: add_verb() should return verbindex
- * And now it does.  Old servers always returned 0, new servers will always
- * return a positive integer.
- *
- * Revision 1.3  1998/12/14 13:19:16  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:19:37  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:01  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.8  1996/05/12  21:29:46  pavel
  * Fixed memory leak for verb names string in bf_add_verb.  Release 1.8.0p5.
  *

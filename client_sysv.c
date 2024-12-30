@@ -175,15 +175,9 @@ main(int argc, char **argv)
     exit(1);
 }
 
-char rcsid_client_sysv[] = "$Id$";
 
-/* $Log$
-/* Revision 1.2  1997/03/03 04:18:23  nop
-/* GNU Indent normalization
 /*
- * Revision 1.1.1.1  1997/03/03 03:45:02  nop
- * LambdaMOO 1.8.0p5
- *
+ * $Log$
  * Revision 2.3  1996/03/10  01:11:56  pavel
  * Moved definition of DEFAULT_CONNECT_FILE to options.h.  Release 1.8.0.
  *

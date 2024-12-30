@@ -1803,76 +1803,9 @@ register_server(void)
 		      bf_buffered_output_length, TYPE_OBJ);
 }
 
-char rcsid_server[] = "$Id$";
 
 /* 
  * $Log$
- * Revision 1.15  2010/04/22 21:46:36  wrog
- * support for server_version(argument)
- * simplify stream usage in emergency mode
- *
- * Revision 1.14  2010/03/30 22:59:57  wrog
- * server_flag_option() now takes a default value;
- * Minimum values on max_string_concat/max_list_concat enforced;
- * Treat max_concat_catchable like other boolean options;
- * Server option macros more readable/flexible/canonicalizable;
- *
- * Revision 1.13  2010/03/27 18:16:49  wrog
- * Removed completely unused stream
- *
- * Revision 1.12  2007/06/02 21:34:36  wrog
- * fix player_connect() so that the user_client_disconnected hook
- * sees a disconnected player, same as with server_close()
- *
- * Revision 1.11  2007/05/29 12:21:47  wrog
- * fixes server panic (or lost messages) caused by attempting to write to freed network handle during #0:user_reconnected; removes the one case where server and network handles were not being freed together
- *
- * Revision 1.10  2006/11/21 18:42:37  pschwan
- * b=1500775
- * fixes two use-after-free bugs that could lead very rarely to
- * calling the wrong functions during player connection
- *
- * Revision 1.9  2005/09/29 18:46:18  bjj
- * Add third argument to open_network_connection() that associates a specific listener object with the new connection.  This simplifies a lot of outbound connection management.
- *
- * Revision 1.8  2004/05/25 07:28:55  wrog
- * indentation fixes
- *
- * Revision 1.7  2004/05/22 01:25:44  wrog
- * merging in WROGUE changes (W_SRCIP, W_STARTUP, W_OOB)
- *
- * Revision 1.5.10.4  2004/05/21 23:02:56  wrog
- * NP_SINGLE needs to have stdout stay open
- *
- * Revision 1.5.10.3  2004/05/20 19:57:11  wrog
- * fixed flushing issues w.r.t. emergency mode;
- * close stdout and stderr when we are not using them
- *
- * Revision 1.6  2003/06/12 18:16:56  bjj
- * Suspend input on connection until :do_login_command() can run.
- *
- * Revision 1.5.10.2  2003/06/11 10:40:16  wrog
- * added binary argument to new_input_task()
- *
- * Revision 1.5.10.1  2003/06/07 12:59:04  wrog
- * introduced connection_option macros
- *
- * Revision 1.5  1998/12/29 06:56:32  nop
- * Fixed leak in onc().
- *
- * Revision 1.4  1998/12/14 13:18:57  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.3  1997/03/03 05:03:52  nop
- * steak2: move protectedness into builtin struct, load_server_options()
- * now required for $server_options updates.
- *
- * Revision 1.2  1997/03/03 04:19:24  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:01  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.11  1996/05/12  21:26:10  pavel
  * Slightly cleaned up some code in bf_shutdown().  Release 1.8.0p5.
  *

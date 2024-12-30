@@ -488,60 +488,9 @@ register_functions(void)
     register_function("load_server_options", 0, 0, bf_load_server_options);
 }
 
-char rcsid_functions[] = "$Id$";
 
-/* 
+/*
  * $Log$
- * Revision 1.11  2010/04/22 21:52:08  wrog
- * re-separate out load_server_protect_function_flags
- *
- * Revision 1.10  2010/03/31 18:02:05  wrog
- * differentiate kinds of BI_KILL; replace make_kill_pack() with make_abort_pack(abort_reason)
- *
- * Revision 1.9  2010/03/30 23:20:45  wrog
- * server_flag_option() now takes a default value;
- * Minimum values on max_string_concat/max_list_concat enforced;
- * Treat max_concat_catchable like other boolean options;
- * Cleaned up server option macro invocations
- *
- * Revision 1.8  2010/03/27 00:05:53  wrog
- * New server options max_*_concat and max_concat_catchable;
- * New regime for caching integer/flag server options other than protect_<function>;
- * protect_<property> options now cached; IGNORE_PROP_PROTECTED now off by default and deprecated;
- * load_server_protect_flags() rolled into load_server_options()
- *
- * Revision 1.7  2001/03/12 05:10:54  bjj
- * Split out call_verb and call_verb2.  The latter must only be called with
- * strings that are already MOO strings (str_ref-able).
- *
- * Revision 1.6  2001/03/12 03:25:16  bjj
- * Added new package type BI_KILL which kills the task calling the builtin.
- * Removed the static int task_killed in execute.c which wa tested on every
- * loop through the interpreter to see if the task had been killed.
- *
- * Revision 1.5  1998/12/14 13:17:53  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.4  1997/07/07 03:24:54  nop
- * Merge UNSAFE_OPTS (r5) after extensive testing.
- * 
- * Revision 1.3.2.2  1997/05/12 04:03:21  bjj
- * This time for sure!
- *
- * Revision 1.3.2.1  1997/05/11 04:31:54  bjj
- * Missed the place in bf_function_info where TYPE_* constants make it into
- * the database.  Masked off the complex flag in the obvious place.
- *
- * Revision 1.3  1997/03/03 05:03:50  nop
- * steak2: move protectedness into builtin struct, load_server_options()
- * now required for $server_options updates.
- *
- * Revision 1.2  1997/03/03 04:18:42  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:00  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.6  1996/04/19  01:20:49  pavel
  * Fixed bug in how $bf_FOO() verbs are called to override built-in functions.
  * Added code to screen out the worst of the problems this bug could

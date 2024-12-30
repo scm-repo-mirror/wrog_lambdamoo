@@ -991,46 +991,9 @@ find_line_number(Program * prog, int vector, unsigned pc)
     return lineno;
 }
 
-char rcsid_decompile[] = "$Id$";
 
-/* 
+/*
  * $Log$
- * Revision 1.8  2010/04/22 21:42:44  wrog
- * Line number and pc are unsigned: fix find_line_number return/args types
- *
- * Revision 1.7  2006/12/06 23:51:31  wrog
- * Fix compiler warnings about unused values
- *
- * Revision 1.6  2002/09/15 23:21:01  xplat
- * GNU indent normalization.
- *
- * Revision 1.5  1999/08/11 08:23:40  bjj
- * Lineno computation could be wrong for forked vectors.
- *
- * Revision 1.4  1998/12/14 13:17:40  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.3  1997/07/07 03:24:53  nop
- * Merge UNSAFE_OPTS (r5) after extensive testing.
- * 
- * Revision 1.2.2.2  1997/09/09 07:01:16  bjj
- * Change bytecode generation so that x=f(x) calls f() without holding a ref
- * to the value of x in the variable slot.  See the options.h comment for
- * BYTECODE_REDUCE_REF for more details.
- *
- * This checkin also makes x[y]=z (OP_INDEXSET) take advantage of that (that
- * new code is not conditional and still works either way).
- * 
- * Revision 1.2.2.1  1997/06/05 09:00:00  bjj
- * Cache one pc/lineno pair with each Program.  Hopefully most programs that
- * fail multiple times usually do it on the same line!
- *
- * Revision 1.2  1997/03/03 04:18:32  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:44:59  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.6  1996/03/10  01:17:48  pavel
  * Removed a automatic structure initialization.  Release 1.8.0.
  *

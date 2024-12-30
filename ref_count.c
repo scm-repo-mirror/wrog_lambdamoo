@@ -208,27 +208,9 @@ delref(const void *p)
 }
 #endif
 
-char rcsid_ref_count[] = "$Id$";
 
-/* 
+/*
  * $Log$
- * Revision 1.4  1998/12/14 13:18:54  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.3  1997/07/07 03:24:55  nop
- * Merge UNSAFE_OPTS (r5) after extensive testing.
- * 
- * Revision 1.2.2.1  1997/03/20 18:59:24  bjj
- * Allocate refcounts with objects that can be addref()'d (strings, lists,
- * floats).  Use macros to manipulate those counts.  This completely replaces
- * the external hash table addref and friends.
- *
- * Revision 1.2  1997/03/03 04:19:21  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:01  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.1  1996/02/08  06:53:33  pavel
  * Updated copyright notice for 1996.  Release 1.8.0beta1.
  *

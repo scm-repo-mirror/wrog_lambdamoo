@@ -215,15 +215,6 @@ extern void free_stmt(Stmt *);
 
 /* 
  * $Log$
- * Revision 1.3  1998/12/14 13:17:28  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:18:22  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:02  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.3  1996/02/08  05:59:43  pavel
  * Updated copyright notice for 1996.  Added exponentiation expression, named
  * WHILE loops, BREAK and CONTINUE statements, support for floating-point.

@@ -330,23 +330,9 @@ register_property(void)
 			     TYPE_OBJ, TYPE_STR);
 }
 
-char rcsid_property[] = "$Id$";
 
 /* 
  * $Log$
- * Revision 1.4  2008/08/20 04:25:23  bjj
- * Fix iffy usage of str_dup in verb_info() and property_info() which could
- * cause poor behavior with MEMO_STRLEN (and other future string optimizations)
- *
- * Revision 1.3  1998/12/14 13:18:50  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:19:18  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:01  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.3  1996/02/11  00:44:45  pavel
  * Fixed potential panic in clear_property() when called on the definer of the
  * property in question.  Release 1.8.0beta2.

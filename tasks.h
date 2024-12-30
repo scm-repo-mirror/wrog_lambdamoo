@@ -111,30 +111,6 @@ extern db_verb_handle find_verb_for_programming(Objid player,
 
 /* 
  * $Log$
- * Revision 1.5  2004/05/22 01:25:44  wrog
- * merging in WROGUE changes (W_SRCIP, W_STARTUP, W_OOB)
- *
- * Revision 1.4  2003/06/12 18:16:57  bjj
- * Suspend input on connection until :do_login_command() can run.
- *
- * Revision 1.3.10.1  2003/06/11 10:40:17  wrog
- * added binary argument to new_input_task()
- *
- * Revision 1.3  1998/12/14 13:19:08  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2.2.1  1998/12/06 07:13:23  bjj
- * Rationalize enqueue_forked_task interface and fix program_ref leak in
- * the case where fork fails with E_QUOTA.  Make .queued_task_limit=0 really
- * enforce a limit of zero tasks (for old behavior set it to 1, that's the
- * effect it used to have).
- *
- * Revision 1.2  1997/03/03 04:19:32  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:04  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.5  1996/03/19  07:10:22  pavel
  * Added run_server_program_task() for use from emergency mode.
  * Release 1.8.0p2.

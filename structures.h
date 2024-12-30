@@ -127,33 +127,9 @@ extern Var zero;		/* useful constant */
 
 #endif				/* !Structures_h */
 
-/* 
+
+/*
  * $Log$
- * Revision 1.5  2010/04/22 21:56:28  wrog
- * Fix for-statement infinite loop bug (rob@mars.org)
- * add MAX_LIST and MAX_STRING
- *
- * Revision 1.4  1998/12/14 13:19:04  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.3  1997/07/07 03:24:55  nop
- * Merge UNSAFE_OPTS (r5) after extensive testing.
- * 
- * Revision 1.2.2.2  1997/05/23 07:01:30  nop
- * Added experimental support for 32-bit pointer model on Alpha with DEC cc.
- *
- * Revision 1.2.2.1  1997/03/20 18:07:52  bjj
- * Add a flag to the in-memory type identifier so that inlines can cheaply
- * identify Vars that need actual work done to ref/free/dup them.  Add the
- * appropriate inlines to utils.h and replace old functions in utils.c with
- * complex_* functions which only handle the types with external storage.
- *
- * Revision 1.2  1997/03/03 04:19:29  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:04  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.1  1996/02/08  06:12:21  pavel
  * Added E_FLOAT, TYPE_FLOAT, and TYPE_NUMERIC.  Renamed TYPE_NUM to TYPE_INT.
  * Updated copyright notice for 1996.  Release 1.8.0beta1.

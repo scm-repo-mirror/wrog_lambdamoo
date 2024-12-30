@@ -323,38 +323,6 @@ extern int read_active_connections(void);
 
 /* 
  * $Log$
- * Revision 1.8  2010/04/23 04:17:53  wrog
- * Define minima for .max_list_concat and .max_string_concat
- *
- * Revision 1.7  2010/04/22 21:46:58  wrog
- * Comment tweaks
- *
- * Revision 1.6  2010/03/30 22:59:57  wrog
- * server_flag_option() now takes a default value;
- * Minimum values on max_string_concat/max_list_concat enforced;
- * Treat max_concat_catchable like other boolean options;
- * Server option macros more readable/flexible/canonicalizable;
- *
- * Revision 1.5  2010/03/27 00:02:35  wrog
- * New server options max_*_concat and max_concat_catchable;
- * New regime for caching integer/flag server options other than protect_<function>;
- * protect_<property> options now cached; IGNORE_PROP_PROTECT now off by default and deprecated
- *
- * Revision 1.4  2004/05/22 01:25:44  wrog
- * merging in WROGUE changes (W_SRCIP, W_STARTUP, W_OOB)
- *
- * Revision 1.3.10.1  2003/06/07 12:59:04  wrog
- * introduced connection_option macros
- *
- * Revision 1.3  1998/12/14 13:18:58  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:19:26  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:04  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.3  1996/04/08  01:07:52  pavel
  * Made get_server_option() public.  Release 1.8.0p3.
  *

@@ -246,18 +246,6 @@ extern void network_shutdown(void);
 
 /* 
  * $Log$
- * Revision 1.4  2005/09/29 18:46:18  bjj
- * Add third argument to open_network_connection() that associates a specific listener object with the new connection.  This simplifies a lot of outbound connection management.
- *
- * Revision 1.3  1998/12/14 13:18:36  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:19:10  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:04  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.4  1996/03/10  01:15:13  pavel
  * Added support for `connection_option()'.  Release 1.8.0.
  *

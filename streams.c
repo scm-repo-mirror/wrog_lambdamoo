@@ -262,31 +262,9 @@ stream_length(Stream * s)
     return s->current;
 }
 
-char rcsid_streams[] = "$Id$";
 
 /* 
  * $Log$
- * Revision 1.7  2010/04/23 05:04:28  wrog
- * remove max=0 meaning no limit
- *
- * Revision 1.6  2010/04/22 21:47:48  wrog
- * Improve stream robustness (rob@mars.org)
- *
- * Revision 1.5  2010/03/30 22:13:22  wrog
- * Added stream exception API to catch mymalloc failures
- *
- * Revision 1.4  2006/12/06 23:57:51  wrog
- * New INPUT_APPLY_BACKSPACE option to process backspace/delete characters on nonbinary connections (patch 1571939)
- *
- * Revision 1.3  1998/12/14 13:19:01  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:19:28  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:01  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.5  1996/03/19  07:14:02  pavel
  * Fixed default printing of floating-point numbers.  Release 1.8.0p2.
  *

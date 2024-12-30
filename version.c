@@ -240,5 +240,3 @@ check_db_version(DB_Version version)
 {
     return version < Num_DB_Versions;
 }
-
-char rcsid_version[] = "$Id$";
