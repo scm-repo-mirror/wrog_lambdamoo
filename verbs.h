@@ -23,15 +23,6 @@ extern db_verb_handle find_described_verb(Objid oid, Var desc);
 
 /*
  * $Log$
- * Revision 1.3  1998/12/14 13:19:17  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:19:38  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:04  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.1  1996/02/08  06:07:21  pavel
  * Updated copyright notice for 1996.  Release 1.8.0beta1.
  *

@@ -36,18 +36,6 @@ extern const char *value_to_literal(Var);
 
 /*
  * $Log$
- * Revision 1.4  2010/03/30 23:06:51  wrog
- * value_to_literal() replaced by unparse_value()
- *
- * Revision 1.3  1998/12/14 13:17:58  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:18:47  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:03  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.1  1996/02/08  06:23:44  pavel
  * Updated copyright notice for 1996.  Release 1.8.0beta1.
  *

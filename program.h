@@ -64,28 +64,6 @@ extern void free_program(Program *);
 
 /*
  * $Log$
- * Revision 1.6  2010/04/22 21:32:01  wrog
- * Avoid using uninitialized Program.cached_lineno_vec (rob@mars.org)
- *
- * Revision 1.5  1999/08/16 04:15:13  bjj
- * Lineno computation could be wrong for forked vectors.
- *
- * Revision 1.4  1998/12/14 13:18:49  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.3  1997/07/07 03:24:55  nop
- * Merge UNSAFE_OPTS (r5) after extensive testing.
- *
- * Revision 1.2.2.1  1997/06/05 09:00:01  bjj
- * Cache one pc/lineno pair with each Program.  Hopefully most programs that
- * fail multiple times usually do it on the same line!
- *
- * Revision 1.2  1997/03/03 04:19:18  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:04  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.3  1996/02/08  06:14:19  pavel
  * Added version number on programs.  Updated copyright notice for 1996.
  * Release 1.8.0beta1.

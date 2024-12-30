@@ -98,18 +98,6 @@ extern void dbio_write_forked_program(Program * prog, int f_index);
 
 /*
  * $Log$
- * Revision 1.4  1998/12/14 13:17:35  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.3  1998/02/19 07:36:16  nop
- * Initial string interning during db load.
- *
- * Revision 1.2  1997/03/03 04:18:28  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:02  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.3  1996/02/08  06:28:21  pavel
  * Added dbio_input_version, dbio_read/write_float().  Made dbio_read_program
  * version-dependent.  Updated copyright notice for 1996.  Release 1.8.0beta1.

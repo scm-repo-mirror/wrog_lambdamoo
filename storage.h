@@ -70,47 +70,6 @@ free_str(const char *s)
 
 /*
  * $Log$
- * Revision 1.7  2006/12/06 23:44:56  wrog
- * Fix compiler warnings about redefining strlen/strcmp
- *
- * Revision 1.6  2006/09/07 00:55:02  bjj
- * Add new MEMO_STRLEN option which uses the refcounting mechanism to
- * store strlen with strings.  This is basically free, since most string
- * allocations are rounded up by malloc anyway.  This saves lots of cycles
- * computing strlen.  (The change is originally from jitmoo, where I wanted
- * inline range checks for string ops).
- *
- * Revision 1.5  1998/12/14 13:19:00  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.4  1998/02/19 07:36:17  nop
- * Initial string interning during db load.
- *
- * Revision 1.3  1997/07/07 03:24:55  nop
- * Merge UNSAFE_OPTS (r5) after extensive testing.
- *
- * Revision 1.2.2.4  1997/05/29 20:47:33  nop
- * Stupid hack to allow non-gcc compilers to use -Dinline= to make the server
- * compile.
- *
- * Revision 1.2.2.3  1997/05/20 03:01:34  nop
- * parse_into_words was allocating pointers to strings as strings.  Predictably,
- * the refcount prepend code was not prepared for this, causing unaligned memory
- * access on the Alpha.  Added new M_STRING_PTRS allocation class that could
- * be renamed to something better, perhaps.
- *
- * Revision 1.2.2.2  1997/03/21 15:19:24  bjj
- * add myrealloc interface, inline free_str
- *
- * Revision 1.2.2.1  1997/03/20 07:26:04  nop
- * First pass at the new verb cache.  Some ugly code inside.
- *
- * Revision 1.2  1997/03/03 04:19:27  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:04  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.1  1996/02/08  06:13:09  pavel
  * Added M_FLOAT, removed unused M_PI.  Updated copyright notice for 1996.
  * Release 1.8.0beta1.

@@ -354,16 +354,9 @@ proto_close_listener(int fd)
     errlog("Can't find fd in PROTO_CLOSE_LISTENER!\n");
 }
 
-char rcsid_net_sysv_lcl[] = "$Id$";
 
 /*
  * $Log$
- * Revision 1.2  1997/03/03 04:19:08  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:02  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.4  1996/03/10  01:13:11  pavel
  * Moved definition of DEFAULT_CONNECT_FILE to options.h.  Release 1.8.0.
  *
