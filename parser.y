@@ -1236,26 +1236,9 @@ parse_list_as_program(Var code, Var *errors)
     return program;
 }
 
-char rcsid_parser[] = "$Id$";
 
 /*
  * $Log$
- * Revision 1.5  2010/04/22 21:30:18  wrog
- * current_version -> current_db_version
- *
- * Revision 1.4  2004/05/22 01:25:44  wrog
- * merging in WROGUE changes (W_SRCIP, W_STARTUP, W_OOB)
- *
- * Revision 1.3  2004/04/09 19:52:52  bjj
- * == Revision 1.2.8.1  2003/06/07 20:16:24 wrog
- * fixed 6 rules that were missing final semicolons to make newer bison happy.
- *
- * Revision 1.2  1998/12/14 13:18:45  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.1.1.1  1997/03/03 03:45:02  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.11  1996/05/12  21:28:37  pavel
  * Removed non-backward-compatible parse error for negating a non-numeric
  * literal.  Made certain aspects of floating-point literal parsing be

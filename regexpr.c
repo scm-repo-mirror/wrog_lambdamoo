@@ -1641,27 +1641,11 @@ main()
 
 #endif				/* TEST_REGEXP */
 
-/* RCS stuff added for LambdaMOO */
 
-char rcsid_regexpr[] = "$Id";
+/* RCS stuff added for LambdaMOO */
 
 /*
  * $Log$
- * Revision 1.5  2001/03/12 03:44:19  bjj
- * oops, more braces
- *
- * Revision 1.4  2001/03/12 03:41:24  bjj
- * fix ambiguous else with braces
- *
- * Revision 1.3  1998/12/14 13:18:56  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:19:22  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:01  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.1  1995/12/28  00:45:35  pavel
  * Fixed memory leak on failure-stack growth.  Release 1.8.0alpha3.
  *

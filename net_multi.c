@@ -700,34 +700,9 @@ network_shutdown(void)
 	close_nlistener(all_nlisteners);
 }
 
-char rcsid_net_multi[] = "$Id$";
 
 /*
  * $Log$
- * Revision 1.7  2010/03/30 23:16:49  wrog
- * raw_bytes_to_binary() replaced by stream_add_raw_bytes_to_binary()
- *
- * Revision 1.6  2006/12/06 23:57:51  wrog
- * New INPUT_APPLY_BACKSPACE option to process backspace/delete characters on nonbinary connections (patch 1571939)
- *
- * Revision 1.5  2005/09/29 18:46:17  bjj
- * Add third argument to open_network_connection() that associates a specific listener object with the new connection.  This simplifies a lot of outbound connection management.
- *
- * Revision 1.4  2004/05/22 01:25:43  wrog
- * merging in WROGUE changes (W_SRCIP, W_STARTUP, W_OOB)
- *
- * Revision 1.3.10.1  2003/06/07 12:59:04  wrog
- * introduced connection_option macros
- *
- * Revision 1.3  1998/12/14 13:18:31  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:19:05  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:02  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.6  1996/05/12  21:29:09  pavel
  * Fixed mis-initialization of "client-echo" option.  Release 1.8.0p5.
  *

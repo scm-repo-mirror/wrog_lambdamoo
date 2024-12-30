@@ -1139,78 +1139,8 @@ register_list(void)
 }
 
 
-char rcsid_list[] = "$Id$";
-
 /*
  * $Log$
- * Revision 1.12  2010/04/23 05:01:20  wrog
- * Implement max_list_concat for list_insert,list_append,set_add
- *
- * Revision 1.11  2010/04/22 22:00:35  wrog
- * Fuller explanation of TRY_STREAM, unscramble bf_substitute,
- * stream usage cleanups in bf_tostr, bf_toliteral, bf_value_hash, bf_encode_binary
- *
- * Revision 1.10  2010/03/31 18:08:07  wrog
- * builtin functions can now explicitly abort task with out-of-seconds/ticks
- * using make_abort_pack()/BI_KILL rather than by setting task_timed_out
- *
- * Revision 1.9  2010/03/30 23:13:39  wrog
- * rewrote bf_strsub(), bf_tostr(), bf_toliteral(),
- * -  bf_substitute(), bf_value_hash(), bf_encode_binary()
- * -  to enable and watch for stream_too_big exceptions;
- * bf_decode_binary() now raises errors
- * -  instead of creating overly large lists
- * value2str() made safe (never allocates);
- * list2str cannibalized into stream_add_tostr();
- * print_to_stream() renamed to unparse_value(),
- * -  made public to replace value_to_literal() [removed],
- * -  now panicks on unknown Var type rather than logging;
- *
- * Revision 1.8  2010/03/26 23:28:29  wrog
- * Fix compiler warning about unassigned variable
- *
- * Revision 1.7  2006/09/07 00:55:02  bjj
- * Add new MEMO_STRLEN option which uses the refcounting mechanism to
- * store strlen with strings.  This is basically free, since most string
- * allocations are rounded up by malloc anyway.  This saves lots of cycles
- * computing strlen.  (The change is originally from jitmoo, where I wanted
- * inline range checks for string ops).
- *
- * Revision 1.6  2001/03/12 00:16:29  bjj
- * bf_crypt now passes the entire second argument as the salt to
- * the C crypt() routine.  This works fine for traditional DES crypts
- * and supports modern modular crypts like FreeBSD's.  This just makes
- * it possible to pass the entire salt:  the core still has to do it.
- *
- * Revision 1.5  1998/12/14 13:17:57  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.4  1997/07/07 03:24:54  nop
- * Merge UNSAFE_OPTS (r5) after extensive testing.
- *
- * Revision 1.3.2.3  1997/07/03 08:04:01  bjj
- * Pattern cache was not storing case_matters flag, causing many patterns to
- * be impossible to find in the cache.
- *
- * Revision 1.3.2.2  1997/05/20 14:55:52  nop
- * Include Jason's patch for bf_decode_binary losing on systems where
- * char is signed.
- *
- * Revision 1.3.2.1  1997/03/21 15:22:56  bjj
- * doinsert reallocs for appending to refcnt 1 lists.  note that this wins
- * because it avoids all the var_ref/free_var that's done in the general case,
- * not because it avoids malloc/free.  the general case could also benefit from
- * using memcpy when the refcnt is 1, rather than looping with var_ref.
- *
- * Revision 1.3  1997/03/03 06:20:04  bjj
- * new_list(0) now returns the same empty list to every caller
- *
- * Revision 1.2  1997/03/03 04:18:46  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:00  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.7  1996/03/11  23:35:17  pavel
  * Fixed bad use of possibly-signed characters in decode_binary().
  * Release 1.8.0p1.

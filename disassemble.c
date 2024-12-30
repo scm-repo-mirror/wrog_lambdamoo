@@ -472,27 +472,9 @@ register_disassemble(void)
     register_function("disassemble", 2, 2, bf_disassemble, TYPE_OBJ, TYPE_ANY);
 }
 
-char rcsid_disassemble[] = "$Id";
 
 /*
  * $Log$
- * Revision 1.3  1998/12/14 13:17:42  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2.2.1  1997/09/09 07:01:16  bjj
- * Change bytecode generation so that x=f(x) calls f() without holding a ref
- * to the value of x in the variable slot.  See the options.h comment for
- * BYTECODE_REDUCE_REF for more details.
- *
- * This checkin also makes x[y]=z (OP_INDEXSET) take advantage of that (that
- * new code is not conditional and still works either way).
- *
- * Revision 1.2  1997/03/03 04:18:34  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:44:59  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.6  1996/04/08  01:09:40  pavel
  * Added missing mnemonic-table entry for EOP_PUSH_LABEL.  Release 1.8.0p3.
  *

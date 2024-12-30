@@ -159,25 +159,9 @@ register_log(void)
     register_function("server_log", 1, 2, bf_server_log, TYPE_STR, TYPE_ANY);
 }
 
-char rcsid_log[] = "$Id$";
 
 /*
  * $Log$
- * Revision 1.4  2004/05/22 01:25:43  wrog
- * merging in WROGUE changes (W_SRCIP, W_STARTUP, W_OOB)
- *
- * Revision 1.3.10.1  2003/06/03 12:19:27  wrog
- * added log_report_progress()
- *
- * Revision 1.3  1998/12/14 13:17:59  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:18:48  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:00  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.2  1996/04/08  01:06:25  pavel
  * Added `set_log_file()' entry point.  Made logging print undated messages to
  * stderr if they arrive before a log file has been set.  Release 1.8.0p3.

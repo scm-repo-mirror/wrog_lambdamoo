@@ -732,22 +732,9 @@ unparse_to_stderr(Program * p, int fully_parenthesize, int indent_lines,
     unparse_to_file(stderr, p, fully_parenthesize, indent_lines, f_index);
 }
 
-char rcsid_unparse[] = "$Id$";
 
 /*
  * $Log$
- * Revision 1.4  2010/03/30 23:06:51  wrog
- * value_to_literal() replaced by unparse_value()
- *
- * Revision 1.3  1998/12/14 13:19:12  nop
- * Merge UNSAFE_OPTS (ref fixups); fix Log tag placement to fit CVS whims
- *
- * Revision 1.2  1997/03/03 04:19:34  nop
- * GNU Indent normalization
- *
- * Revision 1.1.1.1  1997/03/03 03:45:01  nop
- * LambdaMOO 1.8.0p5
- *
  * Revision 2.5  1996/02/18  23:21:00  pavel
  * Fixed unparsing of expression `X.Y', where X is an integer, to add a space
  * before the dot to keep it from looking like a floating-point literal.
