@@ -568,9 +568,8 @@ MOO_XTL_DEFINE([%make],
 m4_define([_moo_xtl_trimmake], ax_lp_NTSC(
  [m4_bpatsubsts([[$1]],
   [\`\(..\)\([ST]*N\)+],[\1],
-  [\([^N]\)\([ST]*N\)+\(..\)\'],[\1N\3],
+  [\([^N]\)\([ST]*N\)*\(..\)\'],[\1N\3],
   [^\(T.*\)N\(..\)\'],[\1NN\2])]))
-
 
 
 MOO_XTL_DEFINE([%ac],
