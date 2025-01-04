@@ -805,13 +805,14 @@ m4_define([_ax_lp__hash_key],[[_ax_lp_H([$1],[$2])]])
 
 # ax_lp_cmd(<CTX>)
 #   -> current <CMD>
+# ax_lp_parent_cmd(<CTX>[,<N>])
+#   -> current parent <CMD> or <N>th ancestral <CMD>
 #
-m4_define([ax_lp_cmd],   [m4_defn([$1__p_cmd]$1__p_top)])
-
-# ax_lp_parent(<CTX>)
-#   -> current parent <CMD> ([] if root)
-#
-m4_define([ax_lp_parent_cmd],[m4_defn([$1__p_cmd]m4_decr($1__p_top))])
+m4_define([ax_lp_cmd],
+  [m4_defn([$1__p_cmd]$1__p_top)])
+m4_define([ax_lp_parent_cmd], ax_lp_NTSC(
+  [m4_defn([$1__p_cmd]dnl
+m4_eval($1__p_top - m4_if([$C],[1],[1],[[$2]])))]))
 
 # ax_lp_level(<CTX>)
 #   -> current level number == height of stack
