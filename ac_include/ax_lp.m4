@@ -248,12 +248,16 @@ _ax_lp_docmd([$1],[$2],_ax_lp_cmdargs([$1],[$3]))])
 #      --word-word2[=rest] -> (--word, word2[=rest])
 #
 m4_define([_ax_lp_cmdargs],ax_lp_NTSC(
-[m4_if(m4_bregexp([$2],[^[a-zA-Z_][a-zA-Z_0-9]*[ST]*=]),[0],
+[m4_if(m4_bregexp([$2],[\`[a-zA-Z_][a-zA-Z_0-9]*[ST]*=.*\']),[0],
        [m4_bpatsubst([$2],
          [^\([a-zA-Z_][a-zA-Z_0-9]*\)[ST]*=[ST]*\(.*\)],
          [[=],[\1],[\2]])],
+       m4_bregexp([$2],[\`--[a-z].*\']),[0],
        [m4_bpatsubst([$2],
-         [^\(--[a-z]*-?\|-[^-TSN]*\|[^-N][^=TSN]*\)[TS]*N?\(.*\(N.*\)*\)\'],
+         [^\(--[a-z]+-?\)[ST]*\(.*\)],
+         [[\1],[\2]])],
+       [m4_bpatsubst([$2],
+         [^\([^STN]+\)[ST]*N?\(.*\(N.*\)*\)\'],
          [[\1],[\2]])])]))
 
 # _ax_lp_docmd(<CTX>,<INDENTATION>,<CMD>,<PRELIM_ARG>+)
