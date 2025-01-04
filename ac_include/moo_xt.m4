@@ -296,7 +296,6 @@ MOO_XTL_DEFINE([%%extension],
               [reqs], [req2s]],
   [:var],    [[cdef_mode], [0]],
   [:var],    [[xt_name],  [$2]],
-  [:var],    [[lvl],      [xt]],
   [:sets],   [[all_kwds], [all_options], [all_cdefs]],
 
   [:subcmds],[[=]],
@@ -362,7 +361,7 @@ ax_lp_put([$1], [ew_var], m4_translit([[$2-$3]],[-+.],[___]))])
 MOO_XTL_DEFINE([%?],[:fn], ax_lp_NTSC(
   [m4_ifval(
     ax_lp_ifdef([$1], [kwd_select],
-                [m4_if(ax_lp_get([$1], [lvl]),[bld],[],[1])]),
+                [m4_if(ax_lp_parent_cmd([$1],[2]), [%build],[],[1])]),
     [ax_lp_append([$1], [help],
        m4_format([[[N%22s: . . %s]]],
          ax_lp_get([$1], [kwd_select]), [$2]))],
@@ -482,8 +481,7 @@ MOO_XTL_DEFINE([%require],
             [help],[blds]],
   [:var],  [[cdef_mode], [0]],
   [:var],  [[rq_name],  [$2]],
-  [:var],  [[ew],     [with]],
-  [:var],  [[lvl],      [rq]])
+  [:var],  [[ew],     [with]])
 
 
 # _moo_xtl_with_arg([ctx])
@@ -513,7 +511,6 @@ MOO_XTL_DEFINE([%lib],
   [:subcmds],[[%ac], [%alt]],
   _moo_xtl_args_split_into_words,
   [:vars],   [[code]],
-  [:var],    [[lvl],       [lib]],
   [:var],    [[lib_name],   [$2]],
   [:var],    [[kwd_select], [$2]],
   [:var],    [[kwd_xselect],[x$2]],
@@ -535,7 +532,6 @@ MOO_XTL_DEFINE([%build],
 
   [:vars],   [[ew_name],[ew_var],[ew_vdesc],[help],[code]],
   [:var],    [[ew], [with]],
-  [:var],    [[lvl], [bld]],
 
   [:subcmds],[[=], [%make], [%dirvar], [%path]],
   [:vars],   [[dirvar], [path]],
