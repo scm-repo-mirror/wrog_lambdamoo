@@ -297,10 +297,12 @@ m4_define([_ax_lp_parse_lines], ax_lp_NTSC(
      [m4_if($1__p_top,[0],[],
         [_ax_lp_unwind([$1],m4_defn([$1__p_ind1]),[0])])],
      [_ax_lp_nextline([$1])dnl
-m4_if(m4_bregexp(_ax_lp_line([$1]), [^[ST]*[^STC]]), [-1],
-        [],
+dnl
+dnl  Do nothing unless first line has a non-comment char.
+dnl  A heredoc line never has a comment and must be passed as is.
+m4_if(m4_bregexp(_ax_lp_line([$1]), [\`[ST]*[^STCN]]), [-1], [],
         [m4_bpatsubst(_ax_lp_line([$1]),
-           [^\([ST]*\)\([^C]*[^CST]\)[ST]*\(C.*\)?$],
+           [\`\([ST]*\)\([^CN]*\(\(N.*\)+\|[^CNST]\)\)[ST]*\(C.*\)?\'],
            [_ax_lp_doline([$1],_ax_lp_tabspace([$1],[\1]),[\2])])])dnl
 $0($@)])]))
 
