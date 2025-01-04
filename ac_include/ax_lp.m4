@@ -684,28 +684,28 @@ m4_define([_ax_lp_push_local_indir],
 #-----------
 # variables
 
-# ax_lp_get(<CTX>,<VARNAME>+)  -> (<VAL>+)
+# ax_lp_get(<CTX>,<VAR_ID>+)  -> (<VAL>+)
 #   where each <VAL> = m4_defn(<CTX>_<VARNAME>)
 #
 m4_define([ax_lp_get],
   [m4_map_args_sep([m4_defn([$1_]],[)],[,],m4_shift($@))])
 
-# ax_lp_put(<CTX>,<VARNAME>,<VAL>)  -> ''
-#   does assignment <VARNAME> <- <VAL>
+# ax_lp_put(<CTX>,<VAR_ID>,<VAL>)  -> ''
+#   assigns value <VAL> to <VAR_ID>
 #
 m4_define([ax_lp_put],
   [m4_define([$1_$2], [$3])])
 
-# ax_lp_append(<CTX>,<VARNAME>,<MOREVAL>,<SEP>)
-#   appends <MOREVAL> to <VARNAME>'s value,
+# ax_lp_append(<CTX>,<VAR_ID>,<MOREVAL>,<SEP>)
+#   appends <MOREVAL> to <VAR_ID>'s value,
 #   not including <SEP> if value was previously ''
 #
 m4_define([ax_lp_append],
   [m4_append([$1_$2], [$3], m4_ifval(m4_defn([$1_$2]),[$4]))])
 
-# ax_lp_ifdef(<CTX>, <VARNAME>, <IF-DEF>, <IF-UNDEF>)
-# ax_lp_<VERB>(<CTX>, <VARNAME>, <ARGS>...)
-#   -> m4_<VERB>(<CTX>_<VARNAME>, <ARGS>...)
+# ax_lp_ifdef(<CTX>, <VAR_ID>, <IF-DEF>, <IF-UNDEF>)
+# ax_lp_<VERB>(<CTX>, <VAR_ID>, <ARGS>...)
+#   -> m4_<VERB>(<CTX>_<VAR_ID>, <ARGS>...)
 #
 m4_map_args_sep(
   [ax_lp_beta([&],
@@ -719,11 +719,14 @@ m4_map_args_sep(
 #    (implemented as an ordinary variable whose value
 #     names an m4_set.  Do NOT use ax_lp_put on these.)
 
-# ax_lp_set_add ax_lp_set_add_all
-# ax_lp_set_contains ax_lp_set_empty ax_lp_set_size
+# ax_lp_set_add
+# ax_lp_set_add_all
+# ax_lp_set_contains
+# ax_lp_set_empty
+# ax_lp_set_size
 # ax_lp_set_map_sep
-#   ax_lp_<VERB>(<CTX>, <VARNAME>, <ARGS>...)
-#   -> m4_<VERB>(ax_lp_get(<CTX>,<VARNAME>), <ARGS>...)
+#   ax_lp_<VERB>(<CTX>, <SET_ID>, <ARGS>...)
+#   -> m4_<VERB>(ax_lp_get(<CTX>,<SET_ID>), <ARGS>...)
 #
 m4_map_args_sep(
   [ax_lp_beta([&],
@@ -741,13 +744,13 @@ m4_map_args_sep(
 #     names an m4_set (of valid keys).
 #     Do NOT use ax_lp_put on these.)
 
-# ax_lp_hash_empty(<CTX>, <HNAME>)
-# ax_lp_hash_size(<CTX>, <HNAME>)
-# ax_lp_hash_has_key(<CTX>, <HNAME>, <KEY>, <IF_PRESENT>, <IF_ABSENT>)
-# ax_lp_hash_map_keys_sep(<CTX>,<HNAME>, <PRE>, <POST>, <SEP>, <ARG>+)
+# ax_lp_hash_empty(<CTX>, <HT_ID>)
+# ax_lp_hash_size(<CTX>, <HT_ID>)
+# ax_lp_hash_has_key(<CTX>, <HT_ID>, <KEY>, <IF_PRESENT>, <IF_ABSENT>)
+# ax_lp_hash_map_keys_sep(<CTX>,<HT_ID>, <PRE>, <POST>, <SEP>, <ARG>+)
 #
-# ax_lp_hash_<VERB>(<CTX>,<HNAME>[,<ARG>*])
-#   -> m4_set_<VERB>(ax_lp_get(<CTX>,<HNAME>)[,<ARG>*])
+# ax_lp_hash_<VERB>(<CTX>,<HT_ID>[,<ARG>*])
+#   -> m4_set_<VERB>(ax_lp_get(<CTX>,<HT_ID>)[,<ARG>*])
 #
 m4_map_args_sep(
   [ax_lp_beta([&],
@@ -760,9 +763,9 @@ m4_map_args_sep(
 m4_rename([ax_lp_hash_map_sep],[ax_lp_hash_map_keys_sep])
 m4_rename([ax_lp_hash_contains],[ax_lp_hash_has_key])
 
-# ax_lp_hash_get(<CTX>,<HNAME>,<KEY>,<DEFAULT>)
-# ax_lp_hash_put(<CTX>,<HNAME>,<KEY>,<VALUE>)
-# ax_lp_hash_append(<CTX>,<HNAME>,<KEY>,<MOREVALUE>,<SEP>)
+# ax_lp_hash_get(<CTX>,<HT_ID>,<KEY>,<DEFAULT>)
+# ax_lp_hash_put(<CTX>,<HT_ID>,<KEY>,<VALUE>)
+# ax_lp_hash_append(<CTX>,<HT_ID>,<KEY>,<MOREVALUE>,<SEP>)
 #
 m4_map_args_sep(
   [m4_define([ax_lp_hash_]],
