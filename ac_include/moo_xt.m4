@@ -792,20 +792,23 @@ AS_IF([[test "x$moo_xt_rqtry_&2" != x]],[[
   _moo_lfail_extras=
   for moo_lib in $moo_xt_rqtry_&2 ; do
     _moo_lfail1=]
-    AS_CASE([[$moo_lib]]&4,[
+    AS_CASE([[$moo_lib]]&3,[
       AC_MSG_ERROR([[?? \$moo_xt_rqtry_&2 kwd = $moo_lib]])])
     AS_IF([[test "x$_moo_lfail1" != x]],[[
       _moo_lfail_extras="$_moo_lfail_extras
   $moo_lib: $_moo_lfail1"]])[
   done]
   AS_IF([[$_moo_xt_found_it_]],[],[
-    AC_MSG_ERROR([[--with-&3: no library found$_moo_lfail_extras]])])])
+    AC_MSG_ERROR([[&5: no library found$_moo_lfail_extras]])])])
 AS_CASE([[x$moo_xt_rquse_&2]],[[
-  x]],[]&5,[
+  x]],[]&4,[
   AC_MSG_ERROR([[?? \$moo_xt_rquse_&2 = $moo_xt_rquse_&2]])])]],
 
-             ax_lp_get([$1],[xt_name],[rq_name],[rq_ew_name],
-                            [scases],[ucases])))])
+             ax_lp_get([$1],[xt_name],[rq_name],[scases],[ucases]),
+             m4_ifval(ax_lp_get([$1],[ew_name]),
+               [[--with-]ax_lp_get([$1],[ew_name])],
+               [m4_format([[extension %s (requires %s)]],
+                  ax_lp_get([$1],[xt_name],[rq_name]))])))])
 
 MOO_XTL_DEFINE([%%extension],
   [:fnend],
