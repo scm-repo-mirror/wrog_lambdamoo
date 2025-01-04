@@ -201,10 +201,10 @@ m4_define([_moo_xtl_cdef_setup], [m4_do(
     [ax_lp_fatal([$1],['%cdefine' again? ])]),
 
   ax_lp_set_empty([$1], [all_kwds], [],
-    [ax_lp_fatal([$1], m4_quote(
-      ['%cdefine' must come before any ],
-      m4_if(ax_lp_get([$1], [lvl]), [xt],
-        [[%option]], [[%lib]])))]),
+    [ax_lp_fatal([$1], m4_joinall([ ],
+      ['%cdefine' must come before any],
+      m4_if(ax_lp_parent_cmd([$1]), [%%extension],
+        [['%option']], [['%lib']]))))]),
 
   m4_ifval([$2],
     [m4_if(m4_bregexp([$2],[%s]),[-1],
