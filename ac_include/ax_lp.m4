@@ -801,6 +801,36 @@ m4_define([_ax_lp__hash_key],[[_ax_lp_H([$1],[$2])]])
 
 
 #--------------------------------
+# referencing prior values
+
+# ("prior" meaning the value (var, set, or hash)
+#  defined in some ancestral frame that is being shadowed.)
+
+# ax_lp_with_prior(<CTX>,[<ID>,...],<EXPR>)
+#   evaluate <EXPR> using <ID> definitions
+#   from the nearest ancestral frame that defines them
+#   (ignoring the current definitions).
+#   <ID>s can be vars, sets, or hashes.
+#   (This raises an error if an <ID> is not shadowing anything).
+#
+m4_define([ax_lp_with_prior],
+  [m4_pushdef([_$0 $1],
+     m4_map_args_sep([_ax_lp_def_saver([$1_]],[)],[],
+                     $2)[m4_popdef(]m4_dquote([$]0)[)])dnl
+m4_map_args_sep([m4_popdef([$1_]],[)],[],$2)dnl
+$3[]m4_indir([_$0 $1])])
+
+m4_define([_ax_lp_def_saver],
+[[m4_pushdef([$1],]m4_dquote(m4_defn([$1]))[)]])
+
+# ax_lp_get_prior(<CTX>,<VAR_ID>...)
+#   like ax_lp_get() but returns prior values
+#
+m4_define([ax_lp_get_prior],
+  [ax_lp_with_prior([$1],m4_cdr($@),[ax_lp_get($@)])])
+
+
+#--------------------------------
 # stack frame
 
 # ax_lp_cmd(<CTX>)
