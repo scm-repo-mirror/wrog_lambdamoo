@@ -270,7 +270,8 @@ MOO_XTL_DEFINE([],
           ax_lp_beta([&],
             [m4_defn([_moo_xt_dist_makevar_&1]), ax_lp_get([$1], [dist_&1])],],
        [))],
-       [], _moo_xt_source_makevars()))])
+       [], _moo_xt_source_makevars())ax_lp_NTSC(NCNC[]dnl
+`[ ------------- end of extension configurations]N), m4_newline())])
 
 # purposefully screw things up (uncomment to test for underquoting)
 # m4_define([extension],[detention])
