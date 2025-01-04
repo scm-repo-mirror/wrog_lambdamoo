@@ -355,12 +355,7 @@ m4_define([_moo_xtl_ew_defns],
 m4_ifval([$3],[],[ax_lp_fatal([$1],['--enable|with-' name expected])])dnl
 ax_lp_put([$1], [ew_name], [$3])dnl
 ax_lp_put([$1], [ew_vdesc], [$4])dnl
-ax_lp_put([$1], [ew_var], m4_translit([[$2-$3]],[-+.],[___]))dnl
-ax_lp_ifdef([$1], ax_lp_get([$1], [lvl])[_ew_name],
-  [ax_lp_put([$1], ax_lp_get([$1], [lvl])[_ew], ax_lp_get([$1], [ew]))dnl
-ax_lp_put([$1], ax_lp_get([$1], [lvl])[_ew_name], ax_lp_get([$1], [ew_name]))dnl
-ax_lp_put([$1], ax_lp_get([$1], [lvl])[_ew_var], ax_lp_get([$1], [ew_var]))dnl
-])])
+ax_lp_put([$1], [ew_var], m4_translit([[$2-$3]],[-+.],[___]))])
 
 
 
@@ -482,8 +477,7 @@ MOO_XTL_DEFINE([%require],
 
   [:sets], [[all_kwds], [all_cdefs]],
   [:vars], [[ew_name],[ew_var],[ew_vdesc],[yescode],
-            [rq_ew],[rq_ew_name],[rq_ew_var],[rq_acarg],
-            [all_libs],[cdef_sym],[cdef_val],
+            [all_libs],[cdef_sym],[cdef_val],[rq_acarg],
             [icases],[scases],[ucases],
             [help],[blds]],
   [:var],  [[cdef_mode], [0]],
@@ -651,24 +645,26 @@ dnl
 ax_lp_append([$1], [blds],
           ax_lp_beta([&], [[
   AS_IF([[test "x$moo_xt_rquse_&1" = x]],]dnl
-m4_ifval([&3],[[[
-    AS_CASE([[x$&3]],[[
-      x|xno]],[],[&5][&6])]]],
-  [m4_ifval([&2],[[[
+m4_ifval([&2],[[[
     AS_CASE([[x$&2]],[[
+      x|xno]],[],[&5][&6])]]],
+  [m4_ifval([&4],[[[
+    AS_CASE([[x$&4]],[[
       xno]],[],[[
-      x|xyes|&4]],[&6])]]],
+      x|xyes|&3]],[&6])]]],
     [[&6]])])[)]],
 
-           ax_lp_get([$1],[rq_name],[rq_ew_var],[ew_var],[kwd_xselect]),
+           ax_lp_get([$1],[rq_name],[ew_var],[kwd_xselect]),
+	   ax_lp_get_prior([$1],[ew_var]),
 
 	   ax_lp_beta([&],[m4_ifval([&1],[m4_ifval([&4],[[
       AS_CASE([[x$&1]],[[
         x|xyes|&7]],[],
         [AC_MSG_ERROR([[--&6-&5=DIR vs. --&3-&2=$&1]])])]])])],
 
-	     ax_lp_get([$1],[rq_ew_var],[rq_ew_name],[rq_ew],
-			    [ew_var], [ew_name], [ew], [kwd_xselect])),
+	     ax_lp_get_prior([$1],[ew_var],[ew_name],[ew]),
+	     ax_lp_get([$1],      [ew_var],[ew_name],[ew],
+				  [kwd_xselect])),
 
 	   ax_lp_beta([&],[[[
       moo_xt_rquse_&1=&2]&5
