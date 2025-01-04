@@ -387,9 +387,14 @@ m4_define([_moo_xtl_addhelp],
       ax_lp_get([$1], [ew_name]),m4_ifval([$3],[[=$3]]),[$4]))])
 
 
+# common case of arguments being whitespace-separated words
+m4_define([_moo_xtl_args_split_into_words],
+  [[:args],
+   [m4_unquote(m4_split(]m4_dquote([$][2])[))]])
+
 
 MOO_XTL_DEFINE([%cdefine],
-  [:args], [m4_unquote(m4_split([$2]))],
+  _moo_xtl_args_split_into_words,
   [:fn],
     [_moo_xtl_cdef_setup($@)])
 
@@ -397,7 +402,7 @@ MOO_XTL_DEFINE([%cdefine],
 MOO_XTL_DEFINE([%option],
   [:subcmds], [[%implies], [%?], [%alt]],
 
-  [:args], [m4_unquote(m4_split([$2]))],
+  _moo_xtl_args_split_into_words,
   [:sets], [[opt_implies]],
   [:var],  [[opt_name],  [$2]],
   [:var],  [[kwd_select],[$2]],
@@ -505,7 +510,7 @@ AC_ARG_WITH([&2],
 MOO_XTL_DEFINE([%lib],
   [:parent], [%require],
   [:subcmds],[[%ac], [%alt]],
-  [:args],   [m4_unquote(m4_split([$2]))],
+  _moo_xtl_args_split_into_words,
   [:vars],   [[code]],
   [:var],    [[lvl],       [lib]],
   [:var],    [[lib_name],   [$2]],
