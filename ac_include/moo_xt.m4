@@ -330,22 +330,29 @@ MOO_XTL_DEFINE([=],
   [:fn], [_moo_xtl_add_makevar([$1],[$2],[$3])])
 
 
+# (--enable-|--with-) *<NAME> *(= *<DESCRIPTION>)?
+#     -> (<NAME>, <DESCRIPTION>)
+m4_define([_moo_xtl_args_ew],
+  [[:args], ax_lp_NTSC(
+   [m4_bregexp(]m4_dquote([$][2])[,
+	       [\`\([^=ST]*\)[ST]*\(\|=[ST]*\(.*\)\)],
+	       [[\1],[\3]])])])
+
 MOO_XTL_DEFINE([--enable-],
   [:subcmds], [[%?], [%?-]],
-  [:args],
-    [m4_do(m4_split(m4_translit([[$2]],[=],[ ])))],
+  _moo_xtl_args_ew,
   [:fn],
     [_moo_xtl_ew_defns([$1], [enable], [$2], [$3])])
 
 MOO_XTL_DEFINE([--with-],
   [:subcmds], [[%?], [%?*]],
-  [:args],
-    [m4_do(m4_split(m4_translit([[$2]],[=],[ ])))],
+  _moo_xtl_args_ew,
   [:fn],
     [_moo_xtl_ew_defns([$1], [with], [$2], [$3])])
 
 m4_define([_moo_xtl_ew_defns],
   [ax_lp_put([$1], [ew], [$2])dnl
+m4_ifval([$3],[],[ax_lp_fatal([$1],['--enable|with-' name expected])])dnl
 ax_lp_put([$1], [ew_name], [$3])dnl
 ax_lp_put([$1], [ew_vdesc], [$4])dnl
 ax_lp_put([$1], [ew_var], m4_translit([[$2-$3]],[-+.],[___]))dnl
