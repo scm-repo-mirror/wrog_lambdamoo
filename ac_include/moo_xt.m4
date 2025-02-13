@@ -53,35 +53,49 @@ AC_DEFUN([MOO_XT_DECLARE_EXTENSIONS],
     [m4_fatal([bad trailer for $0 ($9)])])dnl
 _moo_xt_set_global_state([1], [2])dnl
 AX_LP_PARSE_SCRIPT([XTL_MOO],
-     [[_MOO_XT_EXTENSION_ARGS],[_MOO_XT_CONFIGURE_EXTENSIONS]],
+     [[_MOO_XT_EXTENSION_ARGS],[_MOO_XT_CONFIGURE_EXTENSIONS],[MOO_XT_SGRP]],
      [$1])])
 
 AC_DEFUN([MOO_XT_EXTENSION_ARGS],
-  [_moo_xt_set_global_state([2], [0])
-_$0()])
+  [_moo_xt_set_global_state([2], [0])dnl
+# ------------- extension arguments
+_$0()
+#
+# ------------- end of extension arguments
+])
 
 AC_DEFUN([MOO_XT_CONFIGURE_EXTENSIONS],
   [_moo_xt_set_global_state([2], [0])dnl
+# ------------- extension configurations
+m4_set_map([_moo_xtl_substed_makevars],[AC_SUBST])dnl
+_$0()
+_MOO_XT_CONFIGURE_EPILOG()
 #
-# Configure extensions
-#
-m4_set_map([_moo_xt_reserved_makevars],[AC_SUBST])
-_$0()])
+# ------------- end of extension configurations
+])
 
 # These get m4_append()ed as we process the scripts:
 m4_define([_MOO_XT_EXTENSION_ARGS])
 m4_define([_MOO_XT_CONFIGURE_EXTENSIONS])
+
+# put ALL_XT_CSRCS/HDRS once we have all of them
+m4_define([_MOO_XT_CONFIGURE_EPILOG],
+[m4_map_args_sep(
+  [ax_lp_beta([&],[
+[ALL_XT_&1=']][m4_set_map_sep([MOO_XT_SGRP_&1],[],[],[ ])[']],], [)],
+  [], [CSRCS], [HDRS])])
+
 
 # A vaguely useful debugging tool (output of this will inevitably
 # be better-formatted than what ends up in ./configure)
 #
 m4_define([MOO_XT_DUMP_EVERYTHING],
 [m4_errprint([-------
-_MOO_XT_EXTENSION_ARGS
+_MOO_XT_EXTENSION_ARGS:
 -------
 ]m4_defn([_MOO_XT_EXTENSION_ARGS])[
 -------
-_MOO_XT_DECLARE_EXTENSIONS
+_MOO_XT_CONFIGURE_EXTENSIONS:
 -------
 ]m4_defn([_MOO_XT_CONFIGURE_EXTENSIONS])
 )])
@@ -113,50 +127,78 @@ m4_define([_moo_xt_global_state], [$1])])
 #-------------------------------
 # makevars
 
-# makevars that are lists of source files for an extension
-m4_define([_moo_xt_source_makevars], [[XT_CSRCS], [XT_HDRS]])
+# each optional source for an extension
+# belongs to a source group
+m4_define([_moo_xtl_source_groups], [[CSRCS], [HDRS]])
 
-# _moo_xt_dist_makevar_<VAR>
-#    -> corresponding distribution makevar (ALL_<VAR>)
+# _moo_xtl_direct_makevars
+#   makevars where <var>=<value> appends <value> directly
+#   (for all others, append <var>=<value> to XT_MAKEVARS)
 #
-m4_map_args_sep([ax_lp_beta([&],
-   [m4_define([_moo_xt_dist_makevar_&1], [ALL_&1])],],
-   [)], [], _moo_xt_source_makevars)
+m4_set_add_all([_moo_xtl_direct_makevars],
+  [CPPFLAGS], [XT_LOBJS])
+  # +XT_<sourcegroup>  for all sourcegroups
 
-# _moo_xt_reserved_makevars =
-#    The complete set of reserved makevars
-#    that we do substitutions on
+# _moo_xtl_reserved_makevars
+#   makevars for which <var>=<value> is not allowed
 #
-m4_set_add_all([_moo_xt_reserved_makevars],
-  _moo_xt_source_makevars,
-  [CPPFLAGS], [XT_LOBJS], [XT_DIRS], [XT_MAKEVARS], [XT_RULES],
-  m4_map_args_sep([m4_defn([_moo_xt_dist_makevar_]],
-                  [)], [, ],
-                  _moo_xt_source_makevars))
+m4_set_add_all([_moo_xtl_reserved_makevars],
+  [XT_DIRS], [XT_MAKEVARS], [XT_RULES])
+  # +ALL_XT_<sourcegroup>  for all sourcegroups
 
-# _moo_xt_makevar_sep_<VAR>
-#    -> separator to use when adding to <VAR>
+# _moo_xtl_makevar_source_group_<makevar>
+#    source group corresponding to <makevar> (if defined)
 #
-m4_define([_moo_xt_makevar_sep], ax_lp_NTSC(
-  [m4_ifdef([_moo_xt_makevar_sep_$1],
-     [m4_defn([_moo_xt_makevar_sep_$1])], [S])]))
-m4_define([_moo_xt_makevar_sep_XT_RULES],    ax_lp_NTSC([N]))
-m4_define([_moo_xt_makevar_sep_XT_MAKEVARS], ax_lp_NTSC([N]))
+m4_map_args_sep(
+  [ax_lp_beta([&], [m4_do(
+       m4_define([_moo_xtl_makevar_source_group_XT_&1],[&1]),
+       m4_set_add([_moo_xtl_direct_makevars], [XT_&1]),
+       m4_set_add([_moo_xtl_reserved_makevars], [ALL_XT_&1]))],
+     ], [)], [],
+  _moo_xtl_source_groups)
+
+# _moo_xtl_append_source_group(<MAKEVAR>,<VALUE>)
+#   if <MAKEVAR> is XT_<sourcegroup>,
+#   split <VALUE> into filenames and add them to that group
+#
+m4_define([_moo_xtl_append_source_group],
+  [m4_ifdef([_moo_xtl_makevar_source_group_$2],
+    [m4_set_add_all(
+      ax_lp_get([$1],[g_srcgrp])[_]m4_defn([_moo_xtl_makevar_source_group_$2]),
+      m4_unquote(m4_split([$3])))])])
+
+# _moo_xtl_substed_makevars
+#    all makevars that have substitutions due to extensions
+#
+m4_set_add_all([_moo_xtl_substed_makevars]dnl
+[]m4_set_listc([_moo_xtl_direct_makevars])dnl
+[]m4_set_listc([_moo_xtl_reserved_makevars]))
+
+# moo_xtl_add_makevar(<CTX>,<VAR>,<VALUE>)
+#    perform assignment for '=', '%dirvar', and '%make' subcmds
+#
+m4_define([moo_xtl_add_makevar],
+  [m4_set_contains([_moo_xtl_reserved_makevars], [$2],
+    [ax_lp_fatal([$1],['$2' cannot be assigned here])],
+    [m4_set_contains([_moo_xtl_direct_makevars], [$2],
+      [_$0($@)_moo_xtl_append_source_group($@)],
+      [_$0([$1], [XT_MAKEVARS], [$2 = $3])])])])
+
+# _moo_xtl_makevar_sep_<VAR>
+#    -> separator to use when adding a value to <VAR>
+#
+m4_define([_moo_xtl_makevar_sep], ax_lp_NTSC(
+  [m4_ifdef([_moo_xtl_makevar_sep_$1],
+     [m4_defn([_moo_xtl_makevar_sep_$1])], [S])]))
+m4_define([_moo_xtl_makevar_sep_XT_RULES],    ax_lp_NTSC([N]))
+m4_define([_moo_xtl_makevar_sep_XT_MAKEVARS], ax_lp_NTSC([N]))
 
 # _moo_xtl_add_makevar(<CTX>,<VAR>,<VALUE>)
-#    for reserved makevars
-#       append [sep]?[value] to [var]
-#       and likewise for ALL_var if it exists
-#    for other variables
-#       append [var]=[value] to XT_MAKEVARS
+#    append [sep]?[value] to [var]
 #
 m4_define([_moo_xtl_add_makevar],
-  [m4_set_contains([_moo_xt_reserved_makevars], [$2],
-    [ax_lp_hash_append([$1], [makevars], [$2],
-        [$3], _moo_xt_makevar_sep([$2]))],
-    [$0([$1], [XT_MAKEVARS], [$2 = $3])])dnl
-m4_ifdef([_moo_xt_dist_makevar_$2],
- [ax_lp_append([$1], [dist_$2], [$3], [[ ]])])])
+  [ax_lp_hash_append([$1], [makevars], [$2],
+     [$3], _moo_xtl_makevar_sep([$2]))])
 
 # _moo_xtl_put_makevars(<CTX>,<INDENT>)
 #   -> shell code to actually set all of the makevars
@@ -171,7 +213,7 @@ ax_lp_beta([&],m4_if(m4_defn([moo_v]),[XT_MAKEVARS],
                      [[[&1="$&1${&1+&2}&3"]]],
 		     [[[&1=$&1${&1+'&2'}'&3']]]),
        m4_defn([moo_v]),
-       _moo_xt_makevar_sep(m4_defn([moo_v])),
+       _moo_xtl_makevar_sep(m4_defn([moo_v])),
        ax_lp_hash_get([$1], [makevars],
                       m4_defn([moo_v])))dnl
 m4_popdef([moo_v])])])
@@ -261,17 +303,7 @@ AX_LP_DEFINE_LANGUAGE([XTL_MOO],[MOO_XTL_DEFINE])
 MOO_XTL_DEFINE([],
   [:var],  [[g_args],      [$2]],
   [:var],  [[g_configure], [$3]],
-  [:vars], [m4_map_args_sep([[dist_]],[],[,],_moo_xt_source_makevars())],
-  [:fnend],
-    [m4_append(ax_lp_get([$1], [g_configure]),
-      m4_map_args_sep(
-       [ax_lp_beta([&],
-          ax_lp_NTSC([[N[&1='&2']]]),
-          ax_lp_beta([&],
-            [m4_defn([_moo_xt_dist_makevar_&1]), ax_lp_get([$1], [dist_&1])],],
-       [))],
-       [], _moo_xt_source_makevars())ax_lp_NTSC(NCNC[]dnl
-`[ ------------- end of extension configurations]N), m4_newline())])
+  [:var],  [[g_srcgrp],    [$4]])
 
 # purposefully screw things up (uncomment to test for underquoting)
 # m4_define([extension],[detention])
@@ -326,7 +358,7 @@ MOO_XTL_DEFINE([%disabled],
 
 
 MOO_XTL_DEFINE([=],
-  [:fn], [_moo_xtl_add_makevar([$1],[$2],[$3])])
+  [:fn], [moo_xtl_add_makevar([$1],[$2],[$3])])
 
 
 # (--enable-|--with-) *<NAME> *(= *<DESCRIPTION>)?
@@ -542,10 +574,10 @@ MOO_XTL_DEFINE([%dirvar],
   [:fn], [m4_do(
      m4_ifval(ax_lp_get([$1], [dirvar]),
        [ax_lp_fatal([$1], [second %dirvar for this %build?])]),
-     m4_set_contains([_moo_xt_reserved_makevars], [$2],
+     m4_set_contains([_moo_xtl_substed_makevars], [$2],
        [ax_lp_fatal([$1], [$2 cannot be used as %dirvar])]),
      ax_lp_put([$1], [dirvar], [$2]),
-     _moo_xtl_add_makevar([$1], [$2], [$moo_xtdir]),
+     _moo_xtl_add_makevar([$1], [XT_MAKEVARS], [$2 = $moo_xtdir]),
      _moo_xtl_add_makevar([$1], [XT_DIRS], [$($2)]))])
 
 MOO_XTL_DEFINE([%path],
