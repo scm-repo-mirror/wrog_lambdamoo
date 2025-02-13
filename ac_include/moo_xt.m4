@@ -1,34 +1,13 @@
-# SYNOPSIS
-#
-#   # Declare one or more extensions
-#   # (best to have this in a separate file [extensions.ac]
-#   #  to be m4_included near the top of configure.ac)
-#   #
-#   MOO_XT_DECLARE_EXTENSIONS([
-#     %%extension one
-#       <subcmds>...
-#     %%extension two
-#       <subcmds>...
-#   ])
-#
-#   # Define all --enable/--with arguments associated with extensions
-#   # (since this sets moo_d_OPTION shell variables,
-#   #  this must be before MOO_OPTION_ARG_ENABLES)
-#   #
-#   MOO_XT_EXTENSION_ARGS()
-#
-#   # Do all actual configuration of chosen extensions, e.g.,
-#   # directory/include/library checks, setting of makefile and
-#   # preprocessor variables, etc...  (should be near the end, after
-#   # all of the mandatory requirements are established, probably the
-#   # last thing before AC_OUTPUT)
-#   #
-#   MOO_XT_CONFIGURE_EXTENSIONS()
-#
 # DESCRIPTION
 #
 #   This defines and implements the language for
-#   specifying extensions in the LambdaMOO server build system.
+#   declaring extensions in the LambdaMOO server build system.
+#
+# EXPORTS
+#
+#   MOO_XT_DECLARE_EXTENSIONS()
+#   MOO_XT_EXTENSION_ARGS
+#   MOO_XT_CONFIGURE_EXTENSIONS
 #
 # AUTHOR/COPYRIGHT/LICENSE
 #
@@ -48,6 +27,18 @@
 #-----------------------------------------------------
 # world-visible definitions
 #
+#  MOO_XT_DECLARE_EXTENSIONS([
+#     <extension declaration script>
+#     ],,,,,,,,[ end of extension declarations ])
+#
+#    Parses the 1st argument into extension declarations
+#    For parsing diagnostics to produce the correct line numbers,
+#    there should be no linebreaks between the open paren
+#    and the 1st argument.  Literal 9th argument is required.
+#    Other arguments are ignored (aside from being expanded in the
+#    usual manner for M4 macro arguments).
+#    Multiple instances of this are allowed.
+#
 AC_DEFUN([MOO_XT_DECLARE_EXTENSIONS],
   [m4_if([$9],[ end of extension declarations ],[],
     [m4_fatal([bad trailer for $0 ($9)])])dnl
@@ -56,6 +47,18 @@ AX_LP_PARSE_SCRIPT([XTL_MOO],
      [[_MOO_XT_EXTENSION_ARGS],[_MOO_XT_CONFIGURE_EXTENSIONS],[MOO_XT_SGRP]],
      [$1])])
 
+
+#  MOO_XT_EXTENSION_ARGS
+#    outputs accumulated AC_ARG_ENABLE/WITH()s for
+#      extension command line arguments, including shell code
+#      to determine which extensions are active and
+#      do preliminary settings of $moo_d_ variables
+#    AC_PRESERVE_HELP_ORDER (intermixed --enables/--withs) is assumed;
+#    must occur after the final MOO_XT_DECLARE_EXTENSIONS;
+#    must occur before MOO_OPTION_ARG_ENABLES
+#      (sets $moo_d_ variables from --enable-def arguments
+#       and issues AC_DEFINE()s for options.h symbols)
+#
 AC_DEFUN([MOO_XT_EXTENSION_ARGS],
   [_moo_xt_set_global_state([2], [0])dnl
 # ------------- extension arguments
@@ -64,6 +67,15 @@ _$0()
 # ------------- end of extension arguments
 ])
 
+#  MOO_XT_CONFIGURE_EXTENSIONS
+#    outputs shell code to set makefile variables,
+#    set cpp #define symbols for config.h and options.h,
+#    and do whichever library searches are needed by the active extensions;
+#    must occur after MOO_XT_EXTENSION_ARGS;
+#    should occur after all of the mandatory requirements
+#    are checked/satisfied;
+#    must occur before AC_OUTPUT.
+#
 AC_DEFUN([MOO_XT_CONFIGURE_EXTENSIONS],
   [_moo_xt_set_global_state([2], [0])dnl
 # ------------- extension configurations
