@@ -815,24 +815,22 @@ static int
 checkbitwise(void)
 {
     int c1 = lex_getc();
-    int c2 = lex_getc();
 
-    if (c2 != '.') {
+    if (EOF != c1) {
+	int c2 = lex_getc();
+	if (c2 == '.')
+	    switch (c1) {
+	    default:
+		break;
+	    case '&':
+		return tBITAND;
+	    case '|':
+		return tBITOR;
+	    case '^':
+		return tBITXOR;
+	    }
 	lex_ungetc(c2);
-	lex_ungetc(c1);
-	return 0;
     }
-
-    if (c1 == '&')
-	return tBITAND;
-
-    if (c1 == '|')
-	return tBITOR;
-
-    if (c1 == '^')
-	return tBITXOR;
-
-    lex_ungetc(c2);
     lex_ungetc(c1);
     return 0;
 }
@@ -840,19 +838,17 @@ checkbitwise(void)
 static int
 checkrightshift(int iftwo, int ifone, int ifnone)
 {
-    int c1 = lex_getc();
+    int c;
 
-    if (c1 == '>') {
-	int c2 = lex_getc();
-	if (c2 == '>')
-	    return iftwo;
-
-	lex_ungetc(c2);
+    if ('>' != (c = lex_getc())) {
+	lex_ungetc(c);
+	return ifnone;
+    }
+    if ('>' != (c = lex_getc())) {
+	lex_ungetc(c);
 	return ifone;
     }
-
-    lex_ungetc(c1);
-    return ifnone;
+    return iftwo;
 }
 
 static Stream  *token_stream = 0;
