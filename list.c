@@ -534,7 +534,7 @@ bf_is_member(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UN
 }
 
 static package
-bf_strsub(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
+bf_strsub(volatile Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {				/* (source, what, with [, case-matters]) */
     if (arglist.v.list[2].v.str[0] == '\0') {
 	free_var(arglist);
@@ -542,7 +542,7 @@ bf_strsub(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSE
     }
 
     package p;
-    Stream *s = new_stream(100);
+    Stream *volatile s = new_stream(100);
     TRY_STREAM {
 	int case_matters = arglist.v.list[0].v.num == 4
 	    && is_true(arglist.v.list[4]);
@@ -645,10 +645,10 @@ bf_rindex(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSE
 }
 
 static package
-bf_tostr(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
+bf_tostr(volatile Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     package p;
-    Stream *s = new_stream(100);
+    Stream *volatile s = new_stream(100);
 
     TRY_STREAM {
 	int i;
@@ -668,10 +668,10 @@ bf_tostr(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED
 }
 
 static package
-bf_toliteral(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
+bf_toliteral(volatile Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     package p;
-    Stream *s = new_stream(100);
+    Stream *volatile s = new_stream(100);
 
     TRY_STREAM {
 	unparse_value(s, arglist.v.list[1]);
@@ -876,13 +876,13 @@ check_subs_list(Var subs)
 }
 
 static package
-bf_substitute(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
+bf_substitute(volatile Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     int template_length;
     const char *template, *subject;
     Var subs;
     package p;
-    Stream *s;
+    Stream *volatile s;
     char c = '\0';
 
     template = arglist.v.list[1].v.str;
@@ -987,10 +987,10 @@ bf_string_hash(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr 
 }
 
 static package
-bf_value_hash(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
+bf_value_hash(volatile Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     package p;
-    Stream *s = new_stream(100);
+    Stream *volatile s = new_stream(100);
 
     TRY_STREAM {
 	unparse_value(s, arglist.v.list[1]);
@@ -1106,11 +1106,11 @@ encode_binary(Stream * s, Var v)
 }
 
 static package
-bf_encode_binary(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
+bf_encode_binary(volatile Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED_)
 {
     package p;
-    Stream *s = new_stream(100);
-    Stream *s2 = new_stream(100);
+    Stream *volatile s = new_stream(100);
+    Stream *volatile s2 = new_stream(100);
 
     TRY_STREAM {
 	if (encode_binary(s, arglist)) {
