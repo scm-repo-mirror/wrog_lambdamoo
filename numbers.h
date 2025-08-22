@@ -41,8 +41,8 @@ extern Var do_power(Var, Var);
  *   flags   - keep reading
  * from an input stream defined by the last three arguments
  *   c_first - the first character
- *   getch() - advance, return next character or EOF if done
- *   ungetch(c) - may be NULL; if not, push c (!=EOF) to input
+ *   getch() - advance input, return next character or EOF
+ *   ungetch(c) - NULL or routine that pushes c back to input
  *
  * flags are as follows:
  */

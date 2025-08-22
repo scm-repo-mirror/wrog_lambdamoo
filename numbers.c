@@ -85,24 +85,24 @@ parse_number(unsigned flags, int32_t c_first,
 
     unsigned state = F_INT*(!(flags & PN_FLOAT_OK));
 
-    if (EOF == c) goto donechars;
+    if (EOF == c) goto at_eof;
 
-#   define NEXTC(what_to_do_at_eof)		\
+#   define NEXTC()				\
         do {					\
 	   if (EOF == (c = getch())) {		\
-	       what_to_do_at_eof;		\
+	       goto at_eof;			\
 	   }					\
 	} while (0)				\
 
     if (flags & PN_LDSPACE)
 	while (my_isspace(c))
-	    NEXTC(goto donechars);
+	    NEXTC();
 
     if ((flags & PN_OCTOTHORPE) && (c == '#')) {
-	NEXTC(goto donechars);
+	NEXTC();
 	if (flags & PN_OCTOSPACE)
 	    while (my_isspace(c))
-		NEXTC(goto donechars);
+		NEXTC();
     }
 
     for (;;) {
@@ -148,7 +148,7 @@ parse_number(unsigned flags, int32_t c_first,
 #endif
 		if (flags & PN_TRSPACE) {
 		    while (my_isspace(c))
-			NEXTC(goto donechars);
+			NEXTC();
 		}
 		goto badchar;
 #if UNICODE_NUMBERS
@@ -169,16 +169,17 @@ parse_number(unsigned flags, int32_t c_first,
 	    break;
 	}
 	stream_add_char(ns, c);
-	NEXTC(goto donechars);
+	NEXTC();
     }
 #   undef NEXTC
 
  badchar:
-    if (ungetch) ungetch(c);
     if (flags & PN_MUST_EOF)
 	goto parse_error;
 
- donechars:
+ at_eof:
+    if (ungetch)
+	ungetch(c);
     if (state & F_DIGIT)
 	goto have_digits;
     if ((state & F_EXP) || !ungetch)
