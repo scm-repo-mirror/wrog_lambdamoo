@@ -1,0 +1,25 @@
+/***************************
+ *  bf_register.c.in
+ */
+
+#include "bf_register.h"
+
+#include "db.h"
+
+typedef void (*regfn) (void);
+
+static regfn all_regfns[] = {
+@@FUNCTIONS@@
+};
+
+void
+do_all_registrations(void)
+{
+    regfn *rfn = all_regfns;
+    regfn *rfn_after = rfn + sizeof(all_regfns) / sizeof(regfn);
+
+    while (rfn < rfn_after)
+	(*rfn++)();
+
+    db_init_hooks();
+}
