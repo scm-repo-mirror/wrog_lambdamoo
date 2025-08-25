@@ -32,45 +32,10 @@
 #include "unparse.h"
 #include "utils.h"
 
-/*****************************************************************************
- * This is the table of procedures that register MOO built-in functions.  To
- * add new built-in functions to the server, add to the list below the name of
- * a C function that will register your new MOO built-ins; your C function will
- * be called exactly once, during server initialization.  Also add a
- * declaration of that C function to `bf_register.h' and add the necessary .c
- * files to the `CSRCS' line in the Makefile.
- ****************************************************************************/
-
-typedef void (*registry) (void);
-
-static registry bi_function_registries[] =
-{
-    register_db_tune,
-    register_disassemble,
-    register_execute,
-    register_functions,
-    register_list,
-    register_log,
-    register_numbers,
-    register_objects,
-    register_property,
-    register_server,
-    register_str_intern,
-    register_tasks,
-    register_verbs,
-
-    register_experiments
-};
-
-void
-register_bi_functions(void)
-{
-    int loop, num_registries =
-    sizeof(bi_function_registries) / sizeof(bi_function_registries[0]);
-
-    for (loop = 0; loop < num_registries; loop++)
-	(void) (*(bi_function_registries[loop])) ();
-}
+/*******************************************************
+ * see bf_register.h for how to define registration
+ * functions that run at server startup.
+ *******************************************************/
 
 /*** register ***/
 

@@ -1334,8 +1334,7 @@ main(int argc, char **argv)
     oklog("          (Task timeouts measured in %s seconds.)\n",
 	  virtual_timer_available()? "server CPU" : "wall-clock");
 
-    register_bi_functions();
-    db_init_hooks();
+    do_all_registrations();
 
     l = new_slistener(SYSTEM_OBJECT, desc, 1, 0);
     if (!l) {
