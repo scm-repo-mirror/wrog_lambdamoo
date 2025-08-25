@@ -1,6 +1,7 @@
 /* String intern table implementation.  */
 
 #include "str_intern.h"
+#include "bf_register.h"
 
 #include "config.h"
 #include "options.h"
@@ -286,3 +287,24 @@ str_intern_open(int table_size)
 }
 
 #endif /* STRING_INTERNING */
+
+static void
+before_load(void)
+{
+    str_intern_open(0);
+}
+
+static void
+after_load(int succeed)
+{
+    if (succeed)
+	str_intern_close();
+}
+
+void
+register_str_intern(void)
+{
+    register_db_load_hooks(DBLOAD_SEQ_str_intern,
+			   before_load, after_load,
+			   "string intern table");
+}

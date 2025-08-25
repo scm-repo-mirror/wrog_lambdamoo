@@ -75,6 +75,47 @@ extern void db_shutdown(void);
 				 * pending database changes to disk and only
 				 * returning after this is done.
 				 */
+
+
+typedef void (*db_before_hook)(void);
+typedef void (*db_after_hook)(int success);
+
+extern void register_db_load_hooks(int seq,
+				   db_before_hook before,
+				   db_after_hook after,
+				   const char *msg);
+
+				/* Register a before+after pair of
+				 * hooks to be called on db_load().
+				 */
+
+extern void register_db_save_hooks(int seq,
+				   db_before_hook before,
+				   db_after_hook after,
+				   const char *msg);
+
+				/* Register a before+after pair of
+				 * hooks to be called on db write,
+				 * [either a db_flush() or the
+				 * final shutdown].
+				 */
+		/* For both of these, SEQ indicates the relative
+		 * ordering of the before hooks invocations.  The
+		 * after hooks will be invoked in the reverse order.
+		 * MSG is written on the server log.
+		 */
+
+#define DBLOAD_SEQ_numbers    -1000
+#define DBLOAD_SEQ_functions   -500
+#define DBLOAD_SEQ_str_intern  -100
+
+
+extern void db_init_hooks(void);
+				/* Complete the setup of the db
+				 * load+save hooks.  No further
+				 * hook registrations should be
+				 * attempted once this is called.
+				 */
 
 /**** objects ****/
 

@@ -28,6 +28,7 @@ extern void register_numbers(void);
 extern void register_objects(void);
 extern void register_property(void);
 extern void register_server(void);
+extern void register_str_intern(void);
 extern void register_tasks(void);
 extern void register_verbs(void);
 

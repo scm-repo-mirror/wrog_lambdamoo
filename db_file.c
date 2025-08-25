@@ -249,6 +249,124 @@ write_object(Objid oid)
 }
 
 
+/*********** File-IO Hooks ***********/
+
+#define  DB_HOOK_TABLE_SIZE  5
+
+static
+struct db_file_hook {
+    db_before_hook before;
+    db_after_hook after;
+    int seq;
+    const char *msg;
+}
+    load_hooks[DB_HOOK_TABLE_SIZE],
+    save_hooks[DB_HOOK_TABLE_SIZE];
+
+static unsigned
+    next_load = 0,
+    next_save = 0,
+    hooks_initialized = 0;
+
+static void
+register_db_hooks(struct db_file_hook hooks[], unsigned *next,
+		  int seq, db_before_hook before, db_after_hook after,
+		  const char *message)
+{
+    if (*next >= DB_HOOK_TABLE_SIZE)
+	panic("need to increase DB_HOOK_TABLE_SIZE in " __FILE__);
+    if (hooks_initialized)
+	panic("register_db_hooks() called too late");
+
+    struct db_file_hook *dfh = hooks + *next;
+    dfh->seq    = seq;
+    dfh->before = before;
+    dfh->after  = after;
+    dfh->msg    = message;
+    ++*next;
+}
+
+static void
+db_run_before_hooks(struct db_file_hook hooks[], unsigned next,
+		    const char *which)
+{
+    unsigned i;
+    for (i = 0; i < next; ++i)
+	if (hooks[i].before) {
+	    oklog("BEFORE(%s): %s\n", which, hooks[i].msg);
+	    hooks[i].before();
+	}
+}
+
+static void
+db_run_after_hooks(struct db_file_hook hooks[], unsigned next,
+		   const char *which, int success)
+{
+    unsigned i = next;
+    while (i--)
+	if (hooks[i].after) {
+	    oklog("AFTER(%s): %s\n", which, hooks[i].msg);
+	    hooks[i].after(success);
+	}
+}
+
+/* yes, I hate writing things twice; how could you tell? */
+#define DO_LOADSAVE_(DO)   DO(load)   DO(save)
+
+#define FNS_(load)						\
+void								\
+register_db_##load##_hooks(int seq,				\
+			   db_before_hook before,		\
+			   db_after_hook after,			\
+			   const char *message)			\
+{								\
+    register_db_hooks(load##_hooks, &next_##load,		\
+		      seq, before, after, message);		\
+}								\
+								\
+static inline void						\
+db_run_before_##load##_hooks(void)				\
+{								\
+    db_run_before_hooks(load##_hooks, next_##load, #load);	\
+}								\
+								\
+static inline void						\
+db_run_after_##load##_hooks(int success)			\
+{								\
+    db_run_after_hooks(load##_hooks, next_##load,		\
+		       #load, success);				\
+}								\
+
+DO_LOADSAVE_(FNS_)
+#undef FNS_
+
+static int
+dfh_compare(const void *dfh_a, const void *dfh_b)
+{
+    const struct db_file_hook *a = dfh_a;
+    const struct db_file_hook *b = dfh_b;
+
+    return a->seq < b->seq ? -1 : (a->seq == b->seq ? 0 : 1);
+}
+
+void
+db_init_hooks(void)
+{
+    if (hooks_initialized)
+	panic("db_init_hooks() called twice?");
+    ++hooks_initialized;
+
+#   define QS_(load)				\
+    qsort(load##_hooks, next_##load,		\
+	  sizeof(struct db_file_hook),		\
+	  dfh_compare);				\
+
+    DO_LOADSAVE_(QS_)
+#   undef QS_
+}
+
+#undef DO_LOADSAVE_
+
 /*********** File-level Input ***********/
 
 static int
@@ -532,6 +650,8 @@ write_db_file(const char *reason)
     volatile int nprogs = 0;
     volatile int success = 1;
 
+    db_run_before_save_hooks();
+
     for (oid = 0; oid <= max_oid; oid++) {
 	if (valid(oid))
 	    for (v = dbpriv_find_object(oid)->verbdefs; v; v = v->next)
@@ -577,6 +697,8 @@ write_db_file(const char *reason)
     EXCEPT(dbpriv_dbio_failed)
 	success = 0;
     ENDTRY;
+
+    db_run_after_save_hooks(success);
 
     dbpriv_dbio_output_finished();
     return success;
@@ -717,17 +839,20 @@ db_load(void)
 {
     dbpriv_set_dbio_input(input_db);
 
-    str_intern_open(0);
+    db_run_before_load_hooks();
 
     oklog("LOADING: %s\n", input_db_name);
     if (!read_db_file()) {
+	/* XXX is there any point to this? */
+	db_run_after_load_hooks(0);
+
 	errlog("DB_LOAD: Cannot load database!\n");
 	return 0;
     }
     oklog("LOADING: %s done, will dump new database on %s\n",
 	  input_db_name, dump_db_name);
 
-    str_intern_close();
+    db_run_after_load_hooks(1);
 
     fclose(input_db);
     return 1;
