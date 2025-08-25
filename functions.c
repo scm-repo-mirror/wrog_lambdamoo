@@ -55,6 +55,7 @@ static registry bi_function_registries[] =
     register_objects,
     register_property,
     register_server,
+    register_str_intern,
     register_tasks,
     register_verbs,
 
@@ -520,9 +521,20 @@ bf_load_server_options(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Obji
     return no_var_pack();
 }
 
+static void
+after_load_load_server_options(int success)
+{
+    if (success)
+	load_server_options();
+}
+
 void
 register_functions(void)
 {
+    register_db_load_hooks(DBLOAD_SEQ_functions,
+			   NULL, after_load_load_server_options,
+			   "loading server options");
+
     register_function("function_info", 0, 1, bf_function_info, TYPE_STR);
     register_function("load_server_options", 0, 0, bf_load_server_options);
 }

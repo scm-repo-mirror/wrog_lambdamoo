@@ -1335,6 +1335,7 @@ main(int argc, char **argv)
 	  virtual_timer_available()? "server CPU" : "wall-clock");
 
     register_bi_functions();
+    db_init_hooks();
 
     l = new_slistener(SYSTEM_OBJECT, desc, 1, 0);
     if (!l) {
@@ -1345,10 +1346,6 @@ main(int argc, char **argv)
 
     if (!db_load())
 	exit(1);
-
-    load_server_options();
-
-    SRANDOM(time(0));
 
     parent_pid = getpid();
     setup_signals();

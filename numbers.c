@@ -1014,6 +1014,14 @@ bf_ctime(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid progr UNUSED
 }
 
 
+static void
+after_load_seed_rng(int success)
+{
+    if (success)
+	SRANDOM(time(0));
+}
+
+
 /* Find an unsigned type that can hold RANDOM() results and Nums */
 #if RAND_MAX <= NUM_MAX
 #  define URNUM_BITS INT_TYPE_BITSIZE
@@ -1240,6 +1248,9 @@ register_numbers(void)
 {
     zero.type = TYPE_INT;
     zero.v.num = 0;
+    register_db_load_hooks(DBLOAD_SEQ_numbers,
+			   NULL, after_load_seed_rng,
+			   "seed random number generator");
     register_function("toint", 1, 1, bf_toint, TYPE_ANY);
     register_function("tonum", 1, 1, bf_toint, TYPE_ANY);
     register_function("tofloat", 1, 1, bf_tofloat, TYPE_ANY);
