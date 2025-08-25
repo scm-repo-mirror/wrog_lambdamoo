@@ -1,0 +1,48 @@
+/***************************
+ *  bf_register.h.in
+ */
+
+#ifndef BF_Register_H
+#define BF_Register_H 1
+
+#include "config.h"
+#include "options.h"
+
+/*--------------------------*
+ |  registration functions  |
+ *--------------------------*/
+
+/* ... are functions that are called exactly once during server
+ * initialization before the database is loaded. They are allowed and
+ * expected to contain combinations of calls to
+ *
+ *        register_function       (functions.h)
+ *        register_db_load_hooks  (db_file.h)
+ *        register_db_save_hooks  (db_file.h)
+ *        register_task_queue     (tasks.h)
+ *
+ * The build process scans all COMMON_CSRCS and ALL_XT_CSRCS files for
+ * functions matching the following criteria, collecting them below:
+ *
+ *  (1) have a name starting with 'register_'
+ *      (base name of the file being the typical suffix)
+ *
+ *  (2) have void return type and (void) arguments,
+ *
+ *  (3) appear directly (i.e., not via #includes) with no indentation
+ *      and return type on a separate line as per the usual style here
+ *      for function definitions,
+ *
+ * For header purposes, registration functions are treated as if they
+ * were defined in bf_register.c, meaning .c files that define or
+ * otherwise reference them should #include "bf_register.h" internally
+ * instead of publicly declaring the individual functions in their own
+ * header (.h) files.
+ */
+
+extern void do_all_registrations(void);
+                /* run all registration functions */
+
+@@EXTERNS@@
+
+#endif		/* !BF_Register_H */

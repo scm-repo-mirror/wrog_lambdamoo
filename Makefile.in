@@ -57,7 +57,7 @@ OPT_NET_SRCS = net_single.c net_multi.c \
 
 YSRCS = parser.y
 
-COMMON_HDRS = ast.h bf_register.h code_gen.h config_epilog.h \
+COMMON_HDRS = ast.h code_gen.h config_epilog.h \
 	db.h db_io.h db_private.h decompile.h db_tune.h \
 	disassemble.h eval_env.h eval_vm.h exceptions.h execute.h \
 	functions.h getpagesize.h keywords.h list.h log.h match.h \
@@ -93,7 +93,7 @@ COBJS = $(COMMON_CSRCS:.c=.o) $(XT_CSRCS:.c=.o)
 
 YOBJS = $(YSRCS:.y=.o)
 
-OBJS = $(COBJS) $(YOBJS) keywords.o
+OBJS = $(COBJS) $(YOBJS) keywords.o bf_register.o
 
 DFILES = $(OBJS:.o=.d) $(CLIENT_CSRCS:.c=.d)
 
@@ -140,9 +140,14 @@ keywords.c: keywords.gperf
 		--lookup-function-name=find_keyword \
 		--output-file="$@" $<
 
+bf_register.h bf_register.c: bf_register.lastrun ;
+bf_register.lastrun: bf_register.h.in bf_register.c.in bf_register.sh $(COMMON_CSRCS) $(XT_CSRCS) Makefile
+	sh $(abs_srcdir)/bf_register.sh $(abs_srcdir) $(COMMON_CSRCS) -- $(ALL_XT_CSRCS) -- $(XT_CSRCS)
+
 # the only dependences we have to add are
 # those on files that are automatically generated
 keywords.o: y.tab.h
+$(COBJS): bf_register.h
 
 # XT_RULES ---------
 @XT_RULES@
@@ -174,7 +179,9 @@ distclean-all: distclean
 gitclean-all: gitclean distclean-all
 
 clean:
-	rm -f $(OBJS) $(DFILES) core parser.c y.tab.c y.tab.h y.output keywords.c version_src.h version_make.*
+	rm -f $(OBJS) $(DFILES) core parser.c y.tab.c y.tab.h y.output \
+	  keywords.c version_src.h version_make.* \
+	  bf_register.h bf_register.c bf_register.lastrun
 
 distclean: clean
 	rm -f config.h options.h Makefile config.status config.cache config.log version.lastck config.lastrun
