@@ -25,6 +25,7 @@
 
 #include "my-string.h"
 
+#include "db.h"
 #include "db_private.h"
 #include "db_io.h"
 #include "exceptions.h"
@@ -778,7 +779,7 @@ waif_bytes(Waif *w)
 static Waif **saved_waifs;
 static unsigned long n_saved_waifs;
 
-void
+static void
 waif_before_saving(void)
 {
     int size;
@@ -854,15 +855,15 @@ dbio_write_waif(Var v)
     dbio_printf(".\n");	/* XXX 1.9 terminator? */
 }
 
-void
-waif_after_saving(void)
+static void
+waif_after_saving(int success UNUSED_)
 {
     myfree(saved_waifs, M_WAIF_XTRA);
     if (n_saved_waifs != waif_count)
 	fprintf(stderr, "WARN: waif_count != n_saved_waifs!\n");
 }
 
-void
+static void
 waif_before_loading(void)
 {
     int size;
@@ -995,10 +996,13 @@ dbio_read_waif(Var *vp)
     return 1;
 }
 
-void
-waif_after_loading(void)
+static void
+waif_after_loading(int success)
 {
     int i;
+
+    if (!success)
+	goto cleanup;
 
     /* This part is no fun.  Now that all of the objs are loaded, go
      * generate waif_propdefs for them and backfill all of the waifs
@@ -1020,6 +1024,8 @@ waif_after_loading(void)
 	    gen_waif_propdefs(o);
 	w->propdefs = ref_waif_propdefs(o->waif_propdefs);
     }
+
+ cleanup:
     myfree(saved_waifs, M_WAIF_XTRA);
 }
 
@@ -1027,4 +1033,12 @@ void
 register_waif(void)
 {
     register_function("new_waif", 0, 0, bf_new_waif);
+    register_db_load_hooks(DBLOAD_SEQ_waifs,
+			   waif_before_loading,
+			   waif_after_loading,
+			   "restore saved waifs");
+    register_db_save_hooks(DBSAVE_SEQ_waifs,
+			   waif_before_saving,
+			   waif_after_saving,
+			   "save the waifs");
 }
