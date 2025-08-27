@@ -227,9 +227,18 @@ useful for anything other than quick experiments.)
  *
  * Authors of extensions that affect structure sizes are expected to
  * provide their own adjustment options to amend the fixed-size models.
+ * Hence, the waifs extension gives us
+ *
+ *  - BQM_INCLUDES_WAIFS
+ *          governs how the fixed-size models count waif-related slots:
+ *          #defined 1 forces including them (even on a non-waif server),
+ *          #undef forces ignoring them (even on a waif server), and
+ *          OPTION_DEFAULT includes them when and only when the waif
+ *          extension is enabled.
  */
 
 #undef BQM_BOXED_FLOATS
+#undef BQM_INCLUDES_WAIFS
 
 /******************************************************************************
  * The server is prepared to keep a log of every command entered by players
@@ -634,6 +643,26 @@ useful for anything other than quick experiments.)
  */
 
 #undef BITWISE_OPERATORS
+
+/******************************************************************************
+ * The Waifs extension (--enable-waifs) introduces the WAIF datatype.
+ *
+ * Waifs are lightweight objects that are refcounted like lists and strings
+ * (no need to recycle), have no explicit ids, inherit property/verb
+ * definitions from ancestral objects but cannot define their own.
+ *
+ * WAIF_CORE (see config.h) indicates basic waif support:
+ * (1) new_waif() builtin -- return a new waif with parent = caller,
+ * (2) property syntax:  'waif.p', when ":p" is an ancestral property,
+ * (3) verb syntax:  'waif:v(@args)', when ":v" is an ancestral verb,
+ * with :-prefixed properties and verbs being hidden from an object's
+ * non-waif descendants.
+ *
+ * WAIF_DICT adds support for the optional array syntax, 'waif[x]',
+ * which invokes ancestral :_index(x) and :_set_index(x,rhs) verbs.
+ */
+
+#undef WAIF_DICT
 
 /******************************************************************************
  * Pragmas are a proposed future server feature that will *not* be

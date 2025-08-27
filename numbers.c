@@ -421,8 +421,13 @@ become_integer(Var in, Num *ret, int called_from_tonum)
 	    return E_FLOAT;
 	*ret = (Num)d;
 	break;
+
+#ifdef WAIF_CORE
+    case TYPE_WAIF:
+#endif
     case TYPE_LIST:
 	return E_TYPE;
+
     default:
 	panic("BECOME_INTEGER: Impossible Var .type");
     }
@@ -468,8 +473,13 @@ become_float(Var in, FlNum *ret)
     case TYPE_FLOAT:
 	*ret = fl_unbox(in.v.fnum);
 	break;
+
+#ifdef WAIF_CORE
+    case TYPE_WAIF:
+#endif
     case TYPE_LIST:
 	return E_TYPE;
+
     default:
 	panic("BECOME_FLOAT: Impossible Var .type");
     }

@@ -109,6 +109,10 @@ extern void register_db_save_hooks(int seq,
 #define DBLOAD_SEQ_functions   -500
 #define DBLOAD_SEQ_str_intern  -100
 
+#if WAIF_CORE
+#  define DBLOAD_SEQ_waifs     1000
+#  define DBSAVE_SEQ_waifs     1000
+#endif
 
 extern void db_init_hooks(void);
 				/* Complete the setup of the db

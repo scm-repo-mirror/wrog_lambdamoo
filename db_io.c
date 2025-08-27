@@ -42,6 +42,7 @@
 #include "unparse.h"
 #include "utils.h"
 #include "version.h"
+#include "waif.h"
 
 
 /*********** Input ***********/
@@ -322,6 +323,14 @@ dbio_read_var_value(intmax_t vtype, Var *vp)
 		goto bad_value;
 	    }
 	break;
+
+#ifdef WAIF_CORE
+    case _TYPE_WAIF:
+	if (!dbio_read_waif(vp))
+	    goto bad_value;
+	break;
+#endif
+
     default:
 	dbio_last_error = "Unknown Var type";
 	errlog("DBIO_READ_VAR: Unknown type (%jd) at DB file pos. %ld\n",
@@ -682,6 +691,13 @@ dbio_write_var(Var v)
 	for (i = 0; i < v.v.list[0].v.num; i++)
 	    dbio_write_var(v.v.list[i + 1]);
 	break;
+
+#ifdef WAIF_CORE
+    case TYPE_WAIF:
+	dbio_write_waif(v);
+	break;
+#endif
+
     }
 }
 

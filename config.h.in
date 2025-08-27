@@ -301,6 +301,12 @@
  */
 #undef EXPAT_XML_1_2_OR_BEFORE
 
+/*
+ * --enable-waifs core implementation is present
+ * (we are recognizing/loading/storing waif values)
+ */
+#undef WAIF_CORE
+
 /* continue on to the part that ./configure should not be touching */
 #include "config_epilog.h"
 

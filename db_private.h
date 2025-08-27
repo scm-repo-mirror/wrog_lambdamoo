@@ -79,8 +79,13 @@ typedef struct Object {
     Verbdef *verbdefs;
     Proplist propdefs;
     Pval *propval;
+
+#ifdef WAIF_CORE
+    struct WaifPropdefs *waif_propdefs;
+#endif
+
 } Object;
-#define BQM_DESCRIBE_Object(B,F,V,X)   ((2 * F) + (13 * V))
+#define BQM_DESCRIBE_Object(B,F,V,X)   ((2 * F) + (13 * V) + X(WAIF_CORE,V))
 
 /*********** Verb cache support ***********/
 

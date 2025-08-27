@@ -128,6 +128,27 @@ $(expat_dir)/xmlparse/libexpat.a:
 	$(MAKE) -C $(expat_dir) xmlparse/libexpat.a
 END
 
+##================
+%%extension waifs
+##================
+  %disabled
+  %? Waifs:
+
+  --enable- waifs = KWD,..
+    %?  lightweight object (WAIF) datatype
+
+  XT_CSRCS = waif.c
+
+  %option core WAIF_CORE
+    %?  property and verb syntax only
+
+  %option dict WAIF_DICT
+    %?  add array syntax
+    %implies core
+
+  %option_set all = dict
+  %option_set yes = dict
+
 
 ### Next line is boilerplate; do not edit.
 ],,,,,,,,[ end of extension declarations ],,,,,,,,
@@ -136,6 +157,8 @@ MOO_DECLARE_OPTIONS(
 
  [[UNICODE_IDENTIFIERS],  [bool], no,  [allow Unicode in identifiers]],
  [[UNICODE_NUMBERS],      [bool], no,  [allow Unicode in numeric constants]],
+
+ [[WAIF_DICT],            [bool], no,  [array syntax for WAIFs]],
 )
 
 

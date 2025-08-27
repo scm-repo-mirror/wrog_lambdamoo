@@ -31,6 +31,7 @@
 #include "tasks.h"
 #include "unparse.h"
 #include "utils.h"
+#include "waif.h"
 
 /*******************************************************
  * see bf_register.h for how to define registration
@@ -171,7 +172,10 @@ call_bi_func(unsigned n, Var arglist, Byte func_pc,
 	/* if (caller() != SYSTEM_OBJECT && server_flag_option(f->protect_str, 0)) { */
 	if (caller() != SYSTEM_OBJECT && f->protected) {
 	    /* Try calling #0:bf_FUNCNAME(@ARGS) instead */
-	    enum error e = call_verb2(SYSTEM_OBJECT, f->verb_str, arglist, 0);
+	    enum error e = call_verb2(SYSTEM_OBJECT, f->verb_str
+				      WAIF_COMMA_ARG(((Var){ .type=TYPE_OBJ,
+							     .v.obj=SYSTEM_OBJECT })),
+				      arglist, 0);
 
 	    if (e == E_NONE)
 		return tail_call_pack();

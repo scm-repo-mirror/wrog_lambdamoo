@@ -126,6 +126,8 @@ m4_if(#
   [memory model for value/object_bytes()]],
  [[BQM_BOXED_FLOATS],       [bool],                      ,
   [memory model treats floats as boxed]],
+ [[BQM_INCLUDES_WAIFS],     [bool],                      ,
+  [memory model includes waif slots]],
 
 m4_if(#
 #

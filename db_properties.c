@@ -25,6 +25,8 @@
 #include "list.h"
 #include "storage.h"
 #include "utils.h"
+#include "waif.h"
+
 
 Propdef
 dbpriv_new_propdef(const char *name)
@@ -83,6 +85,11 @@ insert_prop(Objid oid, int pos, Pval pval)
     new_propval = mymalloc(nprops * sizeof(Pval), M_PVAL);
 
     o = dbpriv_find_object(oid);
+
+#ifdef WAIF_CORE
+    free_waif_propdefs(o->waif_propdefs);
+    o->waif_propdefs = NULL;
+#endif
 
     for (i = 0; i < pos; i++)
 	new_propval[i] = o->propval[i];
@@ -156,6 +163,22 @@ db_add_propdef(Objid oid, const char *pname, Var value, Objid owner,
     return 1;
 }
 
+#ifdef WAIF_CORE
+
+static void
+rename_prop_recursively(Objid root, const char *old, const char *new)
+{
+    Objid c;
+    Object *o = dbpriv_find_object(root);
+
+    if (o->waif_propdefs)
+	waif_rename_propdef(o, old, new);
+    for (c = o->child; c != NOTHING; c = dbpriv_find_object(c)->sibling)
+	rename_prop_recursively(c, old, new);
+}
+
+#endif  /* WAIF_CORE */
+
 int
 db_rename_propdef(Objid oid, const char *old, const char *new)
 {
@@ -176,6 +199,9 @@ db_rename_propdef(Objid oid, const char *old, const char *new)
 		|| property_defined_at_or_below(new, str_hash(new), oid))
 		    return 0;
 	    }
+#ifdef WAIF_CORE
+	    rename_prop_recursively(oid, props->l[i].name, new);
+#endif
 	    free_str(props->l[i].name);
 	    props->l[i].name = str_ref(new);
 	    props->l[i].hash = str_hash(new);
@@ -196,6 +222,11 @@ remove_prop(Objid oid, int pos)
 
     o = dbpriv_find_object(oid);
     nprops = dbpriv_count_properties(oid);
+
+#ifdef WAIF_CORE
+    free_waif_propdefs(o->waif_propdefs);
+    o->waif_propdefs = NULL;
+#endif
 
     free_var(o->propval[pos].var);	/* free deleted property */
 
@@ -569,6 +600,12 @@ fix_props(Objid oid, int parent_local, int old, int new, int common)
     int local = parent_local;
     int i;
     Objid c;
+
+#ifdef WAIF_CORE
+    /* This will invalidate waif_propdefs */
+    free_waif_propdefs(me->waif_propdefs);
+    me->waif_propdefs = NULL;
+#endif
 
     local += me->propdefs.cur_length;
 

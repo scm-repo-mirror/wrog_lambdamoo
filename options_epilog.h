@@ -264,6 +264,26 @@
 #  error "UNICODE_IDENTIFIERS requires --enable-unicode"
 #endif
 
+
+#if defined(WAIF_DICT) && !defined(WAIF_CORE)
+#  error "WAIF_DICT requires waif support (--enable-waifs)"
+#endif
+
+#if (( 0 * BQM_INCLUDES_WAIFS - 1 ) == 0)
+#  undef    BQM_INCLUDES_WAIFS
+#  define   BQM_INCLUDES_WAIFS 1
+#elif BQM_INCLUDES_WAIFS == OPTION_DEFAULT
+#  undef    BQM_INCLUDES_WAIFS
+#  if WAIF_CORE
+#    define BQM_INCLUDES_WAIFS 1
+#  endif
+#endif
+#if BQM_INCLUDES_WAIFS
+#  define BQM_WAIF_CORE_IFELSE(then,else)  then
+#else
+#  define BQM_WAIF_CORE_IFELSE(then,else)  else
+#endif
+
 /* For temporary fake implementation of pragmas that will go away: */
 #define PG_ALL             -1
 #define PG_FLOATINT_INEQ  0x1

@@ -38,6 +38,8 @@
 #include "streams.h"
 #include "structures.h"
 #include "utf.h"
+#include "waif.h"
+
 
 /*
  * These versions of strcasecmp() and strncasecmp() depend on ASCII.
@@ -167,6 +169,14 @@ complex_free_var(Var v)
 #endif
     default:
 	break;
+
+#ifdef WAIF_CORE
+    case TYPE_WAIF:
+	if (delref(v.v.waif) == 0)
+	    free_waif(v.v.waif);
+	break;
+#endif
+
     }
 }
 
@@ -187,6 +197,13 @@ complex_var_ref(Var v)
 #endif
     default:
 	break;
+
+#ifdef WAIF_CORE
+    case TYPE_WAIF:
+	addref(v.v.waif);
+	break;
+#endif
+
     }
     return v;
 }
@@ -215,6 +232,12 @@ complex_var_dup(Var v)
 #endif
     default:
 	break;
+
+#ifdef WAIF_CORE
+    case TYPE_WAIF:
+	v.v.waif = dup_waif(v.v.waif);
+#endif
+
     }
     return v;
 }
@@ -285,6 +308,13 @@ equality(Var lhs, Var rhs, int case_matters)
 		}
 		return 1;
 	    }
+
+#ifdef WAIF_CORE
+	case TYPE_WAIF:
+	    /* compare them or assert same-waif? */
+	    return lhs.v.waif == rhs.v.waif;
+#endif
+
 	default:
 	    panic("EQUALITY: Unknown value type");
 	}
@@ -393,6 +423,13 @@ value_bytes(Var v)
 	for (i = 1; i <= len; i++)
 	    size += value_bytes(v.v.list[i]);
 	break;
+
+#ifdef WAIF_CORE
+    case TYPE_WAIF:
+	size += waif_bytes(v.v.waif);
+	break;
+#endif
+
     default:
 	break;
     }

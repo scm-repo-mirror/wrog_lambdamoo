@@ -298,6 +298,11 @@ inline Num num_from_task_id(TaskID t) { return (Num)(uintmax_t)(void *)t; }
  * (up to "add new elements here"), since the order here defines the
  * numeric equivalents of the type values, and those equivalents are both
  * DB-accessible knowledge and stored in raw form in the DB.
+ *
+ * Extension types not used in the base server/language should remain
+ * visible here as placeholders in order that extensions can agree
+ * on who uses which type numbers and thus can play well together
+ * (in case you're wondering why TYPE_WAIF is not #ifdef'ed out).
  */
 typedef enum {
     TYPE_INT, TYPE_OBJ, _TYPE_STR, TYPE_ERR, _TYPE_LIST, /* user-visible */
@@ -306,10 +311,12 @@ typedef enum {
     TYPE_CATCH,			/* on-stack marker for an exception handler */
     TYPE_FINALLY,		/* on-stack marker for a TRY-FINALLY clause */
     _TYPE_FLOAT,		/* floating-point number; user-visible */
+    _TYPE_WAIF,			/* lightweight object; user-visible */
     /* add new elements here */
 
     TYPE_STR   = (_TYPE_STR   | TYPE_COMPLEX_FLAG),
     TYPE_LIST  = (_TYPE_LIST  | TYPE_COMPLEX_FLAG),
+    TYPE_WAIF  = (_TYPE_WAIF  | TYPE_COMPLEX_FLAG),
     TYPE_FLOAT = (_TYPE_FLOAT
 #if FLOATS_ARE_BOXED
 		  | TYPE_COMPLEX_FLAG
@@ -363,6 +370,9 @@ typedef enum {
 
 typedef struct Var Var;
 
+/* insert forward declarations for extensions here */
+typedef struct Waif Waif;
+
 struct Var {
     union {
 	const char *str;	/* STR */
@@ -371,6 +381,7 @@ struct Var {
 	enum error err;		/* ERR */
 	Var *list;		/* LIST */
 	FlBox fnum;		/* FLOAT */
+	Waif *waif;		/* WAIF */
     } v;
     var_type type;
 };
