@@ -4,6 +4,7 @@ MOO_XT_DECLARE_EXTENSIONS([
 ##==================
 %%extension unicode
 ##==================
+  %disabled
   %? Character set:
 
   --enable- unicode = KWD,..
