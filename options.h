@@ -42,25 +42,32 @@
 /* #define UNFORKED_CHECKPOINTS */
 
 /******************************************************************************
- * If OUT_OF_BAND_PREFIX is defined as a non-empty string, then any lines of
- * input from any player that begin with that prefix will bypass both normal
- * command parsing and any pending read()ing task, instead spawning a server
- * task invoking #0:do_out_of_band_command(word-list).  This is intended for
- * use by fancy clients that need to send reliably-understood messages to the
- * server.
+ * The MUD Client Protocol (MCP) defines a means for multiplexing out
+ * of band data onto a player connection using a standard message format.
+ * See http://www.moo.mud.org/mcp for details.  The following two options
+ * are part of the implementation of that protocol for this server.
+ *
+ * These options only have effect if defined as non-empty strings, in which
+ * case:
+ *
+ *  + Lines of player input beginning with OUT_OF_BAND_PREFIX
+ *    bypass both normal command parsing and read() tasks to instead spawn
+ *    #0:do_out_of_band_command(word-list) tasks.
+ *
+ *  + Lines of player input beginning with OUT_OF_BAND_QUOTE_PREFIX
+ *    are first stripped of that prefix and then processed normally
+ *    (i.e., as a command or read() line) even if the stripped line starts
+ *    with OUT_OF_BAND_PREFIX, thus providing a means of escaping lines that
+ *    would otherwise spawn out-of-band tasks.
+ *
+ * The default values are as specified in MCP 2.0 and should not need to be
+ * changed, unless one wants to entirely disable the protocol, in which case
+ * both options should be #undefined.  (Note that the protocol can already
+ * be disabled on a per-connection basis using the connection option
+ * "disable_oob")
  */
 
 #define OUT_OF_BAND_PREFIX "#$#"
-
-/******************************************************************************
- * If OUT_OF_BAND_QUOTE_PREFIX is defined as a non-empty string, then any
- * lines of input from any player that begin with that prefix will be
- * stripped of that prefix and processed normally (whether to be parsed a
- * command or given to a pending read()ing task), even if the resulting line
- * begins with OUT_OF_BAND_PREFIX.  This provides a means of quoting lines
- * that would otherwise spawn #0:do_out_of_band_command tasks
- */
-
 #define OUT_OF_BAND_QUOTE_PREFIX "#$\""
 
 /******************************************************************************
