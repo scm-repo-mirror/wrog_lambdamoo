@@ -146,19 +146,25 @@ init_version_structure(void)
 #include "version_options.h"
     END_GROUP();
 
+#define _QNDEF(name,value) PUSH_PAIR(#name,STR,value)
+
 #ifdef VERSION_MAKEVARS
     BEGIN_GROUP(make);
-#define _MDEF(name,value) PUSH_PAIR(#name,STR,value)
-    VERSION_MAKEVARS(_MDEF);
+    VERSION_MAKEVARS(_QNDEF);
     END_GROUP();
 #endif
 
     BEGIN_GROUP(source);
-#define _SDEF(name,value) PUSH_PAIR(#name,STR,value)
 #ifdef VERSION_SOURCE
-    VERSION_SOURCE(_SDEF);
+    VERSION_SOURCE(_QNDEF);
 #endif
     END_GROUP();
+
+#ifdef VERSION_CONFIG
+    BEGIN_GROUP(config);
+    VERSION_CONFIG(_QNDEF);
+    END_GROUP();
+#endif
 
     if (stack != the_list)
 	panic("init_version_structure: unpopped stuff");

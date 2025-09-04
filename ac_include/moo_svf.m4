@@ -218,6 +218,7 @@ _MOO_END
   if test "x$enable_svf_source" = "xyes" ; then
     cat >>"$moo_vsrc_tmp" <<_MOO_END
 @%:@define VERSION_SOURCE(DEF) DEF(vcs,"$moo_VCS") $moo_DEFSRC
+@%:@define VERSION_CONFIG(DEF) DEF(ac,"]AC_AUTOCONF_VERSION[") DEF(args,"$ac_cs_config")
 _MOO_END
   fi
   cat >>"$moo_vsrc_tmp" <<_MOO_END
