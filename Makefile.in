@@ -59,8 +59,9 @@ YSRCS = parser.y
 
 COMMON_HDRS = ast.h code_gen.h config_epilog.h \
 	db.h db_io.h db_private.h decompile.h db_tune.h \
-	disassemble.h eval_env.h eval_vm.h exceptions.h execute.h \
-	functions.h getpagesize.h keywords.h list.h log.h match.h \
+	disassemble.h eval_env.h eval_vm.h exceptions.h \
+	execute.h experiments.h functions.h \
+	getpagesize.h keywords.h list.h log.h match.h \
 	md5.h name_lookup.h network.h net_mplex.h net_multi.h \
 	net_proto.h numbers.h opcode.h options_epilog.h \
 	parse_cmd.h parser.h pattern.h program.h quota.h random.h \
@@ -83,11 +84,25 @@ ALL_CSRCS = $(COMMON_CSRCS) $(OPT_NET_SRCS) $(ALL_XT_CSRCS) $(CLIENT_CSRCS)
 ALL_SRCS = $(ALL_CSRCS) keywords.gperf $(YSRCS) \
 	$(COMMON_HDRS) $(ALL_XT_HDRS) $(SYSHDRS)
 
-DISTFILES = $(ALL_SRCS) Makefile.in restart restart.sh \
-	Minimal.db README.Minimal \
-	ChangeLog.txt README configure.ac configure config.h.in \
-	options.ac options.h.in ac_include/*.m4 aclocal.m4 \
-	MOOCodeSequences.txt AddingNewMOOTypes.txt
+M4_SRCS = ax_gcc_func_attribute.m4 ax_gcc_var_attribute.m4 \
+	ax_lp.m4 ax_xt.m4 moo_xt.m4 moo_options.m4 \
+	moo_arguments.m4 moo_cflags.m4 moo_decl.m4 \
+	moo_iconv.m4 moo_net.m4 moo_netopt.m4 \
+	moo_sys_ancient.m4 \
+	moo_git.m4 moo_svf.m4 moo_svf_mk.m4 \
+	moo_svf_mk0.mk moo_svf_mk1.mk
+
+DISTFILES = $(ALL_SRCS) Makefile.in config.h.in options.h.in \
+	bf_register.h.in bf_register.c.in bf_register.sh \
+	ChangeLog.txt \
+	README.md README.rX README.1997 \
+	Extensions.md Version_Source.md \
+	MOOCodeSequences.txt AddingNewMOOTypes.txt \
+	configure.ac extensions.ac extensions2_tutorial.ac \
+	options.ac aclocal.m4 \
+	restart restart.sh Minimal.db README.Minimal
+
+DISTGENS = configure keywords.c $(YSRCS:.y=.c) y.tab.h
 
 COBJS = $(COMMON_CSRCS:.c=.o) $(XT_CSRCS:.c=.o)
 
@@ -152,20 +167,39 @@ $(COBJS): bf_register.h
 # XT_RULES ---------
 @XT_RULES@
 
-dist.tar.Z:	$(DISTFILES)
-	rm -f version_number
-	grep "server_version = " version.c \
-		| sed -e 's/^.* = "//' -e 's/";//' > version_number
-	rm -fr MOO-`cat version_number`
-	mkdir MOO-`cat version_number`
-	chmod 755 MOO-`cat version_number`
-	cp -pr $(DISTFILES) MOO-`cat version_number`
-	chmod u+w MOO-`cat version_number`/*
-	tar cvf - MOO-`cat version_number` | compress -c > dist.tar.Z.NEW
-	mv dist.tar.Z.NEW dist.tar.Z
-	rm -f LambdaMOO-`cat version_number`.tar.Z
-	ln dist.tar.Z LambdaMOO-`cat version_number`.tar.Z
-	rm -fr MOO-`cat version_number` version_number
+distribution: version.lastck $(DISTFILES) $(DISTGENS) $(M4_SRCS:%=ac_include/%)
+	rm -f dist_version_number dist_hash_temp dist_manifest dist_version.fixed
+	printf "%s\n" $(DISTFILES) $(DISTGENS) $(M4_SRCS:%=ac_include/%) >dist_manifest
+	for F in `cat dist_manifest` ; do \
+            case ' $(DISTGENS) ' in *" $$F "*) continue ;; esac ;\
+            git hash-object "$$F" >>dist_hash_temp ;\
+        done
+	moo_no_write=: ;. ./version.lastck ;\
+            case $$moo_EXT in *[?]*) \
+                moo_EXT=`printf %s\n $$moo_EXT | sed s/[?].*/-NOCOMMIT/` ;; \
+            esac ;\
+            printf "$$moo_MAJOR.$$moo_MINOR.$${moo_RELEASE}$${moo_EXT}\n" \
+                > dist_version_number ;\
+            printf "moo_%s='%s'\n" \
+                MAJOR   $$moo_MAJOR   MINOR $$moo_MINOR \
+                RELEASE $$moo_RELEASE EXT   $$moo_EXT \
+                UHASH_RELEASE `git hash-object dist_hash_temp` \
+                DEFSRC "$$moo_DEFSRC" > dist_version.fixed
+	distdir=MOO-`cat dist_version_number` ;\
+            distfile=LambdaMOO-`cat dist_version_number`.tar.gz ;\
+            rm -fr $$distdir; mkdir $$distdir; chmod 755 $$distdir;\
+            mkdir $$distdir/ac_include ;\
+            cp -p `grep -Ev '^ac_include/' dist_manifest` $$distdir ;\
+	    cp -p `grep -E  '^ac_include/' dist_manifest` $$distdir/ac_include ;\
+            mv dist_manifest $$distdir/MANIFEST ;\
+            mv dist_version.fixed $$distdir/version.fixed ;\
+            touch $$distdir/clean-keeps-parser $$distdir/clean-keeps-keywords ;\
+            chmod -w extensions2_tutorial.ac ;\
+            tar cfpvz dist.tar.gz-NEW $$distdir &&\
+            { mv dist.tar.gz-NEW dist.tar.gz ;\
+              rm -rf $$distfile $$distdir \
+                dist_version_number dist_hash_temp ;\
+              ln dist.tar.gz $$distfile ; }
 
 tags:
 	etags -t $(ALL_SRCS)
