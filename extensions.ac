@@ -203,8 +203,3 @@ $2])])
 
 ### The next closing paren is boilerplate; do not edit.
 )dnl --- end of extensions.ac ---
-dnl
-dnl uncomment the next line and rerun autoconf
-dnl if you want to understand how this all works
-dnl
-dnl MOO_XT_DUMP_EVERYTHING()

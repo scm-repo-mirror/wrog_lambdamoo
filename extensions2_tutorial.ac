@@ -1,0 +1,100 @@
+MOO_XT_DECLARE_EXTENSIONS([
+#| Everything above this line is boilerplate; do not edit.
+
+#| Run "autoconf -f" after any changes to extensions2.ac
+
+#| To start the tutorial (see Extensions.md), copy this file to
+#| extensions2.ac, make that writable and do all editing there.
+
+#| And yes, this file is nothing but comments and,
+#| in its initial state, does nothing.
+
+#| Lines beginning with #| are supposed to stay commented forever.
+
+#| Lines beginning with #(tab) get uncommented at various times;
+#| just delete the # but leave the tab there, then put the line
+#| back the way it was when it comes time to recomment it.
+
+#| The "TOP" section for tutorial purposes is
+#| everything from here down to "[ end of extension declarations ]"
+
+#| This all being the first argument to MOO_XT_DECLARE_EXTENSIONS(),
+#| (other arguments except the 9th are M4-expanded and ignored),
+#| will be a sequence of cmds in the "MOO_XT Language".
+
+#| Indentation matters in this language.
+
+#	%%extension hello
+#	    %disabled
+#	    %? Hello Facilities:
+
+#| Only one of these 3 lines should be uncommented:
+#	    --enable- hello
+#	    --enable- hi
+#	    --enable- hi = KWD,...
+
+#	        %?- no hello() function, sorry
+#	        %?  provide a hello() function
+#	    XT_CSRCS = hello.c
+#	    %cdefine HELLO_CORE
+#	    %option esmtp HELLO_ESMTP
+#	        %alt ehlo
+#	        %?   do the esmtp thing
+
+#| Next line is boilerplate; do not edit.
+],,,,,,,,[ end of extension declarations ],,,,,,,,
+
+#| Everything from here to the last closing paren is straight
+#| autoconf/M4 code that is expanded/evaluated for side-effects only.
+
+#| The main m4 parsing weirdness to know about is that, in argument
+#| lists, whitespace after the initial open paren and after any top-level
+#| commas gets discarded, but a comment will end whatever run of
+#| whitespace it's in, meaning any whitespace *after* the comment
+#| (starting on the next line) will be kept and become part of the
+#| argument, which may mess things up, so try not to do that.
+
+#| At this point we begin the "MIDDLE" section, for declaring
+#| options associated with your extension:
+
+MOO_DECLARE_OPTIONS(
+
+dnl	[[HELLO_ESMTP], [bool], no,  [make hello() do The ESMTP Thing]],
+dnl|
+dnl| As a general rule, do not use '#' comments in m4 argument lists
+dnl| unless you are sure the macro you are invoking can discard them.
+dnl|
+dnl| MOO_XT_DECLARE_EXTENSIONS, which encloses this whole file,
+dnl|   is good at discarding '#' comments;
+dnl| MOO_DECLARE_OPTIONS and most other m4 macros are *not*.
+dnl|
+dnl| So here we use 'dnl' (Delete to NewLine, and that means the
+dnl| newline goes away, too) comments which don't have this problem,
+dnl| since they expand to *nothing* rather than expanding to themselves
+dnl| the way '#' comments do.
+dnl|
+dnl| You do, however, still want to make sure you do not *INDENT*
+dnl| the next line after this comment ends, because that *will*
+dnl| introduce whitespace that will not go away.
+)
+
+#| ____________________________________________________
+#| And, finally, the "BOTTOM" section.  Everything from here to the next
+#| line of underscores is for your own macro definitions (m4_define() or
+#| AC_DEFUN()) if you need to have any.
+
+
+
+#| ____________________________________________________
+#| The next closing paren is boilerplate; do not edit.
+)dnl| --- end of extensions2.ac ---
+dnl|
+dnl| We're using 'dnl's here because, now that we're done with
+dnl| MOO_XT_DECLARE_EXTENSIONS, we're essentially back out in configure.ac,
+dnl| where everything being expanded shows up in ./configure,
+dnl| including the '#' comments, which, in this case, is
+dnl| not what anyone wants.
+dnl|
+dnl| Uncomment the next line and rerun autoconf
+dnl| if you want to see what the MOO_XT_* things actually do:
+dnl MOO_XT_DUMP_EVERYTHING()

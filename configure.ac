@@ -35,6 +35,7 @@ AC_CONFIG_COMMANDS_POST([MOO_WRITE_VERSION_OPTIONS([version_options.h])])
 
 m4_include([options.ac])dnl
 m4_include([extensions.ac])dnl
+m4_sinclude([extensions2.ac])dnl
 MOO_ALL_ARGUMENTS()dnl
 
 #-------------------------------------
