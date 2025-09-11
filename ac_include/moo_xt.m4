@@ -856,7 +856,9 @@ MOO_XTL_DEFINE([%%extension],
   [:fnend],
   [ax_lp_beta([&],
     [m4_append([&2],
-      [AS_IF([[$moo_xt_do_&1]],[[&5]])][&6][&3][&4])],
+      [AS_IF([[$moo_xt_do_&1]],
+         [[moo_xt_active_xts="$moo_xt_active_xts &1"][&5]])]dnl
+[&6][&3][&4])],
 
         ax_lp_get([$1],[xt_name],[g_configure],[reqs],[req2s]),
         _moo_xtl_put_makevars([$1],[2]),

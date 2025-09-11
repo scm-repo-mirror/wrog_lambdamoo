@@ -92,6 +92,16 @@ $1="
 VERSION_EXT=$VERSION_EXT
 enable_svf_source=$enable_svf_source
 enable_svf_diff=$enable_svf_diff
+moo_xt_active_xts=\"$moo_xt_active_xts\"
+moo_xt_op=DEF]AS_ESCAPE([[
+while : ; do
+  ]AS_CASE([[$moo_xt_active_xts' ']],[[
+    *' '$moo_xt_op' '*]],[[
+      moo_xt_op=${moo_xt_op}x
+      continue]])[
+  break
+done]])[
+
 "][$]$1
 m4_popdef([_moo_fhash])m4_popdef([_moo_trhash])])
 
@@ -221,8 +231,10 @@ _MOO_END
 @%:@define VERSION_CONFIG(DEF) DEF(ac,"]AC_AUTOCONF_VERSION[") DEF(args,"$ac_cs_config")
 _MOO_END
   fi
+  _moo_xts=`printf ' '$moo_xt_op'("%s")' $moo_xt_active_xts`
   cat >>"$moo_vsrc_tmp" <<_MOO_END
 @%:@define VERSION_EXT "$moo_EXT"
+@%:@define VERSION_XTLIST($moo_xt_op) $_moo_xts
 _VSRC_END
 fi
 _MOO_END
