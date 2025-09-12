@@ -301,6 +301,25 @@ m4_define([_moo_xtl_add_cdef2],[m4_do(
   ax_lp_put([$1],     [this_cval], [$3]))])
 
 
+# _moo_xtl_put_nonoption_cdefs(<CTX>)
+#   -> shell code to ensure all_cdefs get AC_DEFINED
+#      even if they are *not* options
+#   (there is an extra layer of m4-quotes on these;
+#    they do not expand prior to MOO_XT_CONFIGURE_EXTENSIONS,
+#    since the relevant MOO_DECLARE_OPTIONS may be after
+#    the extension declaration)
+m4_define([_moo_xtl_put_nonoption_cdefs],
+  [ax_lp_set_map_sep([$1],[all_cdefs],
+    [[_moo_xtl_put_cdef_unless_option(]m4_dquote(],[)[)]])])
+
+m4_define([_moo_xtl_put_cdef_unless_option],
+  [m4_set_contains([_MOO_OPTIONS_SET],[$1],[],[
+AS_VAR_COPY([moo_v],[moo_d_$1])
+AS_CASE([$moo_v],
+  [no],[],
+  [yes|''],[AC_DEFINE([$1],[1])],
+  [AC_DEFINE_UNQUOTED([$1],[$moo_v])])])])
+
 
 #=======================
 # The XTL language
@@ -837,10 +856,11 @@ MOO_XTL_DEFINE([%%extension],
   [:fnend],
   [ax_lp_beta([&],
     [m4_append([&2],
-      [AS_IF([[$moo_xt_do_&1]],[[&5]])][&3][&4])],
+      [AS_IF([[$moo_xt_do_&1]],[[&5]])][&6][&3][&4])],
 
         ax_lp_get([$1],[xt_name],[g_configure],[reqs],[req2s]),
-        _moo_xtl_put_makevars([$1],[2]))])
+        _moo_xtl_put_makevars([$1],[2]),
+        _moo_xtl_put_nonoption_cdefs([$1]))])
 
 MOO_XTL_DEFINE([%%extension],
   [:fnend],
