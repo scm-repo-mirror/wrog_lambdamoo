@@ -343,26 +343,7 @@ MOO_XTL_DEFINE([%%extension],
   [:sets],   [[all_kwds], [all_options], [all_cdefs]],
 
   [:subcmds],[[=]],
-  [:hashes], [[makevars]],
-
-  [:fnend],
-[m4_append(ax_lp_get([$1], [g_args]),
-  ax_lp_beta([&], [[
-#
-#  Arguments for extension &1
-#
-&2]],
-        ax_lp_get([$1], [xt_name], [xt_acarg])))dnl
-dnl
-m4_append(ax_lp_get([$1], [g_configure]),
-  ax_lp_beta([&], [[
-#
-#  Configure &1 extension
-#
-]m4_ifval([&4],[[AS_IF([[$moo_xt_do_&1]],[[&4]])]])dnl
-[&2][&3]],
-        ax_lp_get([$1],[xt_name],[reqs],[req2s]),
-        _moo_xtl_put_makevars([$1],[2])))])
+  [:hashes], [[makevars]])
 
 
 MOO_XTL_DEFINE([%disabled],
@@ -854,6 +835,15 @@ AS_CASE([[x$moo_xt_rquse_&2]],[[
 
 MOO_XTL_DEFINE([%%extension],
   [:fnend],
+  [ax_lp_beta([&],
+    [m4_append([&2],
+      [AS_IF([[$moo_xt_do_&1]],[[&5]])][&3][&4])],
+
+        ax_lp_get([$1],[xt_name],[g_configure],[reqs],[req2s]),
+        _moo_xtl_put_makevars([$1],[2]))])
+
+MOO_XTL_DEFINE([%%extension],
+  [:fnend],
   [ax_lp_set_contains([$1], [all_kwds], [yes], [],
     [dnl
 dnl
@@ -979,6 +969,23 @@ AS_IF([[$moo_xt_do_&1]],[&2])]])],
           m4_default_quoted(ax_lp_get([$1], [cdef_val]),[yes]),
           ax_lp_beta([&],
             [m4_ifval([&2],[[--enable-&2]],[[%%extension &1]])],
-            ax_lp_get([$1],[xt_name],[ew_name])))))])dnl
+            ax_lp_get([$1],[xt_name],[ew_name])))))dnl
 dnl
-dnl m4_errprint(m4_defn(_ax_lp_lang_prefix([XTL_MOO])[|%%extension|:fnend]))
+m4_append(ax_lp_get([$1], [g_args], [xt_acarg]))])
+
+MOO_XTL_DEFINE([%%extension],
+  [:fnend],
+[ax_lp_beta([&], [m4_append([&2], [[
+#
+#  Arguments for extension &1
+#
+]])dnl
+dnl
+m4_append([&3], [[
+#
+#  Configure &1 extension
+#
+]])], ax_lp_get([$1], [xt_name], [g_args], [g_configure]))])
+
+
+# m4_errprint(m4_defn(_ax_lp_lang_prefix([XTL_MOO])[|%%extension|:fnend]))
