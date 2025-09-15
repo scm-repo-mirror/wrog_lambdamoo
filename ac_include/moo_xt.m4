@@ -400,6 +400,13 @@ ax_lp_put([$1], [ew_name], [$3])dnl
 ax_lp_put([$1], [ew_vdesc], [$4])dnl
 ax_lp_put([$1], [ew_var], m4_translit([[$2-$3]],[-+.],[___]))])
 
+m4_define([_moo_xtl_ew_errname],
+  [ax_lp_beta([&],
+    [m4_ifval([&2],
+        [[--&3-&2]],
+        [[%%extension &1]][m4_ifval([&4], [[ (%requires &4)]])])],
+    ax_lp_get([$1],[xt_name],[ew_name],[ew]),
+    ax_lp_ifdef([$1],[rq_name],[ax_lp_get([$1],[rq_name])]))])
 
 
 MOO_XTL_DEFINE([%?],[:fn], ax_lp_NTSC(
@@ -798,8 +805,8 @@ dnl      (using rq.[icases] and rq.[yescode])
 dnl
 ax_lp_append([$1], [reqs],
   ax_lp_beta([&], [[[
-moo_xt_rquse_&2=]]m4_ifval([&6],[[
-AS_IF([[$moo_xt_do_&1]],[&6])]])[[
+moo_xt_rquse_&2=]]m4_ifval([&5],[[
+AS_IF([[$moo_xt_do_&1]],[&5])]])[[
 moo_l=]]m4_ifval([&4],[[[$&3]]])[[
 moo_xt_rqtry_&2=]
 AS_IF([[test x$moo_xt_rquse_&2 = x]],[
@@ -809,18 +816,20 @@ AS_IF([[test x$moo_xt_rquse_&2 = x]],[
   IFS=,
   for moo_kwd in $moo_l ; do
     IFS=$ac_save_IFS]
-    AS_CASE([[$moo_kwd]]&7,[[
+    AS_CASE([[$moo_kwd]]&6,[[
       no]],  [[
         moo_xt_rqtry_&2=
         break]],[[
       yes]], [
-        &8[
+        &7[
         break]],[
-      AC_MSG_ERROR([[unknown --&5-&4 keyword: $moo_kwd]])])[
+      AC_MSG_ERROR([[unknown &8 keyword: $moo_kwd]])])[
   done]])]],
              ax_lp_get([$1],[xt_name],[rq_name],
-                            [ew_var],[ew_name],[ew],
-                            [blds],[icases],[yescode])))dnl
+                            [ew_var],[ew_name],
+                            [blds],[icases],[yescode]),
+             _moo_xtl_ew_errname([$1])))dnl
+dnl
 dnl  xt.[req2s] +=
 dnl    do the library search (using rq.[scases])
 dnl    set moo_xt_rquse to library found
@@ -847,10 +856,7 @@ AS_CASE([[x$moo_xt_rquse_&2]],[[
   AC_MSG_ERROR([[?? \$moo_xt_rquse_&2 = $moo_xt_rquse_&2]])])]],
 
              ax_lp_get([$1],[xt_name],[rq_name],[scases],[ucases]),
-             m4_ifval(ax_lp_get([$1],[ew_name]),
-               [[--with-]ax_lp_get([$1],[ew_name])],
-               [m4_format([[extension %s (requires %s)]],
-                  ax_lp_get([$1],[xt_name],[rq_name]))])))])
+             _moo_xtl_ew_errname([$1])))])
 
 MOO_XTL_DEFINE([%%extension],
   [:fnend],
@@ -944,7 +950,8 @@ dnl
 dnl
 dnl   xt_cases expand keywords
 dnl
-ax_lp_beta([&],[[[&5
+ax_lp_beta([&],[m4_ifval([&2],[[[
+moo_v=0]]])[[
 while test "$moo_l" != __done__ ; do
   ac_save_IFS=$IFS
   IFS=,
@@ -953,45 +960,38 @@ while test "$moo_l" != __done__ ; do
     IFS=$ac_save_IFS]
     AS_CASE([[$moo_kwd]],[[
       __done__]],[[
-        continue]]&4,[
-      AC_MSG_ERROR([[unknown --enable-&2 keyword: $moo_kwd]])])&6[
+        continue]]&1,[
+      AC_MSG_ERROR([[unknown &3 keyword: $moo_kwd]])])]dnl
+m4_ifval([&2],,[[
+    AS_VAR_SET([moo_d_$moo_d],[[$moo_v]])
+    AC_MSG_NOTICE([[(&3:) $moo_d = $moo_v]])]]dnl
+)[[
   done
   moo_l=$moo_ll
 done]]],
-
-           ax_lp_get([$1],[xt_name],[ew_name],[ew_var],[xt_cases]),
-           m4_if(ax_lp_get([$1], [cdef_mode]),[2],[[
-moo_v=0]]),
-           m4_if(ax_lp_get([$1], [cdef_mode]),[2],[],
-              [ax_lp_beta([&],[[
-    AS_VAR_SET([moo_d_$moo_d],[[$moo_v]])
-    AC_MSG_NOTICE(]m4_ifval([&2],[[[[(--enable-&2:)]]]],[[[[(%%extension &1:)]]]])[[[ $moo_d = $moo_v]])]],
-
-                          ax_lp_get([$1],[xt_name],[ew_name]))]))dnl
+           ax_lp_get([$1],[xt_cases]),
+           m4_if(ax_lp_get([$1], [cdef_mode]),[2],[1]),
+           _moo_xtl_ew_errname([$1]))dnl
 dnl
 dnl  for cdefine modes 0 and 2,
 dnl  we still need to set the global csymbol
 dnl
-ax_lp_beta([&],[m4_ifval([&2],[[
-AS_IF([[$moo_xt_do_&1]],[&2])]])],
-        ax_lp_get([$1], [xt_name]),
-        ax_lp_beta([&],
-
-          m4_case(ax_lp_get([$1], [cdef_mode]),
-            [0],[m4_ifval(ax_lp_get([$1], [cdef_sym]), [[[
-  AS_VAR_SET([moo_d_&4],[[&5]])
-  AC_MSG_NOTICE([[(&6:) &4 = &5]])]]])],
-            [1], [],
-            [2], [[[[
+ax_lp_beta([&],
+           m4_case(ax_lp_get([$1], [cdef_mode]),
+             [0],[m4_ifval(ax_lp_get([$1], [cdef_sym]), [[[
+AS_IF([[$moo_xt_do_&1]],[
+  AS_VAR_SET([moo_d_&2],[[&3]])
+  AC_MSG_NOTICE([[(&4:) &2 = &3]])])]]])],
+             [1], [],
+             [2], [[[
+AS_IF([[$moo_xt_do_&1]],[[
   moo_v="($moo_v)"]
-  AS_VAR_SET([moo_d_&4],[[$moo_v]])
-  AC_MSG_NOTICE([[(&6:) %s = $moo_v]])]]]),
+  AS_VAR_SET([moo_d_&2],[[$moo_v]])
+  AC_MSG_NOTICE([[(&4:) %s = $moo_v]])])]]]),
 
-          ax_lp_get([$1],[xt_name],[ew_name],[ew_var],[cdef_sym]),
+          ax_lp_get([$1],[xt_name],[cdef_sym]),
           m4_default_quoted(ax_lp_get([$1], [cdef_val]),[yes]),
-          ax_lp_beta([&],
-            [m4_ifval([&2],[[--enable-&2]],[[%%extension &1]])],
-            ax_lp_get([$1],[xt_name],[ew_name])))))dnl
+          _moo_xtl_ew_errname([$1])))dnl
 dnl
 m4_append(ax_lp_get([$1], [g_args], [xt_acarg]))])
 
