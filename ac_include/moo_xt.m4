@@ -589,7 +589,7 @@ MOO_XTL_DEFINE([%dirvar],
      m4_set_contains([_moo_xtl_substed_makevars], [$2],
        [ax_lp_fatal([$1], [$2 cannot be used as %dirvar])]),
      ax_lp_put([$1], [dirvar], [$2]),
-     _moo_xtl_add_makevar([$1], [XT_MAKEVARS], [$2 = $moo_xtdir]),
+     _moo_xtl_add_makevar([$1], [XT_MAKEVARS], [$2 = $_moo_xtdir]),
      _moo_xtl_add_makevar([$1], [XT_DIRS], [$($2)]))])
 
 MOO_XTL_DEFINE([%path],
@@ -708,21 +708,21 @@ m4_ifval([&2],[[[
 
            ax_lp_beta([&],[[[
       moo_xt_rquse_&1=&2]&5
-      AS_SET_CATFILE([moo_xtdir1],[$srcdir],[$moo_xtdir0])
-      AS_IF([[test -d "$moo_xtdir1"]],[],[
-        AC_MSG_ERROR([[directory not found: $moo_xtdir1]])])
-      AS_SET_CATFILE([moo_xtdir],['$(abs_srcdir)'],[$moo_xtdir0])[&4]]dnl
+      AS_SET_CATFILE([_moo_xtdir1],[$srcdir],[$_moo_xtdir0])
+      AS_IF([[test -d "$_moo_xtdir1"]],[],[
+        AC_MSG_ERROR([[directory not found: $_moo_xtdir1]])])
+      AS_SET_CATFILE([_moo_xtdir],['$(abs_srcdir)'],[$_moo_xtdir0])[&4]]dnl
 m4_ifval([&3],[m4_bpatsubst([[
-      &3]],[%dir],[$moo_xtdir1])])],
+      &3]],[%dir],[$_moo_xtdir1])])],
 
              ax_lp_get([$1],[rq_name],[lib_name],[code]),
              _moo_xtl_put_makevars([$1],[6]),
              ax_lp_beta([&],[m4_ifval([&1],[m4_ifval([&2],[[
       AS_IF([[test "x$&1" = xyes]],[[
-        moo_xtdir0="&2"]],[[
-        moo_xtdir0=$&1]])]],[[[
-      moo_xtdir0=$&1]]])],[[[
-      moo_xtdir0="&2"]]])],
+        _moo_xtdir0="&2"]],[[
+        _moo_xtdir0=$&1]])]],[[[
+      _moo_xtdir0=$&1]]])],[[[
+      _moo_xtdir0="&2"]]])],
                ax_lp_get([$1],[ew_var],[path])))))])
 
 MOO_XTL_DEFINE([%lib],
