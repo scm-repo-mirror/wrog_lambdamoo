@@ -43,9 +43,11 @@ AC_DEFUN([MOO_XT_DECLARE_EXTENSIONS],
   [m4_if([$9],[ end of extension declarations ],[],
     [m4_fatal([bad trailer for $0 ($9)])])dnl
 _moo_xt_set_global_state([1], [2])dnl
-AX_LP_PARSE_SCRIPT([XTL_MOO],
-     [[_MOO_XT_EXTENSION_ARGS],[_MOO_XT_CONFIGURE_EXTENSIONS],[MOO_XT_SGRP]],
-     [$1])])
+AX_LP_PARSE_SCRIPT([XTL_MOO], [
+    [g_args],      [_MOO_XT_EXTENSION_ARGS],
+    [g_configure], [_MOO_XT_CONFIGURE_EXTENSIONS],
+    [g_srcgrp_],   [MOO_XT_SGRP_],
+], [$1])])
 
 
 #  MOO_XT_EXTENSION_ARGS
@@ -176,7 +178,7 @@ m4_map_args_sep(
 m4_define([_moo_xtl_append_source_group],
   [m4_ifdef([_moo_xtl_makevar_source_group_$2],
     [m4_set_add_all(
-      ax_lp_get([$1],[g_srcgrp])[_]m4_defn([_moo_xtl_makevar_source_group_$2]),
+      ax_lp_get([$1],[g_srcgrp_])m4_defn([_moo_xtl_makevar_source_group_$2]),
       m4_unquote(m4_split([$3])))])])
 
 # _moo_xtl_substed_makevars
@@ -331,10 +333,40 @@ AX_LP_DEFINE_LANGUAGE([XTL_MOO],[MOO_XTL_DEFINE])
 # root cmd
 #----------
 
+# INITARGS for AX_LP_PARSE_SCRIPT is an alternating list of
+# keyword/value arguments.  The recognized keywords are:
+#
+# g_args
+#   name of macro to accumulate AC_ARG_ENABLE/WITH()s for
+#   extension command line arguments and shell code
+#   to determine which extensions are active and set
+#   values for cdefine shell variables (see g_sh_cdef_) accordingly.
+#
+# g_configure
+#   name of macro to accumulate shell code to do final extension
+#   configurations (find %libs and %build directories,
+#   issue AC_SUBSTs for make variables,
+#   issue AC_DEFINEs for cdefines not pre-empted by g_cdef_set)
+#
+# g_srcgrp_
+#   name prefix for m4 sets that accumulate source group members,
+#   i.e., all filenames specifed in 'XT_(CSRCS|HDRS|...) ='
+#   declarations for all extensions.
+#
+
+
 MOO_XTL_DEFINE([],
-  [:var],  [[g_args],      [$2]],
-  [:var],  [[g_configure], [$3]],
-  [:var],  [[g_srcgrp],    [$4]])
+  [:vars], [[g_args], [g_configure], [g_srcgrp_]],
+  [:fn],
+  [m4_translit(
+[m4_pushdef([_moo_odd],
+    [m4_ifval([&1], [m4_fatal([odd argument: '&1'])])])dnl
+m4_pushdef([_moo_set],
+    [ax_lp_ifdef([$1], [&1], [], [m4_fatal([unknown keyword: &1])])dnl
+ax_lp_put([$1], &@)])],[&],[$])dnl
+m4_map_args_pair([_moo_set], [_moo_odd], m4_shift($@))dnl
+m4_popdef([_moo_set],[_moo_odd])])
+
 
 # purposefully screw things up (uncomment to test for underquoting)
 # m4_define([extension],[detention])
