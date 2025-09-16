@@ -46,7 +46,10 @@ _moo_xt_set_global_state([1], [2])dnl
 AX_LP_PARSE_SCRIPT([XTL_MOO], [
     [g_args],      [_MOO_XT_EXTENSION_ARGS],
     [g_configure], [_MOO_XT_CONFIGURE_EXTENSIONS],
+    [g_cdef_set],  [_MOO_OPTIONS_SET],
     [g_srcgrp_],   [MOO_XT_SGRP_],
+    [g_sh_var_],   [moo_xt_],
+    [g_sh_cdef_],  [moo_d_],
 ], [$1])])
 
 
@@ -306,17 +309,18 @@ m4_define([_moo_xtl_add_cdef2],[m4_do(
 # _moo_xtl_put_nonoption_cdefs(<CTX>)
 #   -> shell code to ensure all_cdefs get AC_DEFINED
 #      even if they are *not* options
-#   (there is an extra layer of m4-quotes on these;
+#   (there is an extra layer of quotes on these so that
 #    they do not expand prior to MOO_XT_CONFIGURE_EXTENSIONS,
 #    since the relevant MOO_DECLARE_OPTIONS may be after
 #    the extension declaration)
 m4_define([_moo_xtl_put_nonoption_cdefs],
   [ax_lp_set_map_sep([$1],[all_cdefs],
-    [[_moo_xtl_put_cdef_unless_option(]m4_dquote(],[)[)]])])
+    [[_moo_xtl_put_cdef_unless_option(]m4_dquote(],
+    [,ax_lp_get([$1],[g_cdef_set],[g_sh_cdef_]))[)]])])
 
 m4_define([_moo_xtl_put_cdef_unless_option],
-  [m4_set_contains([_MOO_OPTIONS_SET],[$1],[],[
-AS_VAR_COPY([moo_v],[moo_d_$1])
+  [m4_set_contains([$2],[$1],[],[
+AS_VAR_COPY([moo_v],[$3][$1])
 AS_CASE([$moo_v],
   [no],[],
   [yes|''],[AC_DEFINE([$1],[1])],
@@ -353,10 +357,35 @@ AX_LP_DEFINE_LANGUAGE([XTL_MOO],[MOO_XTL_DEFINE])
 #   i.e., all filenames specifed in 'XT_(CSRCS|HDRS|...) ='
 #   declarations for all extensions.
 #
+# g_sh_var_
+#   shell variable prefix for the following
+#     (g_sh_var_)do_(extension)  -- extension is active
+#     (g_sh_var_)active_xts  -- list of active extensions
+#     (g_sh_var_)rqtry_(requirement)  -- library search list
+#     (g_sh_var_)rquse_(requirement)  -- library chosen
+#
+# g_sh_cdef_
+#   shell variable prefix for %extension/%option cdefine values
+#   as determined from ./configure arguments
+#
+# g_cdef_set
+#   m4 set of %extension/%option cdefines pre-empted from being
+#   AC_DEFINEd in g_configure and instead expected to be handled by
+#   the caller elsewhere, perhaps using the g_sh_cdef_* values,
+#   or perhaps not.
+#   cdefines NOT in this set get AC_DEFINEd in g_configure
+#   to whatever the g_sh_cdef_* value is
+#
+#   (note that cdefines created by %require/%lib are *always*
+#    AC_DEFINEd in g_configure, since these values may depend on
+#    library searches which have to wait until then anyway)
+#
 
 
 MOO_XTL_DEFINE([],
-  [:vars], [[g_args], [g_configure], [g_srcgrp_]],
+  [:vars], [[g_args],     [g_configure],
+            [g_cdef_set], [g_sh_cdef_],
+            [g_srcgrp_],  [g_sh_var_]],
   [:fn],
   [m4_translit(
 [m4_pushdef([_moo_odd],
@@ -572,21 +601,21 @@ MOO_XTL_DEFINE([%require],
 #
 m4_define([_moo_xtl_with_arg],
   [ax_lp_beta([&], [[
-AC_ARG_WITH([&2],
-  [&3],
+AC_ARG_WITH([&3],
+  [&4],
 [AS_CASE([[$withval]],[[
    no]],[
-     AS_IF([[$moo_xt_do_&1]],[
-       AC_MSG_ERROR([[--without-&2 $_moo_xt_conflict]])])[
+     AS_IF([[$&1do_&2]],[
+       AC_MSG_ERROR([[--without-&3 $_moo_xt_conflict]])])[
      _moo_xt_saw_no=:
-     _moo_xt_conflict="conflicts with --without-&2"]],
+     _moo_xt_conflict="conflicts with --without-&3"]],
 [
      AS_IF([[$_moo_xt_saw_no]],[
-       AC_MSG_ERROR([[--with-&2 $_moo_xt_conflict]])])[
-     moo_xt_do_&1=:
-     _moo_xt_conflict="conflicts with --with-&2"]])])]],
+       AC_MSG_ERROR([[--with-&3 $_moo_xt_conflict]])])[
+     &1do_&2=:
+     _moo_xt_conflict="conflicts with --with-&3"]])])]],
 
-                 ax_lp_get([$1], [xt_name], [ew_name], [help]))])
+         ax_lp_get([$1], [g_sh_var_], [xt_name], [ew_name], [help]))])
 
 
 MOO_XTL_DEFINE([%lib],
@@ -682,14 +711,14 @@ MOO_XTL_DEFINE([%option],
               m4_if(ax_lp_get([$1], [cdef_mode]),[2],
 [[[
         AS_CASE([[$moo_v'|']],[[
-          *"|&2|"*]],[[
+          *"|&3|"*]],[[
             continue]],[[
-            moo_v="$moo_v|&2"]])]]],
+            moo_v="$moo_v|&3"]])]]],
 [[[[
-        moo_d=&1]
-        AS_VAR_SET_IF([moo_d_$moo_d],[[continue]],[[moo_v=&2]])]]]),
+        moo_d=&2]
+        AS_VAR_SET_IF([&1$moo_d],[[continue]],[[moo_v=&3]])]]]),
 
-                ax_lp_get([$1], [this_cdef]),
+                ax_lp_get([$1], [g_sh_cdef_], [this_cdef]),
                 m4_default_quoted(ax_lp_get([$1], [this_cval]),[yes]))]),
 
           ax_lp_set_empty([$1], [opt_implies],
@@ -723,20 +752,21 @@ AS_CASE([[$&2]],[[
 dnl
 ax_lp_append([$1], [blds],
           ax_lp_beta([&], [[
-  AS_IF([[test "x$moo_xt_rquse_&1" = x]],]dnl
-m4_ifval([&2],[[[
-    AS_CASE([[x$&2]],[[
-      x|xno]],[],[&5][&6])]]],
-  [m4_ifval([&4],[[[
-    AS_CASE([[x$&4]],[[
+  AS_IF([[test "x$&1rquse_&2" = x]],]dnl
+m4_ifval([&3],[[[
+    AS_CASE([[x$&3]],[[
+      x|xno]],[],[&6][&7])]]],
+  [m4_ifval([&5],[[[
+    AS_CASE([[x$&5]],[[
       xno]],[],[[
-      x|xyes|&3]],[&6])]]],
-    [[&6]])])[)]],
+      x|xyes|&4]],[&7])]]],
+    [[&7]])])[)]],
 
-           ax_lp_get([$1],[rq_name],[ew_var],[kwd_xselect]),
+           ax_lp_get([$1], [g_sh_var_], [rq_name],
+                           [ew_var], [kwd_xselect]),
            ax_lp_get_prior([$1],[ew_var]),
 
-           ax_lp_beta([&],[m4_ifval([&1],[m4_ifval([&4],[[
+           ax_lp_beta([&], [m4_ifval([&1], [m4_ifval([&4], [[
       AS_CASE([[x$&1]],[[
         x|xyes|&7]],[],
         [AC_MSG_ERROR([[--&6-&5=DIR vs. --&3-&2=$&1]])])]])])],
@@ -745,18 +775,18 @@ m4_ifval([&2],[[[
              ax_lp_get([$1],      [ew_var],[ew_name],[ew],
                                   [kwd_xselect])),
 
-           ax_lp_beta([&],[[[
-      moo_xt_rquse_&1=&2]&5
+           ax_lp_beta([&], [[[
+      &1rquse_&2=&3]&6
       AS_SET_CATFILE([[_moo_xtdir1]], [[$srcdir]], [[$_moo_xtdir0]])
       AS_IF([[test -d "$_moo_xtdir1"]], [], [
         AC_MSG_ERROR([[directory not found: $_moo_xtdir1]])])
-      AS_SET_CATFILE([[_moo_xtdir]], [['$(abs_srcdir)']], [[$_moo_xtdir0]])[&4]]dnl
-m4_ifval([&3], [m4_bpatsubst([[
-      &3]], [%DIR%], [[$_moo_xtdir1]])])],
+      AS_SET_CATFILE([[_moo_xtdir]], [['$(abs_srcdir)']], [[$_moo_xtdir0]])[&5]]dnl
+m4_ifval([&4], [m4_bpatsubst([[
+      &4]], [%DIR%], [[$_moo_xtdir1]])])],
 
-             ax_lp_get([$1], [rq_name], [lib_name], [code]),
-             _moo_xtl_put_makevars([$1], [6]),
-             ax_lp_beta([&], [m4_ifval([&1], [m4_ifval([&2],[[
+          ax_lp_get([$1], [g_sh_var_], [rq_name], [lib_name], [code]),
+          _moo_xtl_put_makevars([$1], [6]),
+          ax_lp_beta([&], [m4_ifval([&1], [m4_ifval([&2],[[
       AS_IF([[test "x$&1" = xyes]],[[
         _moo_xtdir0="&2"]],[[
         _moo_xtdir0=$&1]])]],[[[
@@ -768,30 +798,30 @@ MOO_XTL_DEFINE([%lib],
    [:fnend],
    [ax_lp_append([$1], [icases], ax_lp_beta([&],
 [[,[[
-      &1]],  [[
-        moo_xt_rqtry_&2="$moo_xt_rqtry_&2 &3"]]]],
+      &2]],  [[
+        &1rqtry_&3="$&1rqtry_&3 &4"]]]],
 
-      ax_lp_get([$1], [kwd_select]), ax_lp_get([$1], [rq_name]),
-      ax_lp_get([$1], [lib_name])))dnl
+      ax_lp_get([$1], [g_sh_var_], [kwd_select],
+                      [rq_name], [lib_name])))dnl
 ax_lp_append([$1], [scases],
   ax_lp_beta([&],
     m4_ifval(ax_lp_get([$1], [code]),
 [[[,[[
       &3]],  [
-        &1
+        &4
         AS_IF([[$_moo_xt_found_it_]],[[
-          moo_xt_rquse_&2=&3
+          &1rquse_&2=&3
           break]])]]]],
 [[[,[[
       &3]],  [[
         _moo_xt_found_it_=:
-        moo_xt_rquse_&2=&3
+        &1rquse_&2=&3
         break]]]]]),
 
+             ax_lp_get([$1], [g_sh_var_], [rq_name], [lib_name]),
              m4_bpatsubsts(m4_dquote(ax_lp_get([$1], [code])),
                [%USE%],  [[_moo_xt_found_it_=:]],
-               [%FAIL%], [[_moo_lfail1]]),
-             ax_lp_get([$1],[rq_name],[lib_name])))dnl
+               [%FAIL%], [[_moo_lfail1]])))dnl
 dnl
 ax_lp_append([$1], [ucases],
   ax_lp_beta([&], m4_format(
@@ -816,7 +846,7 @@ dnl
     [_moo_xtl_with_arg([$1])])dnl
 ax_lp_get([$1], [rq_acarg]))dnl
 dnl
-dnl  make [yescode] set moo_xt_rqtry_<req>
+dnl  make [yescode] set <g_sh_var_>rqtry_<req>
 dnl    prior value being either blank, "lib1,lib2,..."
 dnl      or something that sets %LIBS%.
 dnl
@@ -826,41 +856,41 @@ ax_lp_put([$1], [yescode],
       m4_cond([[&4]],                      [],   [[[%LIBS%[="&3"]]]],
               [m4_bregexp([&4],[%LIBS%])], [-1], [[[%LIBS%[=]&4]]],
                                                  [[[&4]]]),
-      [%LIBS%], [[moo_xt_rqtry_&2]])],
+      [%LIBS%], [[&1rqtry_&2]])],
 
-    ,ax_lp_get([$1], [rq_name], [all_libs], [yescode])))dnl
+    ax_lp_get([$1], [g_sh_var_], [rq_name], [all_libs], [yescode])))dnl
 dnl
 dnl  xt.[reqs] +=
 dnl    if a %build was selected, set makevars/etc for it and also
-dnl      set moo_xt_rquse_<req>=corresponding lib (rq.[blds])
-dnl    otherwise set moo_xt_rqtry_<req> to library search order
+dnl      set <g_sh_var_>rquse_<req>=corresponding lib (rq.[blds])
+dnl    otherwise set <g_sh_var_>rqtry_<req> to library search order
 dnl      (using rq.[icases] and rq.[yescode])
 dnl
 ax_lp_append([$1], [reqs],
   ax_lp_beta([&], [[[
-moo_xt_rquse_&2=]]m4_ifval([&5], [[
-AS_IF([[$moo_xt_do_&1]],[&5])]])[[
-moo_l=]]m4_ifval([&4], [[[$&3]]])[[
-moo_xt_rqtry_&2=]
-AS_IF([[test x$moo_xt_rquse_&2 = x]],[
+&1rquse_&3=]]m4_ifval([&6], [[
+AS_IF([[$&1do_&2]],[&6])]])[[
+moo_l=]]m4_ifval([&5], [[[$&4]]])[[
+&1rqtry_&3=]
+AS_IF([[test x$&1rquse_&3 = x]],[
   AS_IF([[test x$moo_l = x]],[
-    AS_IF([[$moo_xt_do_&1]],[[moo_l=yes]],[[moo_l=no]])])[
+    AS_IF([[$&1do_&2]],[[moo_l=yes]],[[moo_l=no]])])[
   ac_save_IFS=$IFS
   IFS=,
   for moo_kwd in $moo_l ; do
     IFS=$ac_save_IFS]
-    AS_CASE([[$moo_kwd]]&6,[[
+    AS_CASE([[$moo_kwd]]&7,[[
       no]],  [[
-        moo_xt_rqtry_&2=
+        &1rqtry_&3=
         break]],[[
       yes]], [
-        &7[
+        &8[
         break]],[
-      AC_MSG_ERROR([[unknown &8 keyword: $moo_kwd]])])[
+      AC_MSG_ERROR([[unknown &9 keyword: $moo_kwd]])])[
   done]])]],
-             ax_lp_get([$1],[xt_name],[rq_name],
-                            [ew_var],[ew_name],
-                            [blds],[icases],[yescode]),
+             ax_lp_get([$1], [g_sh_var_], [xt_name], [rq_name],
+                             [ew_var], [ew_name],
+                             [blds], [icases], [yescode]),
              _moo_xtl_ew_errname([$1])))dnl
 dnl
 dnl  xt.[req2s] +=
@@ -871,35 +901,35 @@ dnl
 ax_lp_append([$1], [req2s],
   ax_lp_beta([&],
 [[
-AS_IF([[test "x$moo_xt_rqtry_&2" != x]],[[
+AS_IF([[test "x$&1rqtry_&2" != x]],[[
   _moo_xt_found_it_=false
   _moo_lfail_extras=
-  for moo_lib in $moo_xt_rqtry_&2 ; do
+  for moo_lib in $&1rqtry_&2 ; do
     _moo_lfail1=]
     AS_CASE([[$moo_lib]]&3,[
-      AC_MSG_ERROR([[?? \$moo_xt_rqtry_&2 kwd = $moo_lib]])])
+      AC_MSG_ERROR([[?? \$&1rqtry_&2 kwd = $moo_lib]])])
     AS_IF([[test "x$_moo_lfail1" != x]],[[
       _moo_lfail_extras="$_moo_lfail_extras
   $moo_lib: $_moo_lfail1"]])[
   done]
   AS_IF([[$_moo_xt_found_it_]],[],[
     AC_MSG_ERROR([[&5: no library found$_moo_lfail_extras]])])])
-AS_CASE([[x$moo_xt_rquse_&2]],[[
+AS_CASE([[x$&1rquse_&2]],[[
   x]],[]&4,[
-  AC_MSG_ERROR([[?? \$moo_xt_rquse_&2 = $moo_xt_rquse_&2]])])]],
+  AC_MSG_ERROR([[?? \$&1rquse_&2 = $&1rquse_&2]])])]],
 
-             ax_lp_get([$1],[xt_name],[rq_name],[scases],[ucases]),
-             _moo_xtl_ew_errname([$1])))])
+        ax_lp_get([$1], [g_sh_var_], [rq_name], [scases], [ucases]),
+        _moo_xtl_ew_errname([$1])))])
 
 MOO_XTL_DEFINE([%%extension],
   [:fnend],
   [ax_lp_beta([&],
-    [m4_append([&2],
-      [AS_IF([[$moo_xt_do_&1]],
-         [[moo_xt_active_xts="$moo_xt_active_xts &1"][&5]])]dnl
-[&6][&3][&4])],
+    [m4_append([&1],
+      [AS_IF([[$&2do_&3]], [[&2active_xts="$&2active_xts &3"][&6]])]dnl
+[&7][&4][&5])],
 
-        ax_lp_get([$1],[xt_name],[g_configure],[reqs],[req2s]),
+        ax_lp_get([$1],[g_configure],[g_sh_var_],
+                       [xt_name],[reqs],[req2s]),
         _moo_xtl_put_makevars([$1],[2]),
         _moo_xtl_put_nonoption_cdefs([$1]))])
 
@@ -925,35 +955,35 @@ ax_lp_append([$1], [xt_cases], m4_format([[,[[
         moo_ll=__done__%s
         break]]]],
         m4_quote(ax_lp_set_map_sep([$1], [all_cdefs], [
-        moo_d_], [=no]))))dnl
+        ]ax_lp_get([$1],[g_sh_cdef_]), [=no]))))dnl
 dnl
 dnl build xt_acarg:
 dnl
 ax_lp_put([$1], [xt_acarg],
   ax_lp_beta([&],
-[[[moo_xt_do_&1=false
+[[[&1do_&2=false
 _moo_xt_saw_no=false
 _moo_xt_conflict=]]]
 dnl
 dnl   Either we have an --enable defined
 dnl
-[m4_ifval([&2],[[
-AC_ARG_ENABLE([&2],
+[m4_ifval([&3],[[
+AC_ARG_ENABLE([&3],
   [&4],
 [AS_CASE([[$enableval]],[[
    no]],[[
      _moo_xt_saw_no=:
-     _moo_xt_conflict="conflicts with --disable-&2"]],
+     _moo_xt_conflict="conflicts with --disable-&3"]],
    [[
-     moo_xt_do_&1=:
-     _moo_xt_conflict="conflicts with --enable-&2"]])])]],
+     &1do_&2=:
+     _moo_xt_conflict="conflicts with --enable-&3"]])])]],
 dnl
 dnl  ... or we do not.  There may still be a help header
 dnl
 [m4_ifval([&4],[[
 m4_divert_text([HELP_ENABLE],[&4])]])])],
 
-             ax_lp_get([$1],[xt_name],[ew_name],[ew_var],[help]))dnl
+       ax_lp_get([$1], [g_sh_var_], [xt_name], [ew_name], [help]))dnl
 dnl
 dnl   include --with args defined by %require stanzas
 dnl
@@ -965,25 +995,26 @@ dnl   %disabled extension needs an explicit --enable/--with
 dnl     which we should have seen already
 dnl
 ax_lp_beta([&],
-  [m4_ifval([&4],[],[[
+  [m4_ifval([&5],[],[[
 AS_IF([[$_moo_xt_saw_no]],
-  [AC_MSG_NOTICE([[(%%extension &1:) disabled]])],
-  [[moo_xt_do_&1=:]])]])
+  [AC_MSG_NOTICE([[(%%extension &2:) disabled]])],
+  [[&1do_&2=:]])]])
 dnl
 dnl   moo_l <- 'yes', 'no', or keyword list
 dnl
-[AS_IF([[$moo_xt_do_&1]],
-  ]m4_ifval([&2],
-    [[[AS_IF([[test "x$&3" = x]],
-      [[  moo_l=yes]],[[  moo_l=$&3]])]]],
+[AS_IF([[$&1do_&2]],
+  ]m4_ifval([&3],
+    [[[AS_IF([[test "x$&4" = x]],
+      [[  moo_l=yes]],[[  moo_l=$&4]])]]],
     [[[[moo_l=yes]]]])[,
   [[moo_l=no]])]],
 
-    ax_lp_get([$1], [xt_name], [ew_name], [ew_var], [xt_disabled]))dnl
+    ax_lp_get([$1], [g_sh_var_], [xt_name],
+                    [ew_name], [ew_var], [xt_disabled]))dnl
 dnl
 dnl   xt_cases expand keywords
 dnl
-ax_lp_beta([&],[m4_ifval([&2],[[[
+ax_lp_beta([&],[m4_ifval([&3],[[[
 moo_v=0]]])[[
 while test "$moo_l" != __done__ ; do
   ac_save_IFS=$IFS
@@ -993,16 +1024,16 @@ while test "$moo_l" != __done__ ; do
     IFS=$ac_save_IFS]
     AS_CASE([[$moo_kwd]],[[
       __done__]],[[
-        continue]]&1,[
-      AC_MSG_ERROR([[unknown &3 keyword: $moo_kwd]])])]dnl
-m4_ifval([&2],,[[
-    AS_VAR_SET([moo_d_$moo_d],[[$moo_v]])
-    AC_MSG_NOTICE([[(&3:) $moo_d = $moo_v]])]]dnl
+        continue]]&2,[
+      AC_MSG_ERROR([[unknown &4 keyword: $moo_kwd]])])]dnl
+m4_ifval([&3],,[[
+    AS_VAR_SET([&1$moo_d],[[$moo_v]])
+    AC_MSG_NOTICE([[(&4:) $moo_d = $moo_v]])]]dnl
 )[[
   done
   moo_l=$moo_ll
 done]]],
-           ax_lp_get([$1],[xt_cases]),
+           ax_lp_get([$1], [g_sh_cdef_], [xt_cases]),
            m4_if(ax_lp_get([$1], [cdef_mode]),[2],[1]),
            _moo_xtl_ew_errname([$1]))dnl
 dnl
@@ -1011,18 +1042,19 @@ dnl  we still need to set the global csymbol
 dnl
 ax_lp_beta([&],
            m4_case(ax_lp_get([$1], [cdef_mode]),
-             [0],[m4_ifval(ax_lp_get([$1], [cdef_sym]), [[[
-AS_IF([[$moo_xt_do_&1]],[
-  AS_VAR_SET([moo_d_&2],[[&3]])
-  AC_MSG_NOTICE([[(&4:) &2 = &3]])])]]])],
+             [0],[[m4_ifval([&4], [[
+AS_IF([[$&1do_&3]],[
+  AS_VAR_SET([&2&4],[[&5]])
+  AC_MSG_NOTICE([[(&6:) &4 = &5]])])]])]],
              [1], [],
              [2], [[[
-AS_IF([[$moo_xt_do_&1]],[[
+AS_IF([[$&1do_&3]],[[
   moo_v="($moo_v)"]
-  AS_VAR_SET([moo_d_&2],[[$moo_v]])
-  AC_MSG_NOTICE([[(&4:) %s = $moo_v]])])]]]),
+  AS_VAR_SET([&2&4],[[$moo_v]])
+  AC_MSG_NOTICE([[(&6:) &4 = $moo_v]])])]]]),
 
-          ax_lp_get([$1],[xt_name],[cdef_sym]),
+          ax_lp_get([$1], [g_sh_var_], [g_sh_cdef_],
+                          [xt_name], [cdef_sym]),
           m4_default_quoted(ax_lp_get([$1], [cdef_val]),[yes]),
           _moo_xtl_ew_errname([$1])))dnl
 dnl
