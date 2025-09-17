@@ -1,6 +1,6 @@
-# generated automatically by aclocal 1.16.5 -*- Autoconf -*-
+# generated automatically by aclocal 1.17 -*- Autoconf -*-
 
-# Copyright (C) 1996-2021 Free Software Foundation, Inc.
+# Copyright (C) 1996-2024 Free Software Foundation, Inc.
 
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -15,6 +15,7 @@ m4_ifndef([AC_CONFIG_MACRO_DIRS], [m4_defun([_AM_CONFIG_MACRO_DIRS], [])m4_defun
 m4_include([ac_include/ax_gcc_func_attribute.m4])
 m4_include([ac_include/ax_gcc_var_attribute.m4])
 m4_include([ac_include/ax_lp.m4])
+m4_include([ac_include/ax_xt.m4])
 m4_include([ac_include/moo_arguments.m4])
 m4_include([ac_include/moo_cflags.m4])
 m4_include([ac_include/moo_decl.m4])
