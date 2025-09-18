@@ -25,6 +25,9 @@ dnl
 AC_DEFUN([MOO_DECLARE_OPTIONS],
 [m4_ifdef([_MOO_OPTIONS_frozen],
  [AC_MSG_ERROR([all instances of $0 must be before anything that references the options list])])dnl
+m4_foreach([_moo_opt],[$@],[m4_define([_moo_opt],m4_dquote(m4_car(_moo_opt)))dnl
+m4_ifval(_moo_opt,[m4_set_add([_MOO_OPTIONS_SET],_moo_opt,,
+  [m4_fatal([option ']_moo_opt[' declared twice?])])])])dnl
 m4_define([_MOO_OPTIONS_RAW],
  m4_dquote(_MOO_OPTIONS_RAW,$@))])
 

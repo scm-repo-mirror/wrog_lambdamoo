@@ -1,0 +1,18 @@
+MOO_XT_DECLARE_EXTENSIONS([
+### Everything above this line is boilerplate; do not edit.
+
+##   none yet
+
+### Next line is boilerplate; do not edit.
+],,,,,,,,[ end of extension declarations ],,,,,,,,
+
+## auxiliary macro definitions
+##   none yet
+
+### The next closing paren is boilerplate; do not edit.
+)dnl --- end of extensions.ac ---
+dnl
+dnl uncomment the next line and rerun autoconf
+dnl if you want to understand how this all works
+dnl
+dnl MOO_XT_DUMP_EVERYTHING()
