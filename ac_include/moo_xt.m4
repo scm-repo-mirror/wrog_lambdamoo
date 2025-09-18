@@ -747,22 +747,22 @@ m4_ifval([&2],[[[
 
            ax_lp_beta([&],[[[
       moo_xt_rquse_&1=&2]&5
-      AS_SET_CATFILE([_moo_xtdir1],[$srcdir],[$_moo_xtdir0])
-      AS_IF([[test -d "$_moo_xtdir1"]],[],[
+      AS_SET_CATFILE([[_moo_xtdir1]], [[$srcdir]], [[$_moo_xtdir0]])
+      AS_IF([[test -d "$_moo_xtdir1"]], [], [
         AC_MSG_ERROR([[directory not found: $_moo_xtdir1]])])
-      AS_SET_CATFILE([_moo_xtdir],['$(abs_srcdir)'],[$_moo_xtdir0])[&4]]dnl
-m4_ifval([&3],[m4_bpatsubst([[
-      &3]],[%dir],[$_moo_xtdir1])])],
+      AS_SET_CATFILE([[_moo_xtdir]], [['$(abs_srcdir)']], [[$_moo_xtdir0]])[&4]]dnl
+m4_ifval([&3], [m4_bpatsubst([[
+      &3]], [%DIR%], [[$_moo_xtdir1]])])],
 
-             ax_lp_get([$1],[rq_name],[lib_name],[code]),
-             _moo_xtl_put_makevars([$1],[6]),
-             ax_lp_beta([&],[m4_ifval([&1],[m4_ifval([&2],[[
+             ax_lp_get([$1], [rq_name], [lib_name], [code]),
+             _moo_xtl_put_makevars([$1], [6]),
+             ax_lp_beta([&], [m4_ifval([&1], [m4_ifval([&2],[[
       AS_IF([[test "x$&1" = xyes]],[[
         _moo_xtdir0="&2"]],[[
         _moo_xtdir0=$&1]])]],[[[
       _moo_xtdir0=$&1]]])],[[[
       _moo_xtdir0="&2"]]])],
-               ax_lp_get([$1],[ew_var],[path])))))])
+               ax_lp_get([$1], [ew_var], [path])))))])
 
 MOO_XTL_DEFINE([%lib],
    [:fnend],
@@ -783,14 +783,14 @@ ax_lp_append([$1], [scases],
           moo_xt_rquse_&2=&3
           break]])]]]],
 [[[,[[
-      &3]],  [
+      &3]],  [[
         _moo_xt_found_it_=:
         moo_xt_rquse_&2=&3
-        break]]]]),
+        break]]]]]),
 
              m4_bpatsubsts(m4_dquote(ax_lp_get([$1], [code])),
-               [%%],[_moo_xt_found_it_=:],
-               [%!],[_moo_lfail1]),
+               [%USE%],  [[_moo_xt_found_it_=:]],
+               [%FAIL%], [[_moo_lfail1]]),
              ax_lp_get([$1],[rq_name],[lib_name])))dnl
 dnl
 ax_lp_append([$1], [ucases],
@@ -818,16 +818,17 @@ ax_lp_get([$1], [rq_acarg]))dnl
 dnl
 dnl  make [yescode] set moo_xt_rqtry_<req>
 dnl    prior value being either blank, "lib1,lib2,..."
-dnl      or something that sets %%.
+dnl      or something that sets %LIBS%.
 dnl
-m4_ifval(ax_lp_get([$1], [yescode]),[],
-  [ax_lp_put([$1], [yescode], ["]ax_lp_get([$1], [all_libs])["])])dnl
-m4_if(m4_bregexp(ax_lp_get([$1], [yescode]),[%%]), [-1],
-      [ax_lp_put([$1], [yescode],
-                 m4_dquote([%%=]ax_lp_get([$1], [yescode])))])dnl
 ax_lp_put([$1], [yescode],
-  m4_bpatsubst(m4_dquote(ax_lp_get([$1], [yescode])),
-               [%%], [moo_xt_rqtry_]ax_lp_get([$1], [rq_name])))dnl
+  ax_lp_beta([&],
+    [m4_bpatsubst(
+      m4_cond([[&4]],                      [],   [[[%LIBS%[="&3"]]]],
+              [m4_bregexp([&4],[%LIBS%])], [-1], [[[%LIBS%[=]&4]]],
+                                                 [[[&4]]]),
+      [%LIBS%], [[moo_xt_rqtry_&2]])],
+
+    ,ax_lp_get([$1], [rq_name], [all_libs], [yescode])))dnl
 dnl
 dnl  xt.[reqs] +=
 dnl    if a %build was selected, set makevars/etc for it and also
@@ -837,9 +838,9 @@ dnl      (using rq.[icases] and rq.[yescode])
 dnl
 ax_lp_append([$1], [reqs],
   ax_lp_beta([&], [[[
-moo_xt_rquse_&2=]]m4_ifval([&5],[[
+moo_xt_rquse_&2=]]m4_ifval([&5], [[
 AS_IF([[$moo_xt_do_&1]],[&5])]])[[
-moo_l=]]m4_ifval([&4],[[[$&3]]])[[
+moo_l=]]m4_ifval([&4], [[[$&3]]])[[
 moo_xt_rqtry_&2=]
 AS_IF([[test x$moo_xt_rquse_&2 = x]],[
   AS_IF([[test x$moo_l = x]],[
