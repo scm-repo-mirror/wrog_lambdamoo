@@ -1,0 +1,197 @@
+# On including source information in your server
+
+1. [Background on `server_version()`](#user-content-background)
+2. [`./configure` options](#user-content-options-for-configure)
+3. [Guidelines](#user-content-guidelines)
+   (for packagers and public server operators)
+4. [About version.fixed and version.lastck](#user-content-about-versionfixed-and-versionlastck)
+5. [Format of version_src.h](#user-content-format-of-version_srch-and-version_makeh)
+
+## Background
+
+Within a running server instance, the built-in function
+`server_version()`, when provided a string or boolean-true
+argument, returns meta-information about the server build.
+
+A non-string boolean-true value (e.g., `1`) returns the entire structure of known information.  A string argument narrows the result to particular subtrees or leaves, notable possibilities including:
+
+* `major`,`minor`,`release`,`ext`
+   are particular version string components
+* `string`   =   combined version string
+* `features` =  list of active extensions (see extensions.ac)
+* `config` group   = how `./configure` was run
+* `options` group  = all `options.h` settings
+* `make` group      = make command line variable overrides
+* `source` group   = source control information
+
+The groups form a hierarchy so it is also possible to address
+individual settings, e.g.,
+
+* `options/DEFAULT_FG_TICKS` = value of `DEFAULT_FG_TICKS`
+* `config/args` = `./configure` command-line arguments
+* `source/commit` = git commit ID if built from a git repository
+
+As of version 1.9.0, using the default configuration, if you build
+the main branch from the git repository or if you build from a
+release tarball, these fields will be populated automatically.
+Some groups can be suppressed via `./configure` arguments.
+
+(Historical note:  The process described in the 1.8.3 master branch
+for setting up ways to generate version_src.h from version_hook and
+having a special GNUmakefile that runs version_hook has now been
+deprecated and superceded.)
+
+Currently, there are two supported scenarios:
+
+1.  Building from a release tarball
+
+    + `major.minor.release` is as in `version.c`
+      unless overidden by `version.fixed`.
+
+    + `ext` is set by `version.fixed` (usually blank)
+      except there can be additional suffixes
+      if source files have been edited.
+
+    + `source/vcs` = "release"
+
+    Release tarballs are identified by the file `version.fixed`
+    being present, in which case detecting editing depends on
+    `MANIFEST` being present.
+
+2.  Building from git:
+
+    + `major.minor.release` and `ext` are derived from the most
+      recent repository tags of the form `v`N`.`N`.`N`ext`
+      where the N's are sequences of digits, except `ext` can have
+      additional suffixes: `+`N if there have been that many commits
+      since the tagged commit, and an additional `?`N to indicate
+      uncommitted source files.
+
+    + `source/vcs` = "git"
+    + `source/commit` is the commit id
+
+## Options for ./configure
+
+Note that as per convention for all `--enable` and `--with` options,
+`--enable-foo=yes` is equivalent to `--enable-foo`, while
+`--disable-foo` is equivalent to `--enable-foo=no`
+
+*  `--enable-svf-source`   include the "source" group [default]<br>
+   `--disable-svf-source`  exclude the "source" group
+
+*  `--enable-svf-make`  include the "make" group<br>
+   `--disable-svf-make` exclude the "make" group<br>
+    The "make" group relies on GNU-specific features, notably the
+    setting of `MAKEOVERRIDES` and the ability to do `${subst ...}`
+    in makefiles, to create version_make.h.  Therefore the default
+    is 'yes' or 'no' according as GNU make is in use or not.
+
+*  `--enable-svf-diff=`[`yes`|`!`|`?`=`no`]<br>
+   `--disable-svf-diff` = `--enable-svf-diff=no`<br>
+    check for uncommitted/modified source, the general principle being
+    that if sources have been modified from the commit that was
+    actually released, something should appear in the version
+    string to warn about this.
+
+    - `yes` = compute hash and compare
+    - `?` = do not and append '?' to ext
+            (i.e., assume uncommitted and modified)
+    - `!` = do not and leave ext alone
+            (i.e., assume committed / not modified meaning you
+            are lying about having checked, or promising
+            you have not modified anything that matters,
+            or have some other way of checking)
+
+    The default is '?' if we cannot actually compute hashes
+    (e.g., due to git not being installed and no sha1 program),
+    and otherwise 'yes'.
+
+*  `VERSION_EXT=`prefix
+    makes the ext component include a prefix,
+    e.g., VERSION_EXT=alpha could be used to make an alpha release.
+
+    The combination of VERSION_EXT=string --enable-svf-diff=!
+    ensures that ext will be a specific string and nothing else.
+
+(The content of the "options" group is determined by version_options.h,
+which is generated by ./configure based on the content of options.ac
+and any options declared in extensions)
+
+## Guidelines
+
+If you are running a public server _OR_ you are a package
+maintainer for some OS distribution, creating a source package or
+binary build of the LambdaMOO server intended to be publically
+available, we request adherence to the following guidelines:
+
+1.  In cases where server sources are modified significantly from an
+    officially released version, i.e., beyond changing the defaults
+    for one or more options.h macros, the "ext" string should be
+    nonempty (and should include a "?" if source does not correspond to
+    a commit in some repository).
+
+2.  It is not required that values in the "source" group be provided,
+    but where provided they should be truthful.  The following values
+    are currently recognized/defined:
+
+    * `url` = URL of public repository
+    * `vcs` = version control system, one of the following:
+        - `release` -- code *is* a release tarball
+        - `git` -- code is from a git repository
+        - `unknown` -- source information is unavailable
+    * `vcs_version` = version number
+        (for git or whatever other version control software is in use)
+    * `commit` = Git commit ID (40-character SHA1 value)
+        (and likewise if this notion is meaningful in other VC systems)
+
+Having `version_src.h` and `version_make.h` be empty files will satisfy these guidelines, see below.
+
+(At one time, it was imagined we would need to support `vcs`=`cvs` for a CVS repository, but since Sourceforge stopped supporting CVS in 2017, and nobody we know maintains one, don't expect to see this any time soon).
+
+## About `version.fixed` and `version.lastck`
+
+Both of these files are shell scripts.
+
+version.lastck contains any information extracted from git, and results of the last treediff if svf-diff is enabled.  It is updated by config.status and, if it changes, it is used to write a new version_src.h.
+
+version.fixed, if present, indicates to ./configure that this is a release tarball, includes various settings that do not change, and indicates that git should not be used to determine the version number.  It can contain any of the following shell variable settings
+
+```
+    moo_MAJOR
+    moo_MINOR
+    moo_RELEASE
+    moo_EXT
+    moo_DEFSRC
+    moo_UHASH_RELEASE
+```
+
+## FORMAT OF version_src.h and version_make.h
+
+These files are possibly-empty sequences of #defines.
+
+```
+    #define VERSION_MAJOR <number>
+    #define VERSION_MINOR <number>
+    #define VERSION_RELEASE <number>
+    #define VERSION_EXT "<string>"
+```
+
+to override various components of the version string set in version.c, and
+
+```
+    #define VERSION_XTLIST(DEF) DEF("<extension>")...
+    #define VERSION_SOURCE(DEF) DEF(<property>,"<value>")...
+    #define VERSION_CONFIG(DEF) DEF(<property>,"<value>")...
+    #define VERSION_MAKEVARS(DEF) DEF(<varname>,"<value>")...
+```
+
+to specify the "features" list and the values that show up in the "source", "config" and "make" groups.  (Note:  `VERSION_MAKEVARS` is in `version_make.h`, everything else is in `version_src.h`)
+
+The property name is not quoted but value is.  Also, the group settings will be split across multiple lines with trailing slashes, but each should parse as a single #define.  Finally, the parameter name "DEF" is completely arbitrary, it just needs to show up verbatim in the macro value as shown.
+
+If `version_src.h` and `version_make.h` are empty files, it will be as if they (collectively) contained
+
+```
+    #define VERSION_EXT "+?_ad_hoc_??"
+    #define VERSION_SOURCE(DEF)  DEF(vcs,"unknown")
+```
