@@ -58,8 +58,8 @@
 #include "version_src.h"
 #ifndef VERSION_MAJOR
 #  define VERSION_MAJOR 1
-#  define VERSION_MINOR 8
-#  define VERSION_RELEASE 3
+#  define VERSION_MINOR 9
+#  define VERSION_RELEASE 0
 #endif
 #ifndef VERSION_EXT
 #  define VERSION_EXT "+?_ad_hoc_??"
