@@ -1,4 +1,4 @@
-Version 1.0.0, 5 February 1991
+﻿Version 1.0.0, 5 February 1991
 -- First public release.
 
 Version 1.1.0, 8 February 1991
@@ -94,9 +94,9 @@ Version 1.3.0, 7 June 1991
    rather than #-2 ($ambiguous_match).
 -- Fixed a few bugs in how the allocator keeps track of types.
 -- Fixed two memory leaks:
-	 1) If you returned or aborted from inside an iteration over a list,
-	    the list was never freed.
-	 2) If you killed a task, its associated environment was never freed.
+         1) If you returned or aborted from inside an iteration over a list,
+            the list was never freed.
+         2) If you killed a task, its associated environment was never freed.
 -- Added ticks_left() and seconds_left(), for determining how much longer the
    current task will be allowed to run.
 -- Reduced the maximum number of seconds for each task from 60 to 15.
@@ -133,9 +133,9 @@ Version 1.3.0, 7 June 1991
    number as the connection identifier.  Each line of input on such a
    connection is first parsed into words in the usual way and then these words
    are passed as the arguments to #0:do_login_command().  For example, the line
-   	connect Munchkin frebblebit
+        connect Munchkin frebblebit
    would result in the following call being made:
-	#0:do_login_command("connect", "Munchkin", "frebblebit")
+        #0:do_login_command("connect", "Munchkin", "frebblebit")
    If #0:do_login_command returns a valid player object, then the connection is
    considered to have logged into that player.  When the connection is first
    established, the null command is automatically entered, resulting in a call
@@ -149,70 +149,70 @@ Version 1.3.0, 7 June 1991
    implementation.  The following code can be used as a simple implementation
    that preserves most of the functionality of version 1.2.0:
 
-	if (callers())
-	  "This code should only be run as a server task.";
-	  return;
-	endif
-	if (args == {})
-	  args = {"help"};
-	endif
-	command = args[1];
-	args = args[2..length(args)];
-	nargs = length(args);
-	if (command == "connect")
-	  if (nargs < 1)
-	    notify(player,
-	           "Usage:  connect <existing-player-name> <password>");
-	  else
-	    name = args[1];
-	    password = nargs >= 2 ? args[2] | "";
-	    for p in (players())
-	      if (p.name == name
-	          && (typeof(p.password) != STR
-		      || (length(p.password) >= 2
-			  && crypt(password, p.password[1..2]) == p.password)))
-		p.last_connect_time = time();
-		return p;
-	      endif
-	    endfor
-	    notify(player, "Unknown player or wrong password.");
-	  endif
-	elseif (command == "create")
-	  if (nargs != 2)
-	    notify(player, "Usage:  create <new-player-name> <new-password>");
-	  else
-	    name = args[1];
-	    password = args[2];
-	    for p in (players())
-	      if (p.name == name)
-		notify(player, "That player name is already in use.");
-		return 0;
-	      endif
-	    endfor
-	    new = create($player_class, $nothing);
-	    set_player_flag(new, 1);
-	    new.name = name;
-	    new.aliases = {name};
-	    new.programmer = $player_class.programmer;
-	    new.password = crypt(password);
-	    new.last_connect_time = time();
-	    move(new, $player_start);
-	    return new;
-	  endif
-	elseif (strcmp(command, "QUIT") == 0)
-	  boot_player(player);
-	else
-	  msg = $welcome_message;
-	  if (typeof(msg) != LIST)
-	    msg = {msg};
-	  endif
-	  for line in (msg)
-	    if (typeof(line) == STR)
-	      notify(player, line);
-	    endif
-	  endfor
-	endif
-	return 0;
+        if (callers())
+          "This code should only be run as a server task.";
+          return;
+        endif
+        if (args == {})
+          args = {"help"};
+        endif
+        command = args[1];
+        args = args[2..length(args)];
+        nargs = length(args);
+        if (command == "connect")
+          if (nargs < 1)
+            notify(player,
+                   "Usage:  connect <existing-player-name> <password>");
+          else
+            name = args[1];
+            password = nargs >= 2 ? args[2] | "";
+            for p in (players())
+              if (p.name == name
+                  && (typeof(p.password) != STR
+                      || (length(p.password) >= 2
+                          && crypt(password, p.password[1..2]) == p.password)))
+                p.last_connect_time = time();
+                return p;
+              endif
+            endfor
+            notify(player, "Unknown player or wrong password.");
+          endif
+        elseif (command == "create")
+          if (nargs != 2)
+            notify(player, "Usage:  create <new-player-name> <new-password>");
+          else
+            name = args[1];
+            password = args[2];
+            for p in (players())
+              if (p.name == name)
+                notify(player, "That player name is already in use.");
+                return 0;
+              endif
+            endfor
+            new = create($player_class, $nothing);
+            set_player_flag(new, 1);
+            new.name = name;
+            new.aliases = {name};
+            new.programmer = $player_class.programmer;
+            new.password = crypt(password);
+            new.last_connect_time = time();
+            move(new, $player_start);
+            return new;
+          endif
+        elseif (strcmp(command, "QUIT") == 0)
+          boot_player(player);
+        else
+          msg = $welcome_message;
+          if (typeof(msg) != LIST)
+            msg = {msg};
+          endif
+          for line in (msg)
+            if (typeof(line) == STR)
+              notify(player, line);
+            endif
+          endfor
+        endif
+        return 0;
 
    Of course, the whole point of bringing this code into the database is to
    enable easy experimentation with new facilities for un-logged-in users, such
@@ -234,9 +234,9 @@ Version 1.3.0, 7 June 1991
    verb defined on the object.
 -- Changed listinsert() and listappend() never to generate E_RANGE errors.
    Instead, the following expressions are now always equivalent:
-	listinsert(list, element, index)
-	listappend(list, element, index - 1)
-	{@list[1..index - 1], element, @list[index..length(list)]}
+        listinsert(list, element, index)
+        listappend(list, element, index - 1)
+        {@list[1..index - 1], element, @list[index..length(list)]}
 -- Changed the matching algorithm for verb names so that the old behavior of
    `*' matching anything is generalized to `foo*' matching anything beginning
    with `foo'.
@@ -288,25 +288,25 @@ Version 1.4.0, 22 August 1991
 Version 1.4.5, 20 September 1991
 -- Made unparser failures panic the server rather than try to press on.
 -- Changed the task scheduler in two important ways:
-	1) Effectively gave each player's input tasks a higher priority than
-	   their forked or suspended tasks.  This should both improve
-	   interactive response and make it possible for users to recover from
-	   accidentally forking off many tasks; they can now run commands to
-	   kill those tasks and avoid having those commands wait behind all of
-	   the forked tasks.
-	2) The scheduler no longer uses a strictly round-robin algorithm for
-	   choosing which player's task to run next.  Instead, it keeps track
-	   of how many seconds have been consumed by each player's tasks and
-	   runs the next task from the queue with the least total `usage'.
-	   Fresh queues and those queues that are empty when it becomes their
-	   turn to run again are kept apart from non-empty queues.  When an
-	   empty queue next gets a task to run, its usage is set equal to the
-	   least usage of already-non-empty queues.  Thus, such queues go to
-	   the head of the list but have no advantage over the queues that were
-	   never empty.  This more complex scheduling scheme is intended to
-	   ameliorate the problems with some players having long-running tasks
-	   constantly runnable in the background; such players will now get
-	   only their fair share of the server.
+        1) Effectively gave each player's input tasks a higher priority than
+           their forked or suspended tasks.  This should both improve
+           interactive response and make it possible for users to recover from
+           accidentally forking off many tasks; they can now run commands to
+           kill those tasks and avoid having those commands wait behind all of
+           the forked tasks.
+        2) The scheduler no longer uses a strictly round-robin algorithm for
+           choosing which player's task to run next.  Instead, it keeps track
+           of how many seconds have been consumed by each player's tasks and
+           runs the next task from the queue with the least total `usage'.
+           Fresh queues and those queues that are empty when it becomes their
+           turn to run again are kept apart from non-empty queues.  When an
+           empty queue next gets a task to run, its usage is set equal to the
+           least usage of already-non-empty queues.  Thus, such queues go to
+           the head of the list but have no advantage over the queues that were
+           never empty.  This more complex scheduling scheme is intended to
+           ameliorate the problems with some players having long-running tasks
+           constantly runnable in the background; such players will now get
+           only their fair share of the server.
 -- Fixed queued_tasks() to list the player being read from as the owner of a
    reading task.  This makes it consistent with kill_task(), which only allows
    that player to kill such a task.
@@ -320,7 +320,7 @@ Version 1.4.5, 20 September 1991
    and the Lucid C compiler for finding this bug.
 -- Fixed a bug in the line-number-finding code; this bug was identical to one
    we fixed long ago in the unparser.  Since the LNF code is *derived* from the
-   unparsing code, this is unsurprising.  What's embarassing is that we forgot
+   unparsing code, this is unsurprising.  What's embarrassing is that we forgot
    to fix the LNF code at the same time...
 
 Version 1.5.0, 3 November 1991
@@ -500,30 +500,30 @@ Version 1.7.0, 23 October 1992
    * NOTE * you should make sure that no object in your database already has a
    ******** property named `f'; the following MOO program, run by a wizard,
    will perform this check:
-		for i in [0..tonum(max_object())]
-		  o = toobj(i);
-		  if (ticks_left() < 1000 || seconds_left() < 2)
-		    notify(player, tostr("Checking ", o, " ..."));
-		    suspend(0);
-		  endif
-		  if (valid(o) && "f" in properties(o))
-		    notify(player, tostr("*** ", o.name, " (", o,
-				         ") has an `f' property!"));
-		  endif
-		endfor
+                for i in [0..tonum(max_object())]
+                  o = toobj(i);
+                  if (ticks_left() < 1000 || seconds_left() < 2)
+                    notify(player, tostr("Checking ", o, " ..."));
+                    suspend(0);
+                  endif
+                  if (valid(o) && "f" in properties(o))
+                    notify(player, tostr("*** ", o.name, " (", o,
+                                         ") has an `f' property!"));
+                  endif
+                endfor
    After eliminating all such properties from the database and restarting with
    this version of the server, you should, as a wizard, run the following MOO
    code to initialize the `f' bits of all of the objects:
-		for i in [0..tonum(max_object())]
-		  o = toobj(i);
-		  if (ticks_left() < 1000 || seconds_left() < 2)
-		    notify(player, tostr("Fixing ", o, ".f ..."));
-		    suspend(0);
-		  endif
-		  if (valid(o))
-		    o.f = o.r;
-		  endif
-		endfor
+                for i in [0..tonum(max_object())]
+                  o = toobj(i);
+                  if (ticks_left() < 1000 || seconds_left() < 2)
+                    notify(player, tostr("Fixing ", o, ".f ..."));
+                    suspend(0);
+                  endif
+                  if (valid(o))
+                    o.f = o.r;
+                  endif
+                endfor
 -- Reorganized the files so that all database modifying procedures were in one
    of four modules. (Version 1.6.8)
 -- Reorganized existing network protocol and multiplexing wait implementations
@@ -581,12 +581,12 @@ Version 1.7.2, 3 August 1993
    rejected as invalid.
 -- Removed restrictions that only player objects could be used in place of `x'
    in the following:
-	object.owner = x
-	add_property(object, pname, value, {x, perms})
-	set_property_info(object, pname, {x, perms})
-	add_verb(object, {x, perms, names}, args)
-	set_verb_info(object, vname, {x, perms, names})
-	set_task_perms(x)
+        object.owner = x
+        add_property(object, pname, value, {x, perms})
+        set_property_info(object, pname, {x, perms})
+        add_verb(object, {x, perms, names}, args)
+        set_verb_info(object, vname, {x, perms, names})
+        set_task_perms(x)
    That is, non-players may now own objects, verbs, and properties, and running
    tasks may take on the authority of a non-player.
 -- Fixed bug where it was possible for a task to run out of seconds during a
@@ -622,41 +622,41 @@ Version 1.7.6, 11 October 1993
 -- The server no longer calls :confunc or :disfunc directly when users connect
    or disconnect; instead, it calls the following verbs on #0 in the
    appropriate circumstances:
-	:user_created(USER)
-		When #0:do_login_command() returns USER, a valid player object
-		whose number is greater than the value max_object() returned
-		before the server called #0:do_login_command().  That is, when
-		a new user has been created.
-	:user_connected(USER)
-		When #0:do_login_command() returns USER, a previously-existing
-		valid player object for which no active connection already
-		existed.
-	:user_reconnected(USER)
-		When #0:do_login_command() returns USER, a previously-existing
-		valid player object for which there was already an active
-		connection.
-	:user_disconnected(USER)
-		After the end of a task that called either boot_player(USER) or
-		set_player_flag(USER, 0).
-	:user_client_disconnected(USER)
-		When USER's client unilaterally closes its connection to the
-		server.
+        :user_created(USER)
+                When #0:do_login_command() returns USER, a valid player object
+                whose number is greater than the value max_object() returned
+                before the server called #0:do_login_command().  That is, when
+                a new user has been created.
+        :user_connected(USER)
+                When #0:do_login_command() returns USER, a previously-existing
+                valid player object for which no active connection already
+                existed.
+        :user_reconnected(USER)
+                When #0:do_login_command() returns USER, a previously-existing
+                valid player object for which there was already an active
+                connection.
+        :user_disconnected(USER)
+                After the end of a task that called either boot_player(USER) or
+                set_player_flag(USER, 0).
+        :user_client_disconnected(USER)
+                When USER's client unilaterally closes its connection to the
+                server.
    ******** Before upgrading an existing MOO to use this version of the server,
    * NOTE * you should install the following verbs on #0 in order to remain
    ******** compatible with existing code; NOTE WELL that they should be
    installed with the `d' permissions bit UNSET:
-	#0:"user_created user_connected"
-   		user = args[1];
-		fork (0)
-		  user:confunc();
-		endfork
-		user.location:confunc(user);
-	#0:"user_disconnected user_client_disconnected"
-   		user = args[1];
-		fork (0)
-		  user.location:disfunc(user);
-		endfork
-		user:disfunc();
+        #0:"user_created user_connected"
+                user = args[1];
+                fork (0)
+                  user:confunc();
+                endfork
+                user.location:confunc(user);
+        #0:"user_disconnected user_client_disconnected"
+                user = args[1];
+                fork (0)
+                  user.location:disfunc(user);
+                endfork
+                user:disfunc();
 -- Non-wizard users can now use the read() built-in function when they give a
    connected object they own as an argument.  Thus, it is possible, for
    example, for a non-wizard to prompt itself for input.
@@ -667,7 +667,7 @@ Version 1.7.6, 11 October 1993
    dump finishes, where SUCCESS is true iff and only if the checkpoint was
    successful.
 -- Fixed a bug (!) in the built-in command parser whereby in the command
-	="This is in quotes" and this is not
+        ="This is in quotes" and this is not
    the variable `verb' would correctly be set to "=This is in quotes" but the
    variable `argstr' would be "is in quotes\" and this is not" instead of the
    correct "and this is not".  (Reported by Shirgall.)
@@ -738,9 +738,9 @@ Version 1.7.8, 30 September 1994
    keyword as a property or verb name would be unparsed in such a way as to
    make the resulting code syntactically incorrect.  Thus, for example, the
    expression
-	x.("while")
+        x.("while")
    now unparses into the same code, instead of into
-	x.while
+        x.while
    which won't parse properly.
 -- The server now uses a pair of additional (smallish) UNIX processes to
    perform all network host-name lookups.  Under the new system, it can
@@ -814,24 +814,24 @@ Version 1.7.9alpha1, 25 September 1995
 -- Added a paragraph to `README' explaining how to boost the limit on the
    number of connections a server can support.
 -- Added two new built-in functions enabling faster case-sensitive tests:
-	equal(X, Y) returns true iff the values X and Y are completely equal,
+        equal(X, Y) returns true iff the values X and Y are completely equal,
           including the case of any strings they might contain; this is just
-	  a case-sensitive version of the `==' expression.
-	is_member(X, L) is a similarly case-sensitive version of `X in L'.
+          a case-sensitive version of the `==' expression.
+        is_member(X, L) is a similarly case-sensitive version of `X in L'.
 -- Made the `.program' built-in command wiz-only if
    $server_options.protect_set_verb_code exists and is true.
 -- Added the built-in function `set_connection_option(CONN, OPTION, VALUE)',
    for controlling various optional behaviors on the connection CONN.  The only
    allowed values for OPTION in this release are as follows:
-	"hold-input" -- if VALUE is true, then input received on CONN will
-	    never be treated as a command; instead, it will remain in the queue
-	    until retrieved by a call to read().
-	"client-echo" -- (NP_TCP configurations only) sends the Telnet Protocol
-	    WON'T ECHO or WILL ECHO commands (depending on whether VALUE is
-	    true or false, respectively).  For clients that support the Telnet
-	    Protocol, this should toggle whether or not the client echoes
-	    locally the characters typed by the user.  Note that the server
-	    never echoes input characters under any circumstances.
+        "hold-input" -- if VALUE is true, then input received on CONN will
+            never be treated as a command; instead, it will remain in the queue
+            until retrieved by a call to read().
+        "client-echo" -- (NP_TCP configurations only) sends the Telnet Protocol
+            WON'T ECHO or WILL ECHO commands (depending on whether VALUE is
+            true or false, respectively).  For clients that support the Telnet
+            Protocol, this should toggle whether or not the client echoes
+            locally the characters typed by the user.  Note that the server
+            never echoes input characters under any circumstances.
 -- Fixed stupid bug that let people lose by setting $server_options.fg_ticks
    and company to negative values.
 -- Added an optional second argument to the `read()' built-in function.  If it
@@ -867,18 +867,18 @@ Version 1.7.9alpha1, 25 September 1995
    both releases.
      The old bug concerns patterns of the form `%( ... %)*', that is, a starred
    parenthesized sub-pattern; for example, consider the MOO expression
-	match("foo", "%(o%)*")
+        match("foo", "%(o%)*")
    Using the old regex package, this returns
-	{2, 3, {{2, 3}, {0, -1}, ...}, "foo"}
+        {2, 3, {{2, 3}, {0, -1}, ...}, "foo"}
    which is *wrong*; the last successful match of the parenthesized sub-pattern
    covered just the third character, not the second and third ones.  Using the
    new RX package, this expression returns the proper value:
-	{2, 3, {{3, 3}, {0, -1}, ...}, "foo"}
+        {2, 3, {{3, 3}, {0, -1}, ...}, "foo"}
    To get the effect of the old bug, you need another set of parentheses around
    the whole starred sub-pattern:
-	match("foo", "%(%(o%)*%)")
+        match("foo", "%(%(o%)*%)")
    Under both GNU regex and RX, if M is the result of this expression, we have
-	M[3][1] == {2, 3}
+        M[3][1] == {2, 3}
    You should look carefully at your uses of match() and rmatch() before
    upgrading to this release, fixing those places where your code depends on
    the old, buggy behavior.
@@ -911,25 +911,25 @@ Version 1.7.9alpha1, 25 September 1995
    messages, showing for each the name of the relevant property on
    $server_options, the default/standard message, and the circumstances under
    which the message is printed:
-	timeout_msg	      "*** Timed-out waiting for login. ***"
-		This in-bound network connection was idle and un-logged-in for
-		at least CONNECT_TIMEOUT seconds (as defined in options.h).
-	recycle_msg	      "*** Recycled ***"
-		The logged-in user of this connection has been recycled.
-	boot_msg	      "*** Disconnected ***"
-		The function boot_player() was called on this connection.
-	redirect_from_msg     "*** Redirecting connection to new port ***"
-		The logged-in user of this connection has just logged in on
-		some other connection.
-	redirect_to_msg	      "*** Redirecting old connection to this port ***"
-		The user who just logged in on this connection was already
-		logged in on some other connection.
-	create_msg	      "*** Created ***"
-		The user object that just logged in on this connection did not
-		exist before #0:do_login_command() was called.
-	connect_msg	      "*** Connected ***"
-		The user object that just logged in on this connection existed
-		before #0:do_login_command() was called.
+        timeout_msg           "*** Timed-out waiting for login. ***"
+                This in-bound network connection was idle and un-logged-in for
+                at least CONNECT_TIMEOUT seconds (as defined in options.h).
+        recycle_msg           "*** Recycled ***"
+                The logged-in user of this connection has been recycled.
+        boot_msg              "*** Disconnected ***"
+                The function boot_player() was called on this connection.
+        redirect_from_msg     "*** Redirecting connection to new port ***"
+                The logged-in user of this connection has just logged in on
+                some other connection.
+        redirect_to_msg       "*** Redirecting old connection to this port ***"
+                The user who just logged in on this connection was already
+                logged in on some other connection.
+        create_msg            "*** Created ***"
+                The user object that just logged in on this connection did not
+                exist before #0:do_login_command() was called.
+        connect_msg           "*** Connected ***"
+                The user object that just logged in on this connection existed
+                before #0:do_login_command() was called.
 -- The `for VAR in [EXPR..EXPR]' looping construct can now be used with either
    numbers or object numbers.  That is, the construct `for o in [#0..#100]' is
    now legal and does the obvious thing.  NOTE that in the example `o' will
@@ -956,18 +956,18 @@ Version 1.7.9alpha1, 25 September 1995
    built-in function `connection_name()' on TCP networking configurations to
    contain the remote port of the connection as well as the host name, in the
    following format:
-		"99 from FOO.BAR.COM, port 9999"
+                "99 from FOO.BAR.COM, port 9999"
    As before, the first number in the result is pretty useless to MOO
    programmers (it's the server's file descriptor for the connection) but can,
    believe it or not, occasionally be useful to the maintainer.
    ******** Before upgrading an existing MOO to use this version of the server,
    * NOTE * you should modify the verb $string_utils:connection_hostname_bsd as
    ******** follows:
-		@chmod $string_utils:connection_hostname_bsd -d
-		@program $string_utils:connection_hostname_bsd
-		s = args[1];
-		return strsub($string_utils:explode(s)[3], ",", "") || "";
-		.
+                @chmod $string_utils:connection_hostname_bsd -d
+                @program $string_utils:connection_hostname_bsd
+                s = args[1];
+                return strsub($string_utils:explode(s)[3], ",", "") || "";
+                .
    This code should work compatibly with either version of the server.
 -- Applied the key part of Alex Stewart's pAS7 patch, which fixes a problem
    with the server occasionally hanging under Sun's Solaris 2.X system.  [I
@@ -984,7 +984,7 @@ Version 1.7.9alpha1, 25 September 1995
    the message to MOO-Cows that finally got me to fix this longstanding bug.)
 -- Disallowed empty verb names and those made up only of spaces.
 -- Added a new built-in function `toliteral(VALUE)' such that
-	eval("return " + toliteral(VALUE) + ";") == {1, VALUE}
+        eval("return " + toliteral(VALUE) + ";") == {1, VALUE}
    for all MOO values.
 -- The `create()' built-in function will now create children of #-1.
 -- Added an `emergency wizard mode' to the server's start-up sequence; if you
@@ -1001,9 +1001,9 @@ Version 1.7.9alpha1, 25 September 1995
    ******** will work appropriately when passed negative (and therefore
    invalid) object numbers.  In most cases, it is probably sufficient to add
    the following lines to the top of these verbs:
-		if (args[1] < #0)
-		  return;
-		endif
+                if (args[1] < #0)
+                  return;
+                endif
    This code should work compatibly with either version of the server, since
    these verbs weren't being called with such object numbers before.
 -- The server now saves, in the DB file, a list of all users with active
@@ -1030,8 +1030,8 @@ Version 1.7.9, 18 October 1995
    currently queued for that user.  It is guaranteed that queue_info(X) will
    return zero for any X not in the result of queue_info().  In essence,
    queue_info(X) is a very efficient version of
-	set_task_perms(X);
-	return length(queued_tasks());
+        set_task_perms(X);
+        return length(queued_tasks());
    In particular, it (a) doesn't have to allocate a large list structure, and
    (b) tells you when passed no arguments the complete set of users for whom
    there might actually be any queued tasks.
@@ -1040,17 +1040,17 @@ Version 1.7.9, 18 October 1995
    succeed.  Wizards won't get E_PERM if the current task is the one that was
    last spawned by a command from the connection in question.  You can assure
    this in a number of ways:
-	1) Never suspend, but rather only call read().  This is the one way
-	   that used to work.
-	2) Get lucky, go ahead and call suspend(), and have it just happen that
-	   no commands have been read since the last time you called read(),
-	   perhaps because the user was waiting for a prompt and no typing
-	   ahead.  This technique is *not* recommended.
-	3) Before suspending, call
-		set_connection_option(player, "hold-input", 1)
-	   thereby ensuring that no commands will be taken from this player's
-	   queue until you call
-		set_connection_option(player, "hold-input", 0)
+        1) Never suspend, but rather only call read().  This is the one way
+           that used to work.
+        2) Get lucky, go ahead and call suspend(), and have it just happen that
+           no commands have been read since the last time you called read(),
+           perhaps because the user was waiting for a prompt and no typing
+           ahead.  This technique is *not* recommended.
+        3) Before suspending, call
+                set_connection_option(player, "hold-input", 1)
+           thereby ensuring that no commands will be taken from this player's
+           queue until you call
+                set_connection_option(player, "hold-input", 0)
    This new third technique, suggested by Alex Stewart, was the impetus for
    making this change.
 -- Fixed a memory leak in the server's use of the new matcher.
@@ -1076,18 +1076,18 @@ Version 1.7.9, 18 October 1995
      The old bug concerns patterns of the form `%( ... %)*', that is, a starred
    or plussed parenthesized sub-pattern; for example, consider the MOO
    expression
-	match("foo", "%(o%)+")
+        match("foo", "%(o%)+")
    Using the old regex package, this returns
-	{2, 3, {{2, 3}, {0, -1}, ...}, "foo"}
+        {2, 3, {{2, 3}, {0, -1}, ...}, "foo"}
    which is *wrong*; the last successful match of the parenthesized sub-pattern
    covered just the third character, not the second and third ones.  Using the
    new RX package, this expression returns the proper value:
-	{2, 3, {{3, 3}, {0, -1}, ...}, "foo"}
+        {2, 3, {{3, 3}, {0, -1}, ...}, "foo"}
    To get the effect of the old bug, you need another set of parentheses around
    the whole starred sub-pattern:
-	match("foo", "%(%(o%)+%)")
+        match("foo", "%(%(o%)+%)")
    Under both GNU regex and RX, if M is the result of this expression, we have
-	M[3][1] == {2, 3}
+        M[3][1] == {2, 3}
    You should look carefully at your uses of match() and rmatch() before
    upgrading to this release, fixing those places where your code depends on
    the old, buggy behavior.
@@ -1100,22 +1100,22 @@ Version 1.7.9, 18 October 1995
       The problem concerns starred or plussed sub-patterns inside a starred or
    plussed parenthesized pattern.  For example, here is a perfectly reasonable
    pattern matching MOO strings:
-	"\"%([^\"\\]+%|\\.%)*\""
+        "\"%([^\"\\]+%|\\.%)*\""
    (It matches double quotes around a sequence of either (a) a cluster of
    characters that don't require escaping, or (b) a single escaped character.)
    Note, however, that it contains a plussed sub-pattern inside of starred
    parentheses, precisely the bad case for the new matcher.  Fortunately, this
    pattern can be altered slightly, removing the `+', without changing the
    meaning:
-	"\"%([^\"\\]%|\\.%)*\""
+        "\"%([^\"\\]%|\\.%)*\""
    This pattern does not cause problems for the new matcher.  I don't know of
    any problematical patterns in LambdaCore, but there is at least one in
    JHCore, in $code_utils:safe_eval, where it uses this pattern:
-	"^%([^\"()=]+%|\"%([^\\\"]*%|\\.%)*\"%)*$"
+        "^%([^\"()=]+%|\"%([^\\\"]*%|\\.%)*\"%)*$"
                     ^             ^       ^
    There are three instances of the problem here, indicated by the up-arrows;
    the first two of them can be removed without changing the meaning:
-	"^%([^\"()=]%|\"%([^\\\"]%|\\.%)*\"%)*$"
+        "^%([^\"()=]%|\"%([^\\\"]%|\\.%)*\"%)*$"
    The third instance, in my testing, does not appear to cause any problems in
    practice.
      I am continuing my search for a better regexp implementation, but this one
@@ -1159,7 +1159,7 @@ Version 1.8.0alpha1, 29 November 1995
    resulting traceback printed to the user.  VALUE is accessible to an error
    handler established by the new TRY-EXCEPT-ENDTRY construct; see below.
 -- Added new error-catching expression:
-		`EXPR ! CODES => EXPR_H'
+                `EXPR ! CODES => EXPR_H'
    NOTE: The open- and close-quotation marks in the previous line are really
    part of the syntax!
       In this new expression, EXPR and EXPR_H are arbitrary expressions.  CODES
@@ -1182,23 +1182,23 @@ Version 1.8.0alpha1, 29 November 1995
    to be caught by some piece of code either surrounding this expression or
    higher up on the verb-call stack.
       Here are some examples:
-	`x + 1 ! E_TYPE => 0'
-		Returns x + 1 if x is a number, returns 0 if x is not a number,
-		and raises E_VARNF if x doesn't have a value.
-	`x.y ! E_PROPNF, E_PERM => 17'
-		Returns x.y if that doesn't cause an error, 17 if x doesn't
-		have a "y" property or that property isn't readable, and raises
-		some other kind of error (like E_INVIND) if x.y does.
-	`1 / 0 ! ANY'
-		Returns E_DIV.
+        `x + 1 ! E_TYPE => 0'
+                Returns x + 1 if x is a number, returns 0 if x is not a number,
+                and raises E_VARNF if x doesn't have a value.
+        `x.y ! E_PROPNF, E_PERM => 17'
+                Returns x.y if that doesn't cause an error, 17 if x doesn't
+                have a "y" property or that property isn't readable, and raises
+                some other kind of error (like E_INVIND) if x.y does.
+        `1 / 0 ! ANY'
+                Returns E_DIV.
 -- Added new error-catching statement:
-		TRY
-		  statements_0
-		EXCEPT id_1 (codes_1)
-		  statements_1
-		EXCEPT id_2 (codes_2)
-		  statements_2
-		ENDTRY
+                TRY
+                  statements_0
+                EXCEPT id_1 (codes_1)
+                  statements_1
+                EXCEPT id_2 (codes_2)
+                  statements_2
+                ENDTRY
    The IDs are optional, CODES has the same syntax as above, and there can be
    anywhere from 1 to 255 EXCEPT clauses.
       First, each CODES is evaluated yielding a list of error codes that should
@@ -1213,7 +1213,7 @@ Version 1.8.0alpha1, 29 November 1995
       If E is found first in CODES_i, then ID_i (if provided) assigned a value
    containing information about the error being raised and STATEMENTS_i is
    executed.  The value assigned to ID_i list a list of four elements:
-		{CODE, MSG, VALUE, TRACEBACK}
+                {CODE, MSG, VALUE, TRACEBACK}
    where CODE is E, the error being raised, MSG and VALUE are as provided by
    the code that raised the error (built-in errors, such as division by zero,
    currently act as if the MSG and VALUE arguments to raise() were omitted),
@@ -1221,31 +1221,31 @@ Version 1.8.0alpha1, 29 November 1995
    numbers.  The TRACEBACK list contains entries for every verb from the one
    that raised the error through the one containing this TRY statement.
       Here is an example:
-		try
-		  result = object:(command)(@arguments);
-		  player:tell("=> ", toliteral(result));
-		except v (ANY)
-		  tb = v[4];
-		  if (length(tb) == 1)
-		    player:tell("** Illegal command: ", v[2]);
-		  else
-		    top = tb[1];
-		    tb[1..1] = {};
-		    player:tell(top[1], ":", top[2], ", line ", top[6], ":",
-		                v[2]);
-		    for fr in (tb)
-		      player:tell("... called from ", fr[1], ":", fr[2],
-		                  ", line ", fr[6]);
-		    endfor
-		    player:tell("(End of traceback)");
-		  endif
-		endtry
+                try
+                  result = object:(command)(@arguments);
+                  player:tell("=> ", toliteral(result));
+                except v (ANY)
+                  tb = v[4];
+                  if (length(tb) == 1)
+                    player:tell("** Illegal command: ", v[2]);
+                  else
+                    top = tb[1];
+                    tb[1..1] = {};
+                    player:tell(top[1], ":", top[2], ", line ", top[6], ":",
+                                v[2]);
+                    for fr in (tb)
+                      player:tell("... called from ", fr[1], ":", fr[2],
+                                  ", line ", fr[6]);
+                    endfor
+                    player:tell("(End of traceback)");
+                  endif
+                endtry
 -- Added new error-cleanup statement:
-		TRY
-		  statements_0
-		FINALLY
-		  statements_1
-		ENDTRY
+                TRY
+                  statements_0
+                FINALLY
+                  statements_1
+                ENDTRY
    STATEMENTS_0 is executed; if it completes without raising an error or
    returning from this verb, then STATEMENTS_1 is executed and that's
    all that happens for the entire TRY statement.  Otherwise, the process of
@@ -1260,13 +1260,13 @@ Version 1.8.0alpha1, 29 November 1995
    sure that some piece of cleanup code is run even if STATEMENTS_0 doesn't
    simply run normally to completion.
       Here's an example:
-		try
-		  start = time();
-		  object:(command)(@arguments);
-		finally
-		  end = time();
-		  this:charge_user_for_seconds(player, end - start);
-		endtry
+                try
+                  start = time();
+                  object:(command)(@arguments);
+                finally
+                  end = time();
+                  this:charge_user_for_seconds(player, end - start);
+                endtry
 -- Completely rewrote the MOO-code decompiler, restructuring it to be able to
    cope with the new exception-handling constructs.
 -- Fixed bug in handling of EOF in emergency wizard mode; it is now treated as
@@ -1302,12 +1302,12 @@ Version 1.8.0alpha2, 11 December 1995
    the distribution, including `Makefile' itself.
 -- Added two new DB-settable options:
       $server_options.name_lookup_timeout
-	   is the maximum number of seconds the server will wait for a response
-	   to a hostname <--> IP address lookup before giving up.
+           is the maximum number of seconds the server will wait for a response
+           to a hostname <--> IP address lookup before giving up.
       $server_options.outbound_connect_timeout
-	   is the maximum number of seconds that a server will hang waiting for
-	   an outbound network connection attempt to succeed; after that, it
-	   gives up.
+           is the maximum number of seconds that a server will hang waiting for
+           an outbound network connection attempt to succeed; after that, it
+           gives up.
 -- Added new built-in function `resume(TASK_ID [, VALUE])', where TASK_ID is
    the task ID of an existing suspended task and VALUE defaults to zero.  If
    the programmer is a wizard or owns the specified task, the task is made
@@ -1371,7 +1371,7 @@ Version 1.8.0alpha2, 11 December 1995
    (element 6), if any, is set to an index used internally to determine the
    current state of the built-in function.  The simplest safe test for a
    built-in function entry is
-	(VERB-LOC == #-1  &&  PROGRAMMER == #-1  &&  VERB-NAME != "")
+        (VERB-LOC == #-1  &&  PROGRAMMER == #-1  &&  VERB-NAME != "")
    This combination was not previously possible.  I leave it to the interested
    reader to discover the previously possible circumstances under which any
    weaker test might fail...
@@ -1458,42 +1458,42 @@ Version 1.8.0alpha4, 30 December 1995
    is immediately closed.  The default for this message is as was formerly
    hardwired into the server:
         *** Sorry, but the server cannot accept any more connections right now.
-	*** Please try again later.
+        *** Please try again later.
 -- The DB-configurable messages are no longer printed on outbound connections.
 -- Added a version of the MPL (multiple-port listening) extension first
    implemented by Ivan Judson.  This involves the addition of three new
    built-in functions:
-	listen(OBJ, DESC [, PRINT_MESSAGES]) => CANON_DESC
-	    Create a new point at which the server will listen for network
-	    connections, just as it does normally.  OBJ is the object whose
-	    verbs :do_login_command, :do_command, :do_out_of_band_command,
-	    :user_connected, :user_created, :user_reconnected,
-	    :user_disconnected, and :user_client_disconnected will be called at
-	    appropriate points, just like these verbs are called on #0 for
-	    normal connections.  (If a user reconnects and the user's old and
-	    new connections are on two different listening points being handled
-	    by different objects, then :user_client_disconnected is called for
-	    the old connection and :user_connected for the new one.)  DESC is a
-	    network-configuration- specific parameter describing the listening
-	    point.  For the TCP configurations, DESC is a port number on which
-	    to listen.  If PRINT_MESSAGES is provided and true, then the
-	    various DB- configurable messages will be printed on connections
-	    received at the new listening point.  CANON_DESC is a
-	    `canonicalized' version of DESC, with any configuration-specific
-	    defaulting or aliasing accounted for.  For the TCP configurations,
-	    CANON_DESC is equal to DESC unless DESC is zero, in which case
-	    CANON_DESC is a port number assigned by the operating system.  This
-	    raises E_PERM if the programmer is not a wizard, E_INVARG if OBJ is
-	    invalid or there is already a listening point described by DESC,
-	    and E_QUOTA if some network-configuration-specific error occurred.
-	unlisten(DESC)
-	    Stop listening for connections on the point described by DESC,
-	    which should be a value returned by some successful call to
-	    listen().  Raises E_PERM if the programmer is not a wizard and
-	    E_INVARG if there does not exist a listener with that description.
-	listeners() => {{OBJ, DESC, PRINT_MESSAGES}, ...}
-	    Returns a list of all existing listeners, including the default one
-	    set up by the server at boot time.
+        listen(OBJ, DESC [, PRINT_MESSAGES]) => CANON_DESC
+            Create a new point at which the server will listen for network
+            connections, just as it does normally.  OBJ is the object whose
+            verbs :do_login_command, :do_command, :do_out_of_band_command,
+            :user_connected, :user_created, :user_reconnected,
+            :user_disconnected, and :user_client_disconnected will be called at
+            appropriate points, just like these verbs are called on #0 for
+            normal connections.  (If a user reconnects and the user's old and
+            new connections are on two different listening points being handled
+            by different objects, then :user_client_disconnected is called for
+            the old connection and :user_connected for the new one.)  DESC is a
+            network-configuration- specific parameter describing the listening
+            point.  For the TCP configurations, DESC is a port number on which
+            to listen.  If PRINT_MESSAGES is provided and true, then the
+            various DB- configurable messages will be printed on connections
+            received at the new listening point.  CANON_DESC is a
+            `canonicalized' version of DESC, with any configuration-specific
+            defaulting or aliasing accounted for.  For the TCP configurations,
+            CANON_DESC is equal to DESC unless DESC is zero, in which case
+            CANON_DESC is a port number assigned by the operating system.  This
+            raises E_PERM if the programmer is not a wizard, E_INVARG if OBJ is
+            invalid or there is already a listening point described by DESC,
+            and E_QUOTA if some network-configuration-specific error occurred.
+        unlisten(DESC)
+            Stop listening for connections on the point described by DESC,
+            which should be a value returned by some successful call to
+            listen().  Raises E_PERM if the programmer is not a wizard and
+            E_INVARG if there does not exist a listener with that description.
+        listeners() => {{OBJ, DESC, PRINT_MESSAGES}, ...}
+            Returns a list of all existing listeners, including the default one
+            set up by the server at boot time.
    I believe that this implementation is upward-compatible with the existing
    uses of Ivan's package.  As far as I know, the only differences are that his
    package did not have the PRINT_MESSAGES argument to listen(), did not work
@@ -1505,21 +1505,21 @@ Version 1.8.0alpha4, 30 December 1995
    as if it had been created by listen().  This can be useful; for example, you
    might start up your server on some obscure port, say 12345, connect to it by
    yourself for a while, and then open it up to normal users with the command
-	;;unlisten(12345); listen(#0, 7777, 1)
+        ;;unlisten(12345); listen(#0, 7777, 1)
 -- Changed the result of connection_name() to expose information about the
    listening point on which the connection was accepted.  For the TCP
    networking configurations, the format is now:
-	  "port 7777 from foo.bar.com, port 3456"
+          "port 7777 from foo.bar.com, port 3456"
    where 7777 is the server port on which the connection arrived and the rest
    is as before.
    ********** Before upgrading an existing LambdaCore-based MOO to use this
    ** NOTE ** version of the server, you should modify the verb
    ********** $string_utils:connection_hostname_bsd as follows:
-		    @program $string_utils:connection_hostname_bsd
-		    s = args[1];
-		    m = match(s, "^.* %(from%|to%) %([^, ]+%)");
-		    return m ? substitute("%2", m) | "";
-		    .
+                    @program $string_utils:connection_hostname_bsd
+                    s = args[1];
+                    m = match(s, "^.* %(from%|to%) %([^, ]+%)");
+                    return m ? substitute("%2", m) | "";
+                    .
    This code should work compatibly with any version of the server since 1.6.0.
 -- Added a new kind of expression, allowed only within the indexing/subranging
    brackets `[...]'; in this context, the expression `$' means the length of
@@ -1580,32 +1580,32 @@ Version 1.8.0alpha5, 11 January 1996
    sets the connection back into the normal MOO I/O mode.
 -- For convenience in manipulating binary strings, two new built-in functions
    are provided:
-	decode_binary(BIN_STRING [, FULLY]) => LIST
-	    Returns a list of strings and/or numbers representing the bytes in
-	    BIN_STRING in order.  If FULLY is false or omitted, the list
-	    contains a number only for each non-printing, non-space, non-tab
-	    byte; all other characters are grouped into the longest possible
-	    contiguous substrings.  If FULLY is provided and true, the list
-	    contains only numbers, one for each byte represented in BIN_STRING.
-	    Raises E_INVARG if BIN_STRING is malformed.
-	    Examples:
-		decode_binary("foo") => {"foo"}
-		decode_binary("~~foo") => {"~foo"}
-		decode_binary("foo~015~012") => {"foo", 13, 10}
-		decode_binary("foo~012bar~012baz")
-						=> {"foo", 10, "bar", 10, "baz}
-		decode_binary("foo~015~012", 1) => {102, 111, 111, 13, 10}
-	encode_binary(@ARGS) => BIN_STRING
-	    ARGS must be a list of numbers between 0 and 255, strings, and
-	    lists of this same form.  Translates each number and string in turn
-	    into its binary string equivalent, returning the concatenation of
-	    all these substrings into a single binary string.
-	    Examples:
-		encode_binary("~foo") => "~~foo"
-		encode_binary({"foo", 13, 10}, {"bar", 13, 10})
-					=> "foo~015~012bar~015~012"
-		encode_binary("foo", 13, 10, "bar", 13, 10)
-					=> "foo~015~012bar~015~012"
+        decode_binary(BIN_STRING [, FULLY]) => LIST
+            Returns a list of strings and/or numbers representing the bytes in
+            BIN_STRING in order.  If FULLY is false or omitted, the list
+            contains a number only for each non-printing, non-space, non-tab
+            byte; all other characters are grouped into the longest possible
+            contiguous substrings.  If FULLY is provided and true, the list
+            contains only numbers, one for each byte represented in BIN_STRING.
+            Raises E_INVARG if BIN_STRING is malformed.
+            Examples:
+                decode_binary("foo") => {"foo"}
+                decode_binary("~~foo") => {"~foo"}
+                decode_binary("foo~015~012") => {"foo", 13, 10}
+                decode_binary("foo~012bar~012baz")
+                                                => {"foo", 10, "bar", 10, "baz}
+                decode_binary("foo~015~012", 1) => {102, 111, 111, 13, 10}
+        encode_binary(@ARGS) => BIN_STRING
+            ARGS must be a list of numbers between 0 and 255, strings, and
+            lists of this same form.  Translates each number and string in turn
+            into its binary string equivalent, returning the concatenation of
+            all these substrings into a single binary string.
+            Examples:
+                encode_binary("~foo") => "~~foo"
+                encode_binary({"foo", 13, 10}, {"bar", 13, 10})
+                                        => "foo~015~012bar~015~012"
+                encode_binary("foo", 13, 10, "bar", 13, 10)
+                                        => "foo~015~012bar~015~012"
 -- Fixed two places missed in a change made in 1.7.9alpha1;
    $user_disconnected() is now called for un-logged-in connections that either
    time out or are the target of a call to boot_player().  (Thanks to Brian
@@ -1651,7 +1651,7 @@ Version 1.8.0alpha6, 16 January 1996
    if NAME is omitted, a list of descriptions is returned, one for each
    function available on the server.  Each description is a list of the
    following form:
-	{NAME, MIN_ARGS, MAX_ARGS, TYPES}
+        {NAME, MIN_ARGS, MAX_ARGS, TYPES}
    NAME is the name of the built-in function, MIN_ARGS is the minimum number of
    arguments that must be provided to the function, MAX_ARGS is the maximum
    number of arguments that can be provided to the function or -1 if there is
@@ -1660,10 +1660,10 @@ Version 1.8.0alpha6, 16 January 1996
    corresponding position.  Each type number is as would be returned from the
    typeof() built-in function except that -1 indicates that any type of value
    is acceptable.  For example, here are several entries from the list:
-	{"listdelete", 2, 2, {4, 0}}
-	{"suspend", 0, 1, {0}}
-	{"server_log", 1, 2, {2, -1}}
-	{"tostr", 0, -1, {}}
+        {"listdelete", 2, 2, {4, 0}}
+        {"suspend", 0, 1, {0}}
+        {"server_log", 1, 2, {2, -1}}
+        {"tostr", 0, -1, {}}
    `listdelete()' takes exactly 2 arguments, of which the first must be a list
    (LIST == 4) and the second must be a number (NUM == 0).  `suspend()' has one
    optional argument that, if provided, must be a number.  `server_log()' has
@@ -1685,57 +1685,57 @@ Version 1.8.0alpha6, 16 January 1996
    example, to get at the arguments to a verb in a more convenient form than
    the list `args'.
       A scattering assignment expression looks like this:
-	{ TARGETS } = EXPR
+        { TARGETS } = EXPR
    where TARGETS is a comma-separated list of places to store elements of the
    list that results from evaluating EXPR.  A target has one of the following
    forms:
-	VARIABLE
-	    This is the simplest target, just a simple variable; the list
-	    element in the corresponding position is assigned to the variable.
-	    I call this a `required' target, since the assignment is required
-	    to put one of the list elements into the variable.
-	? VARIABLE
-	    I call this an `optional' target, since it doesn't always get
-	    assigned an element.  If there are any list elements left over
-	    after all of the required targets (and all of the other optionals
-	    to the left of this one) have been accounted for, then this
-	    variable is treated like a required one and the list element in the
-	    corresponding position is assigned to the variable.  If there
-	    aren't enough elements to assign one to this target, then no
-	    assignment is made to this variable, leaving it with whatever its
-	    previous value was.
-	? VARIABLE = EXPR
-	    This is also an optional target, but if there aren't enough list
-	    elements available to assign one to this target, the result of
-	    evaluating EXPR is assigned to it instead.  Thus, EXPR is a kind of
-	    `default value' for the variable.  The default value expressions
-	    are evaluated and assigned working from left to right *after* all
-	    of the other assignments have been performed.
-	@ VARIABLE
-	    Analogously to MOO argument lists, this variable is assigned a list
-	    of all of the `leftover' list elements in this part of the list
-	    after all of the other targets have been filled in.  It will be
-	    assigned the empty list, if there aren't any elements left over.  I
-	    call this a `rest' target, since it gets the rest of the elements.
-	    There may be at most one rest target in TARGETS.
+        VARIABLE
+            This is the simplest target, just a simple variable; the list
+            element in the corresponding position is assigned to the variable.
+            I call this a `required' target, since the assignment is required
+            to put one of the list elements into the variable.
+        ? VARIABLE
+            I call this an `optional' target, since it doesn't always get
+            assigned an element.  If there are any list elements left over
+            after all of the required targets (and all of the other optionals
+            to the left of this one) have been accounted for, then this
+            variable is treated like a required one and the list element in the
+            corresponding position is assigned to the variable.  If there
+            aren't enough elements to assign one to this target, then no
+            assignment is made to this variable, leaving it with whatever its
+            previous value was.
+        ? VARIABLE = EXPR
+            This is also an optional target, but if there aren't enough list
+            elements available to assign one to this target, the result of
+            evaluating EXPR is assigned to it instead.  Thus, EXPR is a kind of
+            `default value' for the variable.  The default value expressions
+            are evaluated and assigned working from left to right *after* all
+            of the other assignments have been performed.
+        @ VARIABLE
+            Analogously to MOO argument lists, this variable is assigned a list
+            of all of the `leftover' list elements in this part of the list
+            after all of the other targets have been filled in.  It will be
+            assigned the empty list, if there aren't any elements left over.  I
+            call this a `rest' target, since it gets the rest of the elements.
+            There may be at most one rest target in TARGETS.
    If there aren't enough list elements to fill all of the required targets, or
    if there are more than enough to fill all of the required and optional
    targets but there isn't a rest target to take the leftover ones, then E_ARGS
    is raised.
       Here are some examples of how this works.  Assume first that the verb
    `me:foo()' contains the following code:
-		b = c = e = 17;
-		{a, ?b, ?c = 8, @d, ?e = 9, f} = args;
-		return {a, b, c, d, e, f};
+                b = c = e = 17;
+                {a, ?b, ?c = 8, @d, ?e = 9, f} = args;
+                return {a, b, c, d, e, f};
    Then the following calls return the given values:
-	    `me:foo(1) ! ANY'              => E_ARGS
-	    me:foo(1, 2)                   => {1, 17, 8, {}, 9, 2}
-	    me:foo(1, 2, 3)		   => {1, 2, 8, {}, 9, 3}
-	    me:foo(1, 2, 3, 4)		   => {1, 2, 3, {}, 9, 4}
-	    me:foo(1, 2, 3, 4, 5)	   => {1, 2, 3, {}, 4, 5}
-	    me:foo(1, 2, 3, 4, 5, 6)	   => {1, 2, 3, {4}, 5, 6}
-	    me:foo(1, 2, 3, 4, 5, 6, 7)	   => {1, 2, 3, {4, 5}, 6, 7}
-	    me:foo(1, 2, 3, 4, 5, 6, 7, 8) => {1, 2, 3, {4, 5, 6}, 7, 8}
+            `me:foo(1) ! ANY'              => E_ARGS
+            me:foo(1, 2)                   => {1, 17, 8, {}, 9, 2}
+            me:foo(1, 2, 3)                => {1, 2, 8, {}, 9, 3}
+            me:foo(1, 2, 3, 4)             => {1, 2, 3, {}, 9, 4}
+            me:foo(1, 2, 3, 4, 5)          => {1, 2, 3, {}, 4, 5}
+            me:foo(1, 2, 3, 4, 5, 6)       => {1, 2, 3, {4}, 5, 6}
+            me:foo(1, 2, 3, 4, 5, 6, 7)    => {1, 2, 3, {4, 5}, 6, 7}
+            me:foo(1, 2, 3, 4, 5, 6, 7, 8) => {1, 2, 3, {4, 5, 6}, 7, 8}
    Finally MOO has a convenient mechanism for naming verb arguments, checking
    for there being exactly the right number of arguments, handling optional and
    `rest' arguments, etc.  I intend to start every new MOO verb of mine with a
@@ -1788,7 +1788,7 @@ Version 1.8.0beta1, 7 February 1996
    setting $server_options.default_flush_command either to a non-empty string
    (the new default) or something else (a default of `no defined flush
    command').  On any given connection, you can redefine the flush command with
-	set_connection_option(CONN, "flush-command", VALUE)
+        set_connection_option(CONN, "flush-command", VALUE)
    Again, if VALUE is a non-empty string, it becomes the new flush command for
    CONN; otherwise, CONN is set to have no defined flush command.
    ********** This could confuse things for certain kinds of unusual server
@@ -1805,19 +1805,19 @@ Version 1.8.0beta1, 7 February 1996
 -- Added `list' and `disassemble' commands to emergency wizard mode.  (Thanks
    to H. Peter Anvin for writing the first versions of these.)
 -- Added a new `named' form of the `while' loop:
-		WHILE id (expression)
-		  statements
-		ENDWHILE
+                WHILE id (expression)
+                  statements
+                ENDWHILE
    This behaves exactly like the statement
-		WHILE (id = (expression))
-		  statements
-		ENDWHILE
+                WHILE (id = (expression))
+                  statements
+                ENDWHILE
    This was added solely to provide a way to give a name to a `while' loop, for
    use in the new `break' and `continue' statements, described below.
 -- Added new MOO statements `break' and `continue', similar to the ones in C or
    Java.  The syntax is
-		BREAK [id];
-		CONTINUE [id];
+                BREAK [id];
+                CONTINUE [id];
    A `break' statement causes your program to exit an enclosing `for' or
    `while' loop; a `continue' statement causes your program to skip ahead to
    the begining of the next iteration of an enclosing loop.  If provided, the
@@ -1828,37 +1828,37 @@ Version 1.8.0beta1, 7 February 1996
    control to leave the main body of a `try - finally - entry' statement, the
    `finally' part will be executed first, just as with a `return' statement.
       Here's an example:
-		x = 0;
-		for i in [1..5]
-		  notify(player, "top");
-		  try
-		    if (!x)
-		      x = 1;
-		      notify(player, "continuing");
-		      continue;
-		    endif
-		    x = x + 1;
-		  finally
-		    notify(player, "finally");
-		  endtry
-		  notify(player, "after");
-		  if (x > 1)
-		    break;
-		  endif
-		endfor
-		notify(player, "done");
+                x = 0;
+                for i in [1..5]
+                  notify(player, "top");
+                  try
+                    if (!x)
+                      x = 1;
+                      notify(player, "continuing");
+                      continue;
+                    endif
+                    x = x + 1;
+                  finally
+                    notify(player, "finally");
+                  endtry
+                  notify(player, "after");
+                  if (x > 1)
+                    break;
+                  endif
+                endfor
+                notify(player, "done");
    This verb produces the following output:
-		top
-		continuing
-		finally
-		top
-		finally
-		after
-		done
+                top
+                continuing
+                finally
+                top
+                finally
+                after
+                done
    I don't claim that this is a useful verb, mind you, but it does illustrate
    all of the possible interactions.
 -- By popular demand, I added the new built-in function
-	force_input(CONN, LINE [, AT_FRONT])
+        force_input(CONN, LINE [, AT_FRONT])
    which inserts the string LINE as an input task in the queue for the
    connection CONN, just as if it had arrived as input over the network.  If
    AT_FRONT is provided and true, then the new line of input is put at the
@@ -1895,7 +1895,7 @@ Version 1.8.0beta1, 7 February 1996
        responsibility and should not be taken to reflect badly on HPA
        in any way.)
 -- MOO numeric literals now have the following syntax:
-	digit+ [. digit+] [{e | E} [+ | -] digit+]
+        digit+ [. digit+] [{e | E} [+ | -] digit+]
    The number is represented in floating-point if and only if either a decimal
    point or a scientific-notation marker (`e' or `E') appears in the
    literal.
@@ -1917,10 +1917,10 @@ Version 1.8.0beta1, 7 February 1996
    "M.DDDDDDe+EEE", again preceded by a minus sign if FLOAT is negative.
 -- The following operators now work in the obvious way (analogously to the
    integer case) if X and Y are both floating-point numbers:
-	-X
-	X + Y		X - Y		X * Y		X / Y		X % Y
-	X == Y		X != Y
-	X < Y		X <= Y		X > Y		X >= Y
+        -X
+        X + Y           X - Y           X * Y           X / Y           X % Y
+        X == Y          X != Y
+        X < Y           X <= Y          X > Y           X >= Y
    If one of X or Y is an integer and the other is a floating-point number,
    then most of these operators raise E_TYPE; there are no automatic coercions
    of integers to floating-point numbers.  The expression (X == Y) is always
@@ -1935,7 +1935,7 @@ Version 1.8.0beta1, 7 February 1996
        server upward-compatibly later to allow such coercions.)
 -- The following operations all raise E_TYPE if either X or Y is a
    floating-point number:
-	Z[X]		Z[X] = E	Z[X..Y]		Z[X..Y] = E
+        Z[X]            Z[X] = E        Z[X..Y]         Z[X..Y] = E
    List and string indices must be integers.
 -- Added built-in functions `toint()' (a synonym for `tonum()') and
    `tofloat()'.  The former can be used to convert a floating-point number to
@@ -1962,26 +1962,26 @@ Version 1.8.0beta1, 7 February 1996
        coercions described above; feel free to try to argue me around
        to a position you think is better.)
 -- Added the following new functions:
-	sin(X)		sine of X
-	cos(X)		cosine of X
-	tan(X)		tangent of X
-	asin(X)		arc-sine (inverse sine) of X in range [-pi/2, pi/2],
-			for X in range [-1, 1]
-	asin(X)		arc-cosine (inverse cosine) of X in range [0, pi], for
-			X in range [-1, 1]
-	atan(X [, Y])	arc-tangent (inverse tangent) of X in range
-			[-pi/2, pi/2] if Y is not provided, or of Y/X in range
-			[-pi, pi] is Y is provided
-	sinh(X)		hyperbolic sine of X
-	cosh(X)		hyperbolic cosine of X
-	tanh(X)		hyperbolic tangent of X
-	exp(X)		exponential function e^X
-	log(X)		natural logarithm ln(X), for X > 0
-	log10(X)	base 10 logarithm of X, for X > 0
-	ceil(X)		smallest integer not less than X, as a floating-point
-			number
-	floor(X)	largest integer not greater than X, as a floating-point
-			number
+        sin(X)          sine of X
+        cos(X)          cosine of X
+        tan(X)          tangent of X
+        asin(X)         arc-sine (inverse sine) of X in range [-pi/2, pi/2],
+                        for X in range [-1, 1]
+        asin(X)         arc-cosine (inverse cosine) of X in range [0, pi], for
+                        X in range [-1, 1]
+        atan(X [, Y])   arc-tangent (inverse tangent) of X in range
+                        [-pi/2, pi/2] if Y is not provided, or of Y/X in range
+                        [-pi, pi] is Y is provided
+        sinh(X)         hyperbolic sine of X
+        cosh(X)         hyperbolic cosine of X
+        tanh(X)         hyperbolic tangent of X
+        exp(X)          exponential function e^X
+        log(X)          natural logarithm ln(X), for X > 0
+        log10(X)        base 10 logarithm of X, for X > 0
+        ceil(X)         smallest integer not less than X, as a floating-point
+                        number
+        floor(X)        largest integer not greater than X, as a floating-point
+                        number
    All of these functions take only floating-point arguments and return
    floating-point results.  They raise E_INVARG if their argument is out of
    range or E_FLOAT if the result overflows.  On underflow, they return zero.
@@ -1993,10 +1993,10 @@ Version 1.8.0beta1, 7 February 1996
    effectively the same as passing in the largest MOO integer.
 -- Fixed a long-neglected loophole in tick-counting; the following constructs
    all newly take one tick now:
-	-- exception-handling expression: `expr ! codes'
-	-- exception-handling statement: try ... except (expr) ... endtry
-	-- cleanup statement: try ... finally ... endtry
-	-- scattering assignment: {A, B, @C} = X
+        -- exception-handling expression: `expr ! codes'
+        -- exception-handling statement: try ... except (expr) ... endtry
+        -- cleanup statement: try ... finally ... endtry
+        -- scattering assignment: {A, B, @C} = X
 -- Fixed a bug in the decompiler that could panic the server if a WHILE loop
    was the first thing inside the ELSE part of an IF statement.  (Thanks to Ron
    Stanions for reporting this.)
@@ -2170,11 +2170,11 @@ Version 1.8.0p3, 7 April 1996
    returning a valid player object) if the network connection is actually still
    open.  In particular, the following cases, which used to cause panics, now
    have no effect aside from the obvious calls to $do_login_command():
-	1) Something opens a connection, sends input that would log it in, and
-	   then closes the connection before the server has had time to run the
-	   $do_login_command() task that would log it in.
-	2) Someone executes `force_input(CONN, LINE)' where CONN is negative
-	   and LINE would log in an un-logged-in connection.
+        1) Something opens a connection, sends input that would log it in, and
+           then closes the connection before the server has had time to run the
+           $do_login_command() task that would log it in.
+        2) Someone executes `force_input(CONN, LINE)' where CONN is negative
+           and LINE would log in an un-logged-in connection.
    (Thanks to Dave Kormann for reporting this bug.)
 -- Changed the definition of value_bytes() to make it more intuitive to users.
    Now, value_bytes() always returns a non-zero value, since *every* MOO value
@@ -2218,47 +2218,47 @@ Version 1.8.0p4, 18 April 1996
    This means that, after the task resumes and the call to $bf_FOO() returns,
    the built-in function implementation could be re-entered in a very confused
    state.  This confusion could have the following effects:
-	1) A function that never actually calls a verb (i.e., almost any of the
-	   current built-in functions) could mistake $bf_FOO()'s returned value
-	   for an argument list and smash memory all over the server.
-	   (Fortunately, this is the detectable and fixable case mentioned
-	   above; therefore, this effect cannot happen under 1.8.0p4.)
-	2) The eval() function could end up wrapping an extra {1, ...} around
-	   the correct returned value.  That is, instead of returning {F, V} as
-	   it should, it would return {1, {F, V}} in this case.
-	3) The create() function could return a different object number from
-	   the correct one; in particular, it could return an invalid or even
-	   negative object number.
-	4) The recycle() function could recycle the wrong object, without
-	   checking permissions and without calling that object's :recycle
-	   verb, and/or leave the correct object unrecycled.
-	5) The move() function could move the wrong object to the wrong
-	   destination and/or leave the correct object where it was.
+        1) A function that never actually calls a verb (i.e., almost any of the
+           current built-in functions) could mistake $bf_FOO()'s returned value
+           for an argument list and smash memory all over the server.
+           (Fortunately, this is the detectable and fixable case mentioned
+           above; therefore, this effect cannot happen under 1.8.0p4.)
+        2) The eval() function could end up wrapping an extra {1, ...} around
+           the correct returned value.  That is, instead of returning {F, V} as
+           it should, it would return {1, {F, V}} in this case.
+        3) The create() function could return a different object number from
+           the correct one; in particular, it could return an invalid or even
+           negative object number.
+        4) The recycle() function could recycle the wrong object, without
+           checking permissions and without calling that object's :recycle
+           verb, and/or leave the correct object unrecycled.
+        5) The move() function could move the wrong object to the wrong
+           destination and/or leave the correct object where it was.
    If you reboot your server under 1.8.0p4, I believe that effect (1) above is
    completely prevented and that, in effects (4) and (5), the function in
    question is extremely unlikely to operate on the wrong object.  If you are
    actually at risk from any of these effects (see below), then by far the most
    likely cases are as follows:
-	1) Not possible.
-	2) The eval() function will have the full effect given above.
-	3) The create() function will have the full effect given above.
-	4) The correct object will not actually be recycled, even though its
-	   :recycle verb will have been called.
-	5) The correct object will not actually be moved, even though the
-	   destination's :accept verb will have been called.
+        1) Not possible.
+        2) The eval() function will have the full effect given above.
+        3) The create() function will have the full effect given above.
+        4) The correct object will not actually be recycled, even though its
+           :recycle verb will have been called.
+        5) The correct object will not actually be moved, even though the
+           destination's :accept verb will have been called.
    >>> NOT ALL DATABASES ARE AT RISK FROM THESE EFFECTS <<<
       For a database to be at risk, all of the following must be true:
-	a) One or more of the functions eval(), create(), recycle(), or move()
-	   must have been made wiz-only via the $server_options.protect_FOO
-	   property, for the appropriate FOO.
-	b) Such a function must have been overridden by a $bf_FOO() verb.
-	c) It must have been possible for the code of the $bf_FOO() verb (or
-	   any code it calls) to call suspend().
-	d) The database file must have been written to disk (i.e., either via a
-	   checkpoint or a shutdown or a panic) during the time that (a) and
-	   (b) were true and while the call to $bf_FOO() was suspended.
-	e) You must be restarting your server from the database mentioned in
-	   point (d).
+        a) One or more of the functions eval(), create(), recycle(), or move()
+           must have been made wiz-only via the $server_options.protect_FOO
+           property, for the appropriate FOO.
+        b) Such a function must have been overridden by a $bf_FOO() verb.
+        c) It must have been possible for the code of the $bf_FOO() verb (or
+           any code it calls) to call suspend().
+        d) The database file must have been written to disk (i.e., either via a
+           checkpoint or a shutdown or a panic) during the time that (a) and
+           (b) were true and while the call to $bf_FOO() was suspended.
+        e) You must be restarting your server from the database mentioned in
+           point (d).
    Even in a database that is at risk, it is only at risk for the effects of
    the specific function(s) for which all of points (a) through (e) are true.
    For example, if you have never protected and overridden the move() function,
@@ -2270,9 +2270,9 @@ Version 1.8.0p4, 18 April 1996
    question and then wait until there are no longer any suspended tasks inside
    calls to the appropriate $bf_FOO() verb.
       >>> WARNING: Do NOT attempt to kill such a suspended task in order to
-		   remove the risk from your system; this would trigger the bug
-		   mentioned at the top of this release note, quite possibly
-		   panicking your server.
+                   remove the risk from your system; this would trigger the bug
+                   mentioned at the top of this release note, quite possibly
+                   panicking your server.
    Naturally, I am dismayed at both the existence of this bug and at the fact
    that I cannot guarantee even those not yet bitten by it that they can avoid
    eventually losing.  This is the first time I can recall this sort of thing
@@ -2287,12 +2287,12 @@ Version 1.8.0p5, 12 May 1996
    option.  (Thanks to Wisquatuk for reporting this.)
 -- Fixed backward-compatibility problem in 1.8.0 where the semantically
    erroneous but syntactically correct expression
-	-"a string"
+        -"a string"
    stopped even compiling, let alone running.  (Thanks to Seth Rich for
    pointing this out.)
 -- Fixed another backward-compatibility problem in which the (again)
    semantically erroneous but syntactically correct expression
-	36789.foo
+        36789.foo
    (an understandable typo for #6789.foo) stopped compiling when found in a
    database made by a pre-1.8.0 server.
 
@@ -2559,7 +2559,7 @@ break this record -- now up to 15 years as of September 2025. [--wrog])
    $server_options.max_concat_catchable).
 
 **** Changes relevant to server hackers
-**** that were deprecated/undone in 1.9.0
+**** that are being deprecated/undone in 1.9.0
 -- [1.8.4] Added HACKING as an index to the various server-hacking
    documentation files scattered about the source directory.
    (do we need a doc directory?)
@@ -2606,3 +2606,726 @@ break this record -- now up to 15 years as of September 2025. [--wrog])
    instead have an .ac file to edit depending on whether your option
    is extension-specific (extensions.ac) or is common to all server
    builds (options.ac).
+
+
+Version 1.8.5, 14 May 2011 (not released, version number is post hoc (+))
+== Codepoint final version
+
+-- Codepoint is a 64-bit Unicode version of the Lambda MOO server
+   by H. Peter Anvin, James Deikun, Rob Leslie, and Kenny Root.
+-- Codepoint is a fork of LambdaMOO version 1.8.3.
+   (Strictly speaking, the actual fork point is WAIF_ROOT_4 --
+   12 Nov 2007, 2 or 5 commits ahead of the 1.8.3 tag, depending how
+   you count -- but the code differences at that point were quite
+   trivial).  While numerous patches were exchanged, some 1.8.4
+   features, e.g., support for server_version(1) and
+   $server_options.max_(list/string)_concat limiting of
+   user-constructed lists and strings are absent.
+-- (+) Extant Codepoint-derived executables identify as "1.8.3",
+   though are readily recognizable in how they respond to
+   non-ASCII UTF-8 sequences of bytes on non-binary connections
+   or 'eval("return 10000000000;")'.
+-- Checkpoint files from these servers save as DB Version 4 and
+   are *NOT* distinguishable from 1.8.4 checkpoints unless they
+   contain non-ASCII UTF-8 sequences or integer constants outside the
+   32-bit range.  A Codepoint server can read a 1.8.4 checkpoint
+   without ill effects. but a 1.8.4 server reading a Codepoint
+   checkpoint will suffer silent corruption of numeric and string
+   values.
+
+Many of the following changes were revisited in 1.9.0, in most cases
+turning unconditional forced changes into options (since LambdaMOO
+itself needs a path forward that doesn't involve immediately switching
+to 64-bit integers and Unicode).
+
+**** Changes relevant to programmers / wizards:
+-- the INT/NUM datatype is now 64 bits wide.  That is, values can now
+   be outside the range -2^32..2^32-1 and arithmetic operations now
+   roll over at 2^64.
+-- The allowed character set for the STR datatype is expanded to what
+   will be referred to from here on as the "Codepoint character set",
+   namely, all codepoints in Unicode range 0-0x10FFFF, except for
+   -- the ASCII characters previously excluded from STR values
+      (i.e., the ASCII control characters 0-8, 10-31, and DEL(0x7F)),
+   -- surrogates (0xD(800-FFF), never legal in Unicode), and
+   -- the 'non-character' characters, i.e., the 66 'permanent
+      private use' characters 0x(00-10)FFF(E-F),0xFD(D0-EF).
+   This affects all string constants occurring in verbcode; property
+   values; names of objects, verbs, and properties; and all traffic
+   on non-binary network connections, which are now UTF-8 encoded.
+-- Identifiers in verbcode (arguments to eval() and set_verb_code(),
+   or text presented to .program) are now allowed to be anything of
+   the form where the first character is in the Unicode XID_Start
+   class and all remaining characters are in the Unicode XID_Continue
+   class, where, for our purposes, underscore ('_') is counted as
+   a member of both classes even though Unicode doesn't do that.
+-- Sequences of characters with Unicode Numeric_Type property = Decimal
+   appearing in verbcode or as arguments to functions that convert
+   strings to numbers (tonum(), toint(), tofloat(), toliteral())
+   now parse as decimal numbers.
+-- New string and character handling built-in functions:
+     'charname(C)' = name from unicode database for the character C
+     'ord(C)'      = code point number for the character C
+     'tochar(N)'   = code point N as a one-character string.
+            raises(E_INVARG) if N is not a legal STR character.
+   where, in each case C has to be a one-character string, and
+     'encode_chars(LS,ENCODING)'
+     'decode_chars(B,ENCODING[,FULLY])'
+   analogous to 'encode_binary(LS)' and 'decode_binary(LS[,FULLY])'
+   except these translate between moobinary (~-escaped strings of bytes)
+   and either strings or intermixed lists of strings and numbers
+   where the numbers are now code points rather than byte numbers
+   (e.g., decode_chars("~ce~a3","utf8",1)' => {931}
+          decode_binary("~ce~a3",1)        => {206, 163})
+-- New optional second STR argument for 'ctime()' specifies a desired
+   time zone for the returned timestamp string.  If the time zone
+   string is unrecognized, the return value is a UTC timestamp with
+   the zone string substituted in for "UTC" (not ideal, but this is a
+   problem with the system time-zone interface that cannot be fixed
+   here.  You will probably want to find an in-db solution to guard
+   against bad time zone arguments)
+-- New built-in functions (essentially, the rest of <math.h> that
+   had not been previously included when FLOAT was first implemented):
+     ftime() = time() as a FLOAT,
+     asinh(F), acosh(F), atanh(F)  (hyperbolic inverse trig functions)
+     expm1(F), log1p(F)  (exp(F)-1 and log(1+F) for values near 0 and 1)
+     erf(F), erfc(F)     (normal distribution and 1-erf(F) for large F)
+     j(N,F), y(N,F)      (Bessel functions)
+     lgamma(F) = log(abs(gamma(F))),
+
+**** Changes significant to people compiling and running the server:
+-- New option DEBUG_LOG_TRACEBACKS
+   If set causes error tracebacks to be also written to the server log.
+   Defaults to yes/#defined (this was likely unintentional; the original
+   default was no/#undef and this setting puts rather a lot of noise
+   in the server log, something you *might* want for development
+   but not for production).
+-- configure.in has been updated to autoconf 2 (but not 2.50) so that
+   ./configure scripts could once more be generated.  The existing
+   ./configure script, which had not been regenerated since before
+   1997 (and may possibly date from 1993 judging from the internal
+   autoconf copyright notice, though there may have been other reasons
+   that did not update) was removed from the repository.
+-- Subdirectories ucd/ (H. Peter Anvin's unicode 5.1 character data
+   library) and pcre/ (Perl Compatible Regular Expressions v1)
+   now need to compile and link as well.
+
+**** Changes relevant to server hackers:
+-- The server build now requires a C99-compliant C compiler.
+   Numerous C99 features are now in use, including [u]int*_t types,
+   the %"PRI*N" macros, vfscanf()., UNUSED_, NORETURN_, FORMAT(...)
+-- 'Num' is now the underlying C typedef name for MOO integer
+   constants and is defined to be int_64_t
+-- float values for the FLOAT datatype are now unboxed
+   (i.e., Var and various function APIs go from having/passing a
+   pointer to refcounted storage to having/passing the value itself)
+-- The underlying representation for STR values is a sequence of
+   bytes in the UTF-8 encoding, but this is kept hidden from
+   programmers/wizards who continue to see strings as arrays
+   of characters, indices as character positions/counts, etc.
+-- new interface utf.h and additional functions for other modules
+     functions.h
+       make_int_pack(I),
+       make_float_pack(F)
+     streams.h
+       stream_add_utf(STREAM, I)
+       stream_delete_utf(STREAM, I)
+       stream_add_bytes(STREAM, S)
+-- Rob Leslie re-implemented match() and rmatch() to use the
+   Perl-Compatible Regular Expressions (PCRE1) library, since the
+   original implementation only allowed for ASCII strings.
+
+
+Other Variant Servers
+The following server variations have been present as branches in the
+LambdaMOO sourceforge and github repositories, in some cases for quite
+a long time.  However they were never actually included on the main
+branch for various reasons.
+
+-- waifs (Ben Jackson), August 2002
+   The Waif datatype is a lightweight object that has an object parent
+   from which to inherit verbs and property values, but cannot define
+   its own properties or verbs, have descendants, or be referenced
+   using object number syntax.
+   -- New builtin 'new_waif()' creates a waif with caller as parent.
+   -- waifs can use property and verbcall syntax.
+   -- New option WAIF_DICT, if set, allows waif indexing ([]) syntax.
+
+-- xml (Rob Leslie), June 2008
+   New builtins:
+     xml_parse_tree() and xml_parse_document(),
+   both invoke the expat XML library to parse an XML-format source
+   string into a LIST structure.
+
+-- bitwise and shift operators (Kenny Root), February 2012
+   New operators:
+     ~X        bitwise complement
+     X .&. Y   bitwise AND
+     X .|. Y   bitwise inclusive OR
+     X .^. Y   bitwise exclusive OR
+     X << N    left shift
+     X >> N    arithmetic (sign-extending) right shift
+     X >>> N   logical (non-sign-extending) right shift
+   There are parsing issues that can arise when the bitwise
+   and/or operators are not separated by spaces from their operands
+   (more on this below and in options.h)
+
+
+Somewhere in 2021:
+-- New maintainer:  Roger Crew (wrog@wrog.net)
+
+Version 1.9.0alpha, 29 September 2025
+-- This version is a reconciliation of the 1.8.4/Codepoint fork.
+   Given the general extent of changes since 1.8.1 over the course
+   of 20+ years (even if 10 of them had essentially zero activity)
+   this (imho) needed to be a major-version bump.
+-- This version also incorporates the Other Variant Servers above
+   that were previously maintained on a combinatorial explosion
+   of separate branches (wrapped in a consequent tangle of merges)
+   onto a SINGLE development branch using a new autoconf-based
+   extension framework to get them playing nice with each other.
+   We'll see how this goes.
+
+**** Changes relevant to programmers / wizards:
+-- New option INT_TYPE_BITSIZE
+   sets the width of the INT datatype; the choices are 64 (Codepoint),
+   32 (1.8.4 and prior), or 16 (experimental).  This affects where
+   arithmetic rollover occurs in integer operations, e.g., with 32-bit
+   integers you can expect 2147483647 + 1 == -2147483648, but this
+   will not be the case for 64-bit integers.
+-- New option FLOATING_TYPE
+   chooses the underlying FLOAT datatype, previously fixed as being a
+   C 'double', but can now instead be any of 'float','long double', or
+   the '__float128' type provided by the GNU quadmath library.
+   Changes here likewise change the range of allowed values and may
+   also cause unexpected losses or gains in precision.  Keep in mind
+   that C99 does not fully prescribe mantissa sizes and exponent
+   ranges, so there may still be precision/range issues when moving to
+   new hardware even when the float type is as before.
+-- New option BITWISE_OPERATORS
+   Incorporates the variant server implementation of bitwise and shift
+   operator syntax in verbcode.
+   -- Unlike the other variants, this one
+      is, for the purposes of the new extension framework (below),
+      *not* actually an "extension", in the sense that there are *no*
+      extra source files or libraries needing to be found/linked;
+      setting/#define'ing the option suffices for being able
+      to use these operators.
+   -- This implementation differs from the original in order to eliminate
+      the situations where a viable 1.8.4-server parse becomes a syntax
+      error when the new operators are made available,
+      while otherwise preserving as much as possible the original
+      implementation's behavior .
+      -- It should be noted up front that you can avoid all problems here by
+         always putting spaces around the bitwise operators when writing your
+         verbs; the unparser used by verb_code() and the database file
+         writer does this automatically.
+      -- The problematic situation is the character sequence
+             '0' '.' '@'
+         with no intervening whitespace where '0' is any digit and '@'
+         is one of '&', '|', '^', or '.'.  Here, we need to know when
+         to have the '.@' stay together, thus reading '0.@' NOT as a
+         floating constant followed by '@' but as an integer constant
+         followed by '.@'.  The choices are
+          (1) always
+              -> '@' being "maximal greedy"
+              meaning '.@' always stays together
+          (2) when the next char is '.'
+              -> '@' being "intermediate greedy"
+              meaning '.@.' stays together but '.@<anything else>' does not
+          (3) when the next 2 chars are '.' AND a non-digit
+              -> '@' being  "minimal greedy"
+              meaning '.@.<digit>' also gets broken apart.
+         So, e.g., in the original server '.' itself is maximal greedy,
+         meaning '..' is never broken apart, always becoming a 'tTO' token,
+         which then means '5...6' parses as (5)(..)(.6),
+         whereas '^' needs to be minimal greedy in order that '2.^.5' be
+         read as a 1.8.4 server would read it: (2.)(^)(.5), i.e., sqrt(2).
+      -- The original implementation had '&' and '|' being maximal
+         greedy which then caused '2.&&x' and '2.||x' to unnecessarily
+         become syntax errors.
+      -- The current implementation has '&' being intermediate greedy and
+         '|' being minimal greedy so that, e.g., 'p?2.|.5' continues to
+         parse as (p)?(2.)|(.5).
+      -- The use of '.' to delineate the bitwise binary operators may be
+         reconsidered in a future server version (e.g., ':&:' for bitwise and).
+-- There is now a formal extension framework, and the distribution now
+   comes with optional extensions that can be compiled in.  Evaluate
+               server_version("features")
+   to get a list of strings naming the ones your server operator has
+   decided to allow you to use.
+   In the 1.9.0 release, there are four available extensions (see
+   1.8.5 and the Other Variant Servers above for original behaviors)
+   and, hence, four identifiers that may appear:
+   -- "regexp"
+      This extension is always present/active.
+   -- "unicode"
+      With the Unicode extension, the server will behave like the
+      Codepoint server (1.8.5) with respect to string constants in
+      verb code and property values; names of objects, verbs, and
+      properties; identifers in verb code; parsing of digits from
+      strings; and transmission of data on non-binary connections
+      being UTF-8 encoded, *** WITH THE FOLLOWING CHANGES:
+      -- New option UNICODE_IDENTIFIERS
+         determines if non-ASCII identifiers are allowed in verb code.
+      -- New option UNICODE_NUMBERS
+         determines if non-ASCII digits are parsed as numbers.
+         If so, there is now an additional condition that, to be
+         parsed together as a single number, a group of digits
+         must be from the same digit family.
+      Both of these need to be set/#defined to get the Codepoint behavior.
+      These options can be checked in-MOO using, e.g.,
+         server_version("options/UNICODE_NUMBERS")
+      *** ASPECTS OF UNICODE SUPPORT ARE EXPERIMENTAL,
+          meaning there are additional changes are being contemplated,
+          mainly concerning handling of network linebreaks, non-ASCII control
+          characters/linebreaks (read:  the character set may be reduced),
+          string comparisons, and string substitutions, that will likely
+          change in future server versions.
+          See "Experimental aspects of Unicode" in README.md.
+   -- "xml"
+      The XML extension introduces the two 'xml_parse_*' builtins
+      described above with the following changes:
+      -- these functions now respect the limits set by
+         $server_options.max_string_concat and
+         $server_options.max_list_concat, i.e., the functions
+         may abort with "out-of-seconds" or raise E_QUOTA when
+         trying to create something too large.
+      -- in the output trees, consecutive sibling string nodes are
+         always consolidated (in the XML spec string nodes
+         are expected to be surrounded by non-string siblings)
+   -- "waifs"
+      The Waifs extension introduces
+      New builtin new_waif() and
+      New option WAIF_DICT as described above.
+-- New built-in functions
+      tochar(), charname(), ord(), encode_chars(), decode_chars()
+   for string and character handling that were introduced by Codepoint
+   are now introduced to the non-Unicode server as well,
+   in which case tochar() only accepts codepoint numbers
+   in the ASCII range and decode_chars(,,FULLY=0) renders
+   all non-ASCII codepoints as numbers (since the non-Unicode
+   server cannot have them in strings).
+-- .default_flush_command is now listener-specific.
+   That is, it is checked for on the listener object first
+   and only if the property does not exist is '$server_options'
+   (or #0 if $server_options is invalid) consulted.
+-- Changes to how DNS lookups work:
+   -- Existing $server_option
+            .name_lookup_timeout
+      now solely governs the time limit on "forward"-DNS (A record)
+      hostname lookups for outbound connections.
+   -- New $server_option
+            .address_lookup_timeout
+      sets a time limit for the "reverse"-DNS (PTR record) lookups
+      that are done for incoming connections.  Previously,
+      .name_lookup_timeout controlled this.  For backwards
+      compatibility, if .address_lookup_timeout is not set,
+      it defaults to whatever .name_lookup_timeout is set to.
+   -- Both properties are now listener-specific (see previous item).
+   -- Either lookup can now be automatically skipped and treated as
+      failing by explicitly setting the corresponding time limit to 0;
+      For outbound connections this causes non-numeric addresses to fail.
+      For inbound connections this means only numeric addresses will
+      show up in 'connection_name()'.
+   -- Given how utterly useless reverse-DNS lookups are on the modern
+      internet and that default behavior is to attempt them on every
+      inbound connection, it is STRONGLY recommended that you set
+           $server_options.address_lookup_timeout = 0,
+      let .name_lookup_timeout continue doing what it used to do
+      for outbound connections, and never think about this again.
+      This will likely become a default setting on a future
+      server version.
+
+**** Changes significant to people compiling and running the server:
+-- Emergency wizard mode has been improved.
+   -- Checkpointed connections are now preserved across emergency mode
+      sessions, i.e., a database written out on emergency mode 'quit'
+      will, on the next startup, make the same 'user_disconnected()'
+      calls as the previous database would have, which means an
+      emergency mode session can now examine a database and write it
+      back out without running any of its code and without altering it
+      in *ANY* substantive way (to be sure, it is still the case that
+      unused local vars in saved task stacks effectively do get
+      garbage collected, but that will not affect how anything runs)
+   -- Emergency mode now allows listing checkpointed connections via
+      ';connected_players(1)'. Also ';boot_player()' can remove them
+      (say, to prevent a player's disfunc from doing Something Bad).
+   -- a Very Annoying infinite spin-loop on EOF bug has been fixed.
+      Emergency mode will now abort on any unexpected (mid-line) EOF
+      without attempting to save the database, without executing
+      partially-entered verbcode, or otherwise acting on any garbled
+      incomplete command.  It is thus now much safer to have emergency
+      mode reading from piped stdin in a shell script.
+*** options.h is now a read-only file.  You can read it to learn
+    about options, but you should now use ./configure to set them,
+    (see README.md and next item)
+-- configure.in has been renamed to configure.ac and has been completely
+   rewritten in accordance with the latest autoconf paradigms
+   -- Current (2.50+) autoconf now works
+   -- Current (2.50+) autoconf is now required for builds from git.
+   -- ./configure now has a large number of LambdaMOO-specific
+      arguments.  Use
+          ./configure -hs
+      to see them all.
+   -- ./configure also now manages the generation of server_version(1)
+      information automatically with --enable-svf* arguments
+      to customize it (see Version_Source.md)
+   -- the ./configure arguments used, already retrievable via
+      './config-status --config' are now also available in-MOO:
+           server_version("config/args")
+   -- ./configure also incorporates a new extension framework to
+      accommodate variant server builds, with --enable/--disable
+      arguments to activate and choose extension options,
+      --with/-without arguments to choose libraries, and,
+      in some cases, static builds from library sources are available.
+-- Loading of database files now checks ranges of numbers encountered.
+   Loads will now immediately FAIL upon seeing numeric values
+   outside of expected ranges, since the alternative would be to
+   corrupt them.  Conversely, a successful load means numeric values
+   have been preserved.  Expected ranges will vary depending on the
+   kind of number being read, e.g.,
+   -- INT values for properties and verb constants will need to
+      conform to INT_TYPE_BITSIZE,
+   -- FLOAT values must be in the representable range for
+      FLOATING_TYPE,
+   -- task IDs are currently 32 bits or INT_TYPE_BITSIZE
+      whichever is smaller,
+   -- flag settings for objects/properties/verbs are expected to take
+      no more than 16 bits, and likewise for preposition numbers.
+-- >>>>>>>>>>>>>>>>>>>>vvvvvvvvvvv<<<<<<<<<<<<<<<<<<<<
+   >>>                   WARNING                   <<<
+   As noted above there have been numerous server variants writing
+   Version 4 database files with NO INTERNAL INDICATION of which
+   server variant wrote the file other from what can be inferred by
+   the presence of out-of-range numbers, non-ASCII UTF-8 sequences,
+   unexpected (bitwise) operators, or structures (e.g., Waifs).
+   1.9.0 has *NOT* changed the database format or version number
+   (Even if we did change the version number, there would still still
+   be a problem with all of the prior version checkpoint files out
+   there).
+   Therefore:
+   -- IF YOU ARE OR HAVE BEEN RUNNING MULTIPLE SERVER VARIANTS
+      YOU WILL NEED TO HAVE KEPT TRACK FOR EACH CHECKPOINT
+      FILE WHICH VARIANT PRODUCED IT
+      to ensure that you only attempt to
+      load that file onto a compatible server.
+   -- For runs of 1.9.0 servers you are encouraged to have
+      $server_start() save the value of server_version(1)
+      to a well-known property.  If you do this, then, if you
+      subsequently have doubts about the provenance of a particular
+      checkpoint file, you can examine that property in emergency
+      wizard mode (which runs before $server_start() is called).
+   For earlier versions, it is assumed/hoped you were only running one
+   particular variant (1.8.4, Codepoint, Codepoint with Waifs, etc.)
+   and you'll know which it was.
+   The particular server features that matter are:
+   -- INT_TYPE_BITSIZE, FLOATING_TYPE
+      Loading a checkpoint onto a server with an equal-or-wider
+      corresponding datatypes will succeed.  Loading onto a narrower
+      datatype server succeeds only if there are no out-of-range
+      values.  But for floating types, when moving to new hardware,
+      there is the additional possibility that mantissa and exponent
+      sizes will have changed even for the same floating type ('long
+      double' exhibits the most variation).  If mantissa size is
+      reduced for whatever reason, then even a successful load will
+      likely be losing precision on at least some of the float values.
+   --enable-unicode/UNICODE_STRINGS
+      A non-Unicode checkpoint is always safe to load on a Unicode server.
+      A Unicode checkpoint is safe to load on a non-unicode server
+      *only* if it contains no non-ASCII bytes.
+   -- UNICODE_IDENTIFIERS
+      If a checkpoint has verbs with non-ASCII identifiers,
+      loading it onto a !UNICODE_IDENTIFIERS server will fail.
+      The setting of UNICODE_IDENTIFIERS otherwise will not matter.
+   -- BITWISE_OPERATORS
+      If a checkpoint has verbs with bitwise/shift operators,
+      loading it onto a !BITWISE_OPERATORS server will fail.
+      The setting of BITWISE_OPERATORS otherwise will not matter.
+   --enable-waifs/WAIF_CORE
+      A non-Waif checkpoint is always safe to load on a Waif server.
+      Loading a Waif checkpoint onto a non-Waif server will fail with
+      'Unknown Var type' if and only if it has any waif values.
+   -- XML
+      The XML extension only introduces new builtin functions
+      which become call_function() on a non-XML server, are otherwise
+      preserved, but will fail at runtime (i.e., upon an actual
+      attempt to call the verb).
+   There will, of course, never be any guarantees to be had about
+   wrong assumptions in verbcode concerning the capabilities of the
+   server (e.g., verbs that depend on MAX_NUM == 2^32-1 will fail when
+   INT_TYPE_BITSIZE=64)
+-- New options that are user-invisible (fully discussed in options.h)
+   -- BOXED_FLOATS
+      If set/#defined, FLOAT values are passed as pointers and refcounted.
+      (Going against defaults here could save space, or could waste it,
+      or, in the case of long double and quad floats, could trigger fun
+      and exotic compiler bugs.  Your call!)
+   -- BYTE_QUOTA_MODEL
+      determines how value_bytes() and object_bytes() work.
+      The original hardware-based model that looks at actual struct sizes
+      is still available as BQM_HW, but there are now a number of abstract
+      models using arbitrary formulas and pretend sizes that do not change
+      when you move to a new platform (thus relieving the administrative
+      pain of switching to a new platform).
+   -- BQM_BOXED_FLOATS, BQM_INCLUDES_WAIFS
+      These make the abstract byte quota models pretend additional things.
+-- Option OUTBOUND_NETWORK when set should now be set as an
+   enumeration (OBN_ON, OBN_OFF) rather than as a numeric (1, 0).
+   Also, the default is now OBN_OFF (code compiled in but disabled)
+   rather than #undef (code isn't even compiled in), seeing as being
+   able to interact with various other servers is deemed important and
+   modern network configurations provide far more options for
+   restricting where a MOO server process can call out, thus everyone
+   now routinely turns this on anyway.  Note that OBN_OFF still
+   requires you to affirmatively do +O on the server command line,
+   so this new default is not an actual decrease in security
+   for those who do not want to use this function.
+-- Option DEBUG_LOG_TRACEBACKS now defaults to no/#undef.
+-- Deprecated option USE_GNU_MALLOC is finally completely removed
+   (In 2022!  We get the job done!  It only took 27 years...)
+-- pgperf/ subdirectory has been removed now that 21st century
+   gperf does case-insensitivity (patch provided by Steve Wainstead).
+   gperf invocation also takes advantage of other new features.
+   E.g., find_keyword() now takes a length argument.
+-- ALL library build subdirectories added by Codepoint
+   and others have been removed; ./configure now seeks out
+   the corresponding shared libraries instead.
+   For those cases where a static build is supported
+   (extensions.ac has a %build stanza) you will need to
+   download a source distribution of that library and
+   give ./configure a --with-<whatever>path=PATH argument
+   -- the regular expression engine that implements
+      'match()' and 'rmatch()' has been re-imagined as an extension
+      that, in an alternate history, Pavel installed years ago and
+      then made mandatory.  This matters because you can now
+      use '--with-relib=' to choose between
+      -- 'pcre', what Codepoint needed for unicode regexp matching.
+         The pcre/ subdirectory added by Codepoint has been removed;
+         we now use the shared library.
+         (default for the Unicode server)
+      -- 'ylo' the original implementation from 1991
+         (default for the non-Unicode server and
+          probably a bad idea to use for the Unicode server)
+      -- (now that Debian has deprecated pcre1, we hope to make
+          pcre2 available soon)
+   -- ucd/ build subdirectory added by Codepoint has been removed,
+      now that both GNU libunistring and ICU libicuuc are generally
+      available as shared libraries and have more up-to-date versions
+      of Unicode.  Use --with-uclib= to choose, if you care.
+      Or, if you badly want ucd/ back, clone this into some directory:
+            https://github.com/wrog/libucd
+      check out the 'dev' branch, and then use --with-ucdpath=<dir>
+      to point to it.
+  -- expat/ build subdirectory originally added for the xml extension
+     has been removed, we now link to shared libexpat (version 2).
+     Static builds are possible with --with-expatpath=<dir>.
+-- VPATH builds, for when you want to build multiple distinct server
+   variants at the same time, now work.
+   Use ./path/to/configure --srcdir=path/to
+
+**** Changes relevant to server hackers:
+-- New configuration files:
+   -- options.ac declares, using MOO_DECLARE_OPTIONS, the common
+      server options, their types, default values to substitute in
+      options.h, and help texts for ./configure -hs
+   -- extensions.ac declares extensions using
+      MOO_XT_DECLARE_EXTENSIONS(), and via its own
+      MOO_DECLARE_OPTIONS, options associated with the extensions.
+      (see Extensions.md for how the extension framework works)
+   -- extensions2.ac is a blank non-source-controlled file where a
+      developer may declare additional extensions and options.
+      (Start the tutorial by copying extensions_tutorial.ac to there.)
+-- Makefile has been reorganized a bit.
+   -- A number of variables prefixed with XT_ have been added;
+      these are filled in by the extension framework, which for many
+      common situations allows adding new sources, libraries, make
+      variables, dependencies, or build rules without any need to
+      manually edit Makefile at all.
+   -- It is no longer necessary to run 'makedepend'.  All of the
+      explicit .c/.h dependencies produced by previous such runs have
+      been removed and replaced with references to .d files that
+      modern C compilers can generate automatically using -MMD -MP.
+   -- The *clean targets have been cleaned up.
+      'make clean' now removes 'moo'; if you preferred the prior
+      behavior, 'touch clean-keeps-moo'.  Similarly the tarball now
+      has 'clean-keeps-(keywords|parser)' to prevent removal of
+      files that aren't built there.  There being some confusion
+      about what the *clean targets are for:
+      -- clean     forces make        to start from scratch;
+      -- distclean forces ./configure to start from scratch; and
+      -- gitclean  forces autoconf    to start from scratch.
+      Also, these now only affect the top level source directory;
+      separate '-all' versions, i.e., 'clean-all', and 'distclean-all'
+      descend into those library-build subdirectories we no longer have.
+   -- The 'make distribution' target, which has not been used in
+      rather a long time, has been updated.
+-- options.h and config.h now have _epilogs to contain the
+   preprocessor gymnastics to check values, so that ./configure
+   doesn't accidentally rewrite any of it.
+-- added #ifndef NOMAIN to server.c for unit testing
+-- In addition to the 'Num' abstraction for the MOO integer datatype
+   we now have
+   -- UNum for situations where Nums are known to be non-negative
+      so we can shut up the compiler about signed-vs-unsigned.
+      Note that UNum is intended to be the nonegative subset of Num,
+      not the full unsigned range.
+   -- NumNum and UNumNum for situations (e.g., bf_random())
+      where we need double-wide Nums for whatever reason.
+   -- FlNum for the floating (value) type
+   -- FlBox for the floating box type which will either be a pointer
+      (when floats are boxed) or the same as FlNum.  All floating code
+      is now written as if floats are boxed with fl_unbox() and
+      box_fl() to convert as needed, with compiler inlining to make
+      them go away when they're not.
+   -- TaskID because these aren't necessarily the same as Num anymore
+      and also they're not supposed to be negative (for reasons I've
+      never fully understood).
+-- Terminology change (at least in the C source;
+   I haven't yet decided what to do about the Programmers Manual):
+   The string representation that the Programmers Manual calls
+   "binary strings" is now referred to in C source as
+            "moobinary"
+       because the former terminology evokes completely wrong ideas
+       and confuses the crap out of me every time I see it.
+   These are "ASCII strings with tilde(~)-escapes in them to represent
+   non-ASCII bytes."  THERE IS NOTHING "BINARY" ABOUT THEM.
+   Base 2 is no way involved.  They are not strings of 0s and 1s.
+   They are not arbitrary bit-sequences.
+   To be sure, there does need to be a short name for them,
+   and 'moobinary' is as good as any -- admittedly a nonsense word,
+   but that's for the best because nobody else is using it and so it
+   will be unambiguous, *AND* it allows the choice of reading it as
+   -- /,muː'baɪ⋅nə⋅ri/ or "moo-binary"
+      if you *liked* the old terminology or
+   -- /'muː⋅bə,neə⋅ri/ or "moobi-nary"
+      if, like me, you can't stand it and would just as soon read it
+      as "data format used in Moobinian traditional ceremonies".
+   Yes, this is a taste issue, but since I'm maintaining this mess,
+   I get to make the call.
+   (Note that this is *NOT* an objection to non-character-oriented
+   network connections being deemed "binary", because those really
+   *can* be streams of arbitrary bits, or, at least, arbitrary bytes.
+   But if you're going to name a particular string representation for
+   those, then you need something that evokes what the representation
+   actually is ("tilde-escaped strings") and differentiates it from
+   the other representations concurrently in use (e.g., "raw bytes")).
+   Ok, done now.
+   We have new function names:
+       moobinary_to_raw_bytes()
+       stream_add_moobinary_from_raw_bytes()
+-- Various other improvements in the streams API:
+   -- Allocation is now more tolerant of stupid arguments.
+      allocation is also now by powers of 2 with minimum size being 32
+      so there should be less fragmentation and more cache friendliness.
+   -- Pretty much everything in userland has to be using streams now
+      since we often need to check .max_string_concat limits; if you
+      let the stream innards do it, then it's usually just a matter of
+      wrapping a TRY_STREAM (now lives in streams.h) around whatever
+      is doing the work, then putting in FINALLY clauses and volatile
+      declarations as needed.
+   -- 'stream_beginfill()' and 'stream_endfill()' provide parameter
+      pairs of (fixed-buffer, size) to those APIs that need them; the
+      stream can accumulate results directly, a copying step goes
+      away, and there are clean ways to loop it if it takes more than
+      one call to get everything (I suspect rather a lot of the network
+      code could benefit from this).
+   -- Two general trends that I expect to continue:
+      -- functions that return byte arrays getting converted
+         to functions that take a stream argument and write to it.
+      -- eliminating inaccessible static streams whose storage does
+         not get reclaimed until the function that owns them gets
+         called again, which may never happen and so we waste space.
+   -- Feel free to use str_dup_then_free_stream() EVERYWHERE.
+-- Individual characters are now explicitly int32_t,
+   even for the non-Unicode server.
+-- 'sublist()', 'listrangeset()', 'substr()', 'strrangeset()'
+   now use from..after APIs rather than from..to APIs.
+   Among other things, this eases the transition to Unicode
+   for the string calls, but also, life is generally easier
+   in C if you use half-open intervals for everything.
+-- 'make_string_pack()' is added to the make-*-pack menagerie.
+-- parse_number() has been completely rewritten, has a new API,
+   and *all* parsing of numbers for MOO language purposes
+   (i.e., yacc for verbcode and tonum()/etc implementations)
+   is consolidated there to e.g., ensure uniform treatment
+   of Unicode digits and ensure we do not silently corrupt
+   numbers that are actually outside of Num bounds.
+   (Addressing the issue of tonum() and toobj() returning 0
+   to reflect a parse failure, because they predate the
+   Cretaceous-Tertiary boundary and subsequent discovery by small
+   mammals of Error Raising, is deferred to a future release)
+-- Reading of database files has been significantly revised.
+   -- New API for functions of the form 'db_io_read_<thing>()':
+      instead of returning the value read, they now take an extra
+      (non-NULL) pointer-to-lvalue parameter and return a boolean
+      indicating if the read succeeded, in which case the location
+      referenced is assigned, with distinct functions for reading
+      different widths of integer.  Encountering an out of range
+      number is now a failure.
+   -- Encountering a premature EOF is now a failure.
+   -- Database files are now required to have a final newline.
+   -- Calls to scanf() or other members of that family of functions
+      have been removed and their use is now entirely FORBIDDEN.
+      The subset of that functionality that we need for reading
+      database files has been re-implemented as (new function)
+             dbio_scxnf()
+      (purposefully unpronounceable, but I'll tolerate "skick-sniff")
+      which allows using the format specifiers we need so that modern
+      compilers can typecheck these calls as if they were scanf()
+      calls, but this is otherwise an entirely new function that
+      behaves differently.  See db_io.h for details.
+-- New functions:
+       register_db_load_hooks() and register_db_save_hooks()
+   Each registers a before-after pair of functions to be called on
+   initial database load and each database write, respectively.
+   to be used in...
+-- The register_<fname>() functions that various files use to
+   register builtin functions at server startup, are now collected
+   by an entirely automatic process (see bf_register.{c,h,sh}).
+   So now all you have to do is define a function with a name
+   having that pattern with void return and (void) arguments
+   in one of the known common .c files or one of the extension
+   sources (XT_CSRCS); it will be found and a call to it will be
+   added to do_all_registrations() in (new file) bf_register.c.
+-- Naturally, 'git log' has more details on everything.
+   To make the most sense of the history since 1.8.4/Codepoint,
+   I will recommend the following 'git log' arguments:
+                  @ ^v1.8.5^@ ^v1.8.4^@
+   This will show 3 lines of development, all of which have
+   fictitious elements:
+   -- a main line starting from 1.8.4 (with maxconcat, int32, and
+      boxed floats), then adding non-unicode miscellaneous features
+      (autoconf, 64-bit ints, float-unboxing, dbread, etc),
+      then adding unicode (which is probably the best exposition of
+      the unicode changes, since it was done last),
+   -- a Codepoint line starting from 1.8.5 (with Unicode, int64,
+      unboxed floats, and *some* other non-Unicode features),
+      adding the rest of the non-Unicode features, then maxconcat
+      (which may be the best exposition of maxconcat, since it was
+      done last),
+   -- a "reconciliation branch" that starts all the way back
+      at WAIF_ROOT_4, introduces int64, the FlBox abstraction
+      and the other non-Unicode miscellaneous features and fixes
+      first, and then it splits into
+      -- the 'w3' branch that does maxconcat joining into
+         the mainline right before it starts on unicode
+      -- the 'u4' branch that does unicode joining into
+         Codepoint right before it starts on maxconcat
+   then the final Codepoint merge followed by the
+   other extensions being introduced.  In all cases, the
+   build/autoconf/extension-framework changes are early;
+   so most commits after 'introduce extensions.ac' on each of the
+   three lines should build (I have not checked them all).
+-- Style issues:
+   -- .c and .h file prologues (the top of the file with the #include
+      declarations) have been systematically normalized and a few new
+      style rules being set.
+   -- experiments.c is the new name for what was extensions.c,
+      renamed to to avoid confusion with the extension framework,
+      restored as a blank, playground file (Jay Carlson's verb cache
+      code is now in db_tune.c), and also, with (new file with zero
+      actual code) experiments.h, set up as an example to illustrate
+      the new rules.
+   -- Tabs in .m4 or .ac files are now frowned upon.
+   -- Trailing whitespace is now forbidden.
