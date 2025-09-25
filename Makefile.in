@@ -178,16 +178,27 @@ distclean-all: distclean
 
 gitclean-all: gitclean distclean-all
 
-clean:
-	rm -f $(OBJS) $(DFILES) core parser.c y.tab.c y.tab.h y.output \
-	  keywords.c version_src.h version_make.* \
+clean: clean-keeps-moo clean-keeps-parser clean-keeps-keywords
+	rm -f $(OBJS) $(DFILES) core \
+	  version_src.h version_make.* \
 	  bf_register.h bf_register.c bf_register.lastrun
 
 distclean: clean
-	rm -f config.h options.h Makefile config.status config.cache config.log version.lastck config.lastrun
+	rm -f config.h options.h Makefile config.status config.cache config.log config.lastrun \
+            version.lastck version_options.h
 
 gitclean: distclean
-	rm -rf configure autom4te.cache version.fixed version_options.*
+	rm -rf configure autom4te.cache version.fixed
+
+clean-keeps-keywords:
+	rm -f keywords.c
+
+clean-keeps-parser:
+	rm -f parser.c y.tab.h y.output
+
+clean-keeps-moo:
+	rm -f moo
+
 
 .SUFFIXES: .c .o .i .s
 .c.o:
