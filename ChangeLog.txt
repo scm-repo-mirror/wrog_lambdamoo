@@ -2313,12 +2313,14 @@ Version 1.8.0p6
 -- Fixed bug where toint() accepted arguments that were not
    syntactically correct (e.g., "-+5", "- 3").  Report from tijmen@dse.nl.
 
+
 Version 1.8.1, 10 January 2000
 -- New maintainers: Ben Jackson (ben@ben.com) and Jay Carlson (nop@nop.com)
 -- No significant user-visible changes to server behavior.
 -- Many internal memory usage bugs fixed.
 -- Server is significantly (200-400%) faster.
 -- Merged rX series of patches.
+
 **** Changes significant to programmers, wizards, and people compiling
      the server follow:
 -- After modifying properties on $server_options, wizards must call
@@ -2359,6 +2361,7 @@ Version 1.8.1, 10 January 2000
 -- There's primitive support for the 32-bit memory model for reducing
    memory usage on the DEC Alpha using DEC cc.  See
    SHORT_ALPHA_VAR_POINTERS in structures.h.
+
 **** Critical changes significant to server hackers follow:
 -- All C source code was processed with GNU indent using the settings
    in the file `.indent.pro'.  This is an attempt to normalize coding
@@ -2373,12 +2376,14 @@ Version 1.8.1, 10 January 2000
 -- Server hackers should read README.rX for more information on
    changes to server internals.
 
+
 Version 1.8.2, circa November 2006 (not released)
 Because of the long time with no release after 1.8.1, some distributors began
 to distribute 1.8.1 plus patches as 1.8.2.  To avoid confusion, we have opted
 to make the next official release version 1.8.3.
 
-Version 1.8.3, circa June 2008 (not released)
+
+Version 1.8.3, 20 June 2008 (not released)
 -- SF bug #887464: fixed a bug in the server's startup processing, in which it
    scans for unknown built-in functions in active verbs (Thanks luke-jr and
    Gavin Lambert for reports and patches.)
@@ -2395,6 +2400,7 @@ Version 1.8.3, circa June 2008 (not released)
    before being physically written to the disk
 -- Fixed uninitialized fileds that caused occasional weirdness in size accounting
    for forked tasks and wrong line numbers in decompile
+
 **** Changes relevant to programmers / wizards:
 -- SF bug #227620: add_verb() now returns (positive integer) verb index
 -- bf_crypt() now passes salts longer than 2 characters to the underlying C
@@ -2432,6 +2438,7 @@ Version 1.8.3, circa June 2008 (not released)
    (This fixes a bug whereby read() sometimes snarfed out-of-band lines.)
 -- Setting connection_option "binary" now disables all out-of-band processing
    on that connection.
+
 **** Changes significant to people compiling and running the server:
 -- several fixes for warnings, wrong use of free() vs myfree(), etc.
 -- fixes to support modern toolchains (bison, autoconf, ...)
@@ -2455,64 +2462,147 @@ Version 1.8.3, circa June 2008 (not released)
    server; stderr is only used if no logfile (-l) is specifed.)
 -- Added new compile option INPUT_APPLY_BACKSPACE to process
    backspace/delete characters on nonbinary connections (patch 1571939)
+
 **** Changes relevant to server hackers:
 -- New call_verb2() accepts verb name that is a MOO string (ie, str_ref-able)
 -- str_hash() replaced with a faster (and better?) string hash function
 
 
-Version 1.8.4, in progress
+Version 1.8.4, 23 April 2010 (not released, version number is post hoc (+))
+(...originally "in progress", except I noticed in 2022 that the same
+executable had been running at LambdaMOO for nearly 12 years and
+decided then and there that it had been sufficiently tested to deserve
+a retroactive version designation.  This will necessarily be the
+single longest running version of the LambdaMOO server, ever, given
+that the impending end of the world in 2038 will make it impossible to
+break this record -- now up to 15 years as of September 2025. [--wrog])
+
+-- (+) Extant executables of the 1.8.4 server identify as "1.8.3+47"
 -- Fix FOR statement infinite loop when $maxint is the upper limit.
--- Fix random($maxint) to return in correct range.
+-- Fix random(), which was sometimes returning 0 on $maxint,
+   not dealing correctly with arguments beyond RAND_MAX,
+   and returning non-uniform results for m!=2^k.
+   A typical screw case for that 3rd situation:
+
+        n = 0;
+        m = $maxint/3;
+        for i in [1..10000]
+          if (random(2*m) > m)
+            n = n+1;
+          endif
+        endfor
+        return n;
+
+    which should return something between 4900-5100,
+    The prior server would typically return ~3333.
+
 -- Fix memory leak in flush_input.
 -- Fix memory leak in run_interpreter/save_handler_info
    in the case where FINALLY returns/breaks/suspends.
--- Fix random(m) to be uniformly distributed for m!=2^k
-   to allow for m > RAND_MAX
+   (turning non-local exits from FINALLY into errors would also solve
+   this problem; jury is still out on whether that's the Right Thing.)
 -- Refactored bf_listinsert/bf_listappend to reduce refcounts
+-- Some bad str_dup() usages that may have caused MEMO_STRLEN to fail
+   have been eliminated (MEMO_STRLEN may be safer now but is still
+   off by default).
 
 **** Changes relevant to programmers / wizards:
+-- The caching regime for $server_options has now been extended
+   beyond .protect_<function> to .protect_<prop> and some of the
+   other properties that shadow compiled-in options, meaning
+   there are now more situations where the new value will not
+   take effect until a load_server_options() call.
+-- Setting $server_options.protect_<prop> true now forbids
+   non-wizard *writes* as well as non-wizard reads
+   (an obvious oversight in this feature's original specification).
+-- Restarting the server from a saved checkpoint
+   does an implicit load_server_options() -- this likely
+   always was the case but it's worth saying explicitly.
 -- server_version() now takes an argument so that information
    about the server build can be available in-db.
--- $server_options.protect_<prop> now prevents non-wizard *writes*
-   and must be followed by load_server_options() to take effect
 -- New $server_options .max_list_concat and .max_string_concat
-   to limit the size of user-constructed lists and strings
--- New $server_option .max_concat_catchable to govern whether
+   limit the size of user-constructed lists and strings
+-- New $server_option .max_concat_catchable governs whether
    violating new size limits causes out-of-seconds or E_QUOTA error
 
 **** Changes significant to people compiling and running the server:
--- Source/build information that is compiled into the server now
-   comes from version_src.h.  Purpose and format of this file is
-   now described in version_src.txt.
--- New GNUmakefile invokes optional ./version_hook which can be linked
-   to any script that will generate a version_src.h file from source
-   control information as appropriate.  (You can also have a static
-   version_src.h file that #defines the VERSION_* macros.)
--- IGNORE_PROP_PROTECTED deprecated since no longer necessary
+-- IGNORE_PROP_PROTECTED is deprecated since it is no longer necessary.
 -- New options DEFAULT_MAX_LIST_CONCAT, DEFAULT_MAX_STRING_CONCAT,
    MIN_LIST_CONCAT_LIMIT, MIN_STRING_CONCAT_LIMIT to set defaults
    and lower bounds for .max_list_concat and .max_string_concat
 
 **** Changes relevant to server hackers:
--- Added HACKING as an index to the various server-hacking
+-- Renamed functions:
+     current_version() -> current_db_version()
+     check_version() -> check_db_version()
+       (these both refer to database format version, not server version.)
+-- Renamed function:
+     load_server_protect_flags() -> load_server_protect_function_flags()
+       (since there are now other protect flags loaded elsewhere)
+-- Revised to use streams:
+     raw_bytes_to_moobinary() -> stream_add_moobinary_from_raw_bytes()
+     strsub() -> stream_add_strsub()
+     value_to_literal() -> unparse_value()
+     list2str() -> stream_add_tostr()
+       (these are all prep for raising stream exceptions)
+-- server_flag_option() now takes an explicit default argument
+-- BI_KILL and make_kill_pack have been generalized to
+      BI_ABORT and make_abort_pack(enum abort_reason)
+         make_kill_pack() -> make_abort_pack(ABORT_KILL)
+     and now cover out-of-ticks (ABORT_TICKS) and
+     out-of-seconds (ABORT_SECONDS) task termination.
+-- value2str now does an add_ref()
+-- New stream exception API to catch malloc failures with
+   corresponding TRY_STREAM macro.
+   make_space_pack() introduced as a builtin return for these
+   situations (can either be an abort or an error depending on
+   $server_options.max_concat_catchable).
+
+**** Changes relevant to server hackers
+**** that were deprecated/undone in 1.9.0
+-- [1.8.4] Added HACKING as an index to the various server-hacking
    documentation files scattered about the source directory.
    (do we need a doc directory?)
--- If you add or remove #defines from options.h, you should update
-   version_opt_gen.pl accordingly and rerun it to generate a new
-   version_options.h, which then populates the group returned
-   by server_version("options").
--- Some prep work for 64-bit MOO currently isolated in numbers.c
-   (will need autoconf update to work properly)
--- server_flag_option() now takes an explicit default argument
--- Rename load_server_protect_flags() to
-   load_server_protect_function_flags()
--- make_abort_pack(ABORT_KILL) replaces make_kill_pack()
-   builtin functions can now cause other kinds of aborts
--- Added caching regime for server options other than
-   .protect_<function>
--- List/string API changes (prep for raising stream exceptions)
-   raw_bytes_to_moobinary -> stream_add_moobinary_from_raw_bytes
-   strsub -> stream_add_strsub
-   value_to_literal -> unparse_value
-   list2str -> stream_add_tostr
--- New stream exception API to catch malloc failures
+   [1.9.0] Removed HACKING as being yet another file to keep up to
+   date for too little added value.  Instead, documentation files now
+   all either .txt or .md files with have names beginning with capital
+   letters; they are not really that hard to find.  (We can move them
+   to a doc directory when there are more of them.)
+
+(the rest all have to do with how server_version(1) is implemented)
+-- [1.8.4] version_src.h is an external file supplied by an ad hoc
+   process not under version control.  You need to read and understand
+   version_src.txt, so that you can write your own hooks to get
+   information into server_version(1).
+   [1.9.0] Generation of server_version(1) information including
+   version_src.h is now completely automatic; if you build straight
+   from git or the tarball, it should Just Work.  Version_Source.md
+   has details and new ./configure arguments for customizing this process.
+
+-- [1.8.4] New GNUmakefile invokes optional ./version_hook to run your
+   script for generating version_src.h.  Or version_src.h can be static.
+   [1.9.0] GNUMakefile is no longer needed -- if you *have* written a
+   custom one solely for the purposes of populating server_version(1)
+   you should delete it.  ./version_hook is no longer referenced.
+   ./configure now determines if the 'make' program in use is GNU make
+   (or some other 'make' that supports the MAKEOVERRIDES variable? --
+   I'm not sure there are any) and either inserts material into
+   Makefile directly or disables creation of the "make" group in
+   server_version(1) by default (since populating the "make" group
+   currently depends on MAKEOVERRIDES).
+
+   Also, now that ./configure takes arguments, and there's an
+   extension framework for creating variant servers, extra arguments
+   to 'make' should ONLY now be needed for special purposes like unit
+   testing of individual files or creating intrumented builds with
+   tools like valgrind.
+
+-- [1.8.4] If you add or remove #defines from options.h, you should
+   update version_opt_gen.pl accordingly and rerun it to generate a
+   new version_options.h, which then populates the group returned by
+   server_version("options").
+   [1.9.0] ./config.status now generates options.h from options.h.in.
+   version_opt_gen.pl is no longer a part of the process.  You will
+   instead have an .ac file to edit depending on whether your option
+   is extension-specific (extensions.ac) or is common to all server
+   builds (options.ac).
