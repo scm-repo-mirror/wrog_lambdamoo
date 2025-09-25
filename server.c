@@ -1159,6 +1159,21 @@ boot_player(Objid player)
 
     if (h)
 	h->disconnect_me = 1;
+
+    /* player is extremely unlikely to be on both lists, but we
+     * cover this case anyway, see write_active_connections()
+     */
+    if (in_emergency_mode && (TYPE_LIST == checkpointed_connections.type)) {
+	int i = checkpointed_connections.v.list[0].v.num;
+	for (; i > 0; --i) {
+	    if (player == checkpointed_connections.v.list[i].v.list[1].v.obj) {
+		checkpointed_connections
+		    = listdelete(checkpointed_connections, i);
+		break;
+	    }
+	}
+
+    }
 }
 
 void
@@ -1542,18 +1557,40 @@ bf_connected_players(Var arglist, Byte next UNUSED_, void *vdata UNUSED_, Objid 
     int show_all = (nargs >= 1 && is_true(arglist.v.list[1]));
     int count = 0;
     Var result;
+    /* all checkpointed connections are deemed disconnected immediately
+       after emergency mode so that disfuncs do not see each other,
+       so emergency mode is the only time we see them here.
+     */
+    int have_ckpted = (in_emergency_mode &&
+		       (TYPE_LIST == checkpointed_connections.type));
+    int i;
 
     free_var(arglist);
+    if (have_ckpted) {
+	count = checkpointed_connections.v.list[0].v.num;
+	if (!show_all)
+	    for (i = count; i >= 1; --i)
+		/* best we can do; c_c does not record who was 'connected' */
+		if (checkpointed_connections.v.list[i].v.list[1].v.obj < 0)
+		    --count;
+    }
     for (h = all_shandles; h; h = h->next)
 	if ((show_all || h->connection_time != 0) && !h->disconnect_me)
-	    count++;
+	    ++count;
 
     result = new_list(count);
     count = 0;
 
+    if (have_ckpted)
+	for (i = 1; i <= checkpointed_connections.v.list[0].v.num; ++i) {
+	    Var li1 = checkpointed_connections.v.list[i].v.list[1];
+	    if (show_all || !(li1.v.obj < 0))
+		result.v.list[++count] = var_ref(li1); /* force of habit */
+	}
+
     for (h = all_shandles; h; h = h->next) {
 	if ((show_all || h->connection_time != 0) && !h->disconnect_me) {
-	    count++;
+	    ++count;
 	    result.v.list[count].type = TYPE_OBJ;
 	    result.v.list[count].v.obj = h->player;
 	}
