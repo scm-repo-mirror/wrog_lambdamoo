@@ -251,8 +251,10 @@ is_true(Var v)
 int
 equality(Var lhs, Var rhs, int case_matters)
 {
-    if (lhs.type == TYPE_FLOAT || rhs.type == TYPE_FLOAT)
+    if (lhs.type == TYPE_FLOAT)
 	return do_equals(lhs, rhs);
+    else if (rhs.type == TYPE_FLOAT)
+	return do_equals(rhs, lhs);
     else if (lhs.type != rhs.type)
 	return 0;
     else {

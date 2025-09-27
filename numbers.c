@@ -471,12 +471,28 @@ matherr(struct exception *x)
 int
 do_equals(Var lhs, Var rhs)
 {				/* LHS == RHS */
-    /* At least one of LHS and RHS is TYPE_FLOAT */
+    /* LHS is TYPE_FLOAT   */
+    /* RHS can be anything */
 
-    if (lhs.type != rhs.type)
+    FlNum lfnum = fl_unbox(lhs.v.fnum);
+
+    if (rhs.type == TYPE_FLOAT)
+	return lfnum == fl_unbox(rhs.v.fnum);
+
+#if !PRAGMA_ON(FLOATINT_EQ)
+    return 0;
+
+#else  /* PRAGMA_ON(FLOATINT_EQ) */
+
+    if (rhs.type != TYPE_INT)
 	return 0;
-    else
-	return fl_unbox(lhs.v.fnum) == fl_unbox(rhs.v.fnum);
+
+    FlNum lceil = FLOAT_FN(ceil)(lfnum);
+    return (lfnum == lceil &&
+	    inrange_for_float_to_int(lfnum) &&
+	    (Num)lceil == rhs.v.num);
+
+#endif  /* PRAGMA_ON(FLOATINT_EQ) */
 }
 
 /*

@@ -125,6 +125,7 @@
 /* For temporary fake implementation of pragmas that will go away: */
 #define PG_ALL             -1
 #define PG_FLOATINT_INEQ  0x1
+#define PG_FLOATINT_EQ    0x2
 #define PG_TONUM_RAISE    0x4
 #define PG_TOFLOAT_EFLOAT 0x8
 
